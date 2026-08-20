@@ -132,7 +132,7 @@ export default function SuperAdminDashboard() {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
     const meta = user.user_metadata || {}
     const role = profile?.role || meta.role || 'usuario'
@@ -774,8 +774,8 @@ export default function SuperAdminDashboard() {
     await cargarDatosGlobales()
   }
 
-  const handleAprobarGestor = async (gestor: any) => {
-    if (!confirm(`¿Aprobar y activar la solicitud de "${gestor.nombre_completo || gestor.email}" como Gestor Municipal?`)) {
+  const handleValidarGestor = async (gestor: any) => {
+    if (!confirm(`¿Validar y conceder permisos de Gestor Municipal a "${gestor.nombre_completo || gestor.email}"?`)) {
       return
     }
 
@@ -785,27 +785,28 @@ export default function SuperAdminDashboard() {
       .eq('id', gestor.id)
 
     if (error) {
-      alert('Error al aprobar gestor: ' + error.message)
+      alert('Error al validar gestor: ' + error.message)
     } else {
-      alert(`Gestor "${gestor.nombre_completo || gestor.email}" aprobado y activado correctamente.`)
+      alert(`¡Gestor "${gestor.nombre_completo || gestor.email}" validado con éxito! Ya tiene acceso completo al panel de su municipio.`)
       await cargarDatosGlobales()
     }
   }
 
-  const handleRechazarGestor = async (gestor: any) => {
-    if (!confirm(`¿Rechazar / pausar la solicitud de "${gestor.nombre_completo || gestor.email}"? No tendrá acceso al panel.`)) {
+  const handleRechazarYBorrarGestor = async (gestor: any) => {
+    if (!confirm(`¿Estás seguro de que deseas rechazar y borrar la solicitud de "${gestor.nombre_completo || gestor.email}"?`)) {
       return
     }
 
+    // Actualizar estado a rechazado y desvincular municipio
     const { error } = await supabase
       .from('profiles')
-      .update({ estado_aprobacion: 'rechazado' })
+      .update({ role: 'usuario', estado_aprobacion: 'rechazado', municipio_id: null })
       .eq('id', gestor.id)
 
     if (error) {
-      alert('Error al rechazar gestor: ' + error.message)
+      alert('Error al rechazar solicitud: ' + error.message)
     } else {
-      alert(`Solicitud rechazada correctamente.`)
+      alert(`Solicitud rechazada y eliminada correctamente.`)
       await cargarDatosGlobales()
     }
   }
@@ -1102,13 +1103,18 @@ export default function SuperAdminDashboard() {
           </button>
           <button 
             onClick={() => setActiveTab('gestores')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition flex items-center gap-2 ${
               activeTab === 'gestores'
                 ? 'border-emerald-500 text-emerald-400 bg-stone-900/50 rounded-t-xl'
                 : 'border-transparent text-stone-400 hover:text-stone-200'
             }`}
           >
-            👥 Gestores Municipales ({gestores.length})
+            <span>👥 Gestores Municipales ({gestores.length})</span>
+            {gestores.filter(g => g.estado_aprobacion === 'pendiente').length > 0 && (
+              <span className="bg-amber-500 text-stone-950 text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce shadow-md flex items-center gap-1">
+                <span>⏳</span> {gestores.filter(g => g.estado_aprobacion === 'pendiente').length}
+              </span>
+            )}
           </button>
           <button 
             onClick={() => setActiveTab('iot')}
@@ -2124,29 +2130,29 @@ export default function SuperAdminDashboard() {
                                 {estadoAprobacion === 'pendiente' && (
                                   <>
                                     <button 
-                                      onClick={() => handleAprobarGestor(g)}
-                                      className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1"
-                                      title="Aprobar solicitud y activar acceso"
+                                      onClick={() => handleValidarGestor(g)}
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                                      title="Validar gestor y conceder permisos"
                                     >
-                                      ✅ Aprobar
+                                      <span>✅</span> Validar Gestor
                                     </button>
                                     <button 
-                                      onClick={() => handleRechazarGestor(g)}
-                                      className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
-                                      title="Rechazar solicitud"
+                                      onClick={() => handleRechazarYBorrarGestor(g)}
+                                      className="bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                                      title="Rechazar y borrar solicitud"
                                     >
-                                      ❌ Rechazar
+                                      <span>🗑️</span> Rechazar Gestor
                                     </button>
                                   </>
                                 )}
 
                                 {estadoAprobacion === 'rechazado' && (
                                   <button 
-                                    onClick={() => handleAprobarGestor(g)}
-                                    className="bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/80 px-3 py-1.5 rounded-xl text-xs font-bold transition"
-                                    title="Reactivar y aprobar gestor"
+                                    onClick={() => handleValidarGestor(g)}
+                                    className="bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/80 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                                    title="Reactivar y validar gestor"
                                   >
-                                    ✅ Reactivar
+                                    <span>✅</span> Validar / Reactivar
                                   </button>
                                 )}
 
@@ -2168,7 +2174,7 @@ export default function SuperAdminDashboard() {
                                 </button>
                                 {estadoAprobacion === 'aprobado' && (
                                   <button 
-                                    onClick={() => handleRechazarGestor(g)}
+                                    onClick={() => handleRechazarYBorrarGestor(g)}
                                     className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
                                     title="Pausar o deshabilitar gestor"
                                   >
