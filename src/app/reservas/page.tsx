@@ -906,28 +906,40 @@ export default function PortalReservas() {
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2 sm:gap-4">
-          <div 
-            onClick={handleLogoClick}
-            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
-              F
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+          {/* IZQUIERDA: Frontoiak y debajo usuario */}
+          <div className="flex flex-col items-start min-w-0">
+            <div 
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+                F
+              </div>
+              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+                Frontoiak
+              </span>
             </div>
-            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              Frontoiak
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
-            <LanguageSelector variant="light" />
 
             {user ? (
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+              <button 
+                onClick={() => router.push('/auth/ajustes')}
+                title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
+                className="text-[11px] sm:text-xs font-semibold text-stone-500 hover:text-emerald-800 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+              >
+                👤 {user.profile?.nombre_completo || user.email} {user.profile?.role === 'admin' ? '(Admin)' : user.profile?.role === 'gestor_municipio' ? '(Gestor)' : ''}
+              </button>
+            ) : null}
+          </div>
+
+          {/* DERECHA: Cerrar sesión y debajo idiomas */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            {user ? (
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {user.profile?.role === 'admin' && (
                   <button 
                     onClick={() => router.push('/admin/super')}
-                    className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
+                    className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition shadow-xs flex items-center gap-1 flex-shrink-0"
                     title="Ir a la Consola Central Superadmin"
                   >
                     👑 {t.common.superadmin}
@@ -937,45 +949,40 @@ export default function PortalReservas() {
                 {user.profile?.role === 'gestor_municipio' && (
                   <button 
                     onClick={() => router.push('/admin/dashboard')}
-                    className="bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
+                    className="bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition shadow-xs flex items-center gap-1 flex-shrink-0"
                     title="Ir al Panel de Gestión Municipal"
                   >
                     🏛️ {t.common.dashboard}
                   </button>
                 )}
 
-                {/* BOTÓN DE ACCESO A AJUSTES DE USUARIO EN EL NOMBRE */}
-                <button 
-                  onClick={() => router.push('/auth/ajustes')}
-                  title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
-                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
-                >
-                  {user.profile?.nombre_completo || user.email} {user.profile?.role === 'admin' ? '(Admin)' : user.profile?.role === 'gestor_municipio' ? '(Gestor)' : ''}
-                </button>
-
                 <button 
                   onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
+                  className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
                 >
                   {t.common.logout}
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
+                  className="text-[11px] sm:text-xs font-bold text-stone-700 hover:text-emerald-700 px-2 py-1 rounded-lg transition whitespace-nowrap"
                 >
                   {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
+                  className="bg-emerald-700 text-white px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
                 >
                   {t.common.register}
                 </button>
               </div>
             )}
+
+            <div>
+              <LanguageSelector variant="light" />
+            </div>
           </div>
         </div>
       </header>

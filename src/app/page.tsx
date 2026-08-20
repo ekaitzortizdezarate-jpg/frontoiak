@@ -186,49 +186,51 @@ export default function Home() {
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2 sm:gap-4">
-          <div 
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
-              F
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+          {/* IZQUIERDA: Frontoiak y debajo usuario */}
+          <div className="flex flex-col items-start min-w-0">
+            <div 
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+                F
+              </div>
+              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+                Frontoiak
+              </span>
             </div>
-            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              Frontoiak
-            </span>
+            {user && (
+              <button 
+                onClick={() => router.push('/auth/ajustes')}
+                title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
+                className="text-[11px] sm:text-xs font-semibold text-stone-500 hover:text-emerald-800 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+              >
+                👤 {user.profile?.nombre_completo || user.email}
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
-            {/* SELECTOR DE IDIOMA */}
-            <LanguageSelector variant="light" />
-
+          {/* DERECHA: Cerrar sesión (o registro) y debajo idiomas */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {user ? (
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
-                <button 
-                  onClick={() => router.push('/auth/ajustes')}
-                  title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
-                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
-                >
-                  {user.profile?.nombre_completo || user.email}
-                </button>
-                <button 
-                  onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
-                >
-                  {t.common.logout}
-                </button>
-              </div>
+              <button 
+                onClick={handleSignOut}
+                className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
+              >
+                {t.common.logout}
+              </button>
             ) : (
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <Link 
-                  href="/auth/register"
-                  className="bg-emerald-700 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
-                >
-                  {t.common.register}
-                </Link>
-              </div>
+              <Link 
+                href="/auth/register"
+                className="bg-emerald-700 text-white px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-emerald-800 transition shadow-2xs whitespace-nowrap"
+              >
+                {t.common.register}
+              </Link>
             )}
+            <div>
+              <LanguageSelector variant="light" />
+            </div>
           </div>
         </div>
       </header>

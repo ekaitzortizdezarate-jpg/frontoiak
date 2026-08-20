@@ -1070,19 +1070,32 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900">
         <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
-                F
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+            {/* IZQUIERDA: Frontoiak y debajo usuario */}
+            <div className="flex flex-col items-start min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
+                  F
+                </div>
+                <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">Frontoiak</span>
               </div>
-              <span className="text-2xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
+                👤 {userProfile.nombre_completo || userProfile.email}
+              </span>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="text-stone-500 hover:text-stone-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 transition"
-            >
-              Cerrar Sesión
-            </button>
+
+            {/* DERECHA: Cerrar sesión y debajo idiomas */}
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <button
+                onClick={handleSignOut}
+                className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
+              >
+                {t.common.logout}
+              </button>
+              <div>
+                <LanguageSelector variant="light" />
+              </div>
+            </div>
           </div>
         </header>
 
@@ -1108,14 +1121,8 @@ export default function AdminDashboard() {
               <span className="font-bold text-emerald-800">🏛️ {userProfile.municipios?.nombre || 'Pendiente de asignar'}</span>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-stone-100">
-              <span className="font-bold text-stone-700">Correo Electrónico:</span>
-              <span className="font-mono text-stone-800">{userProfile.email}</span>
-            </div>
-            <div className="flex justify-between items-center py-1.5">
               <span className="font-bold text-stone-700">Estado:</span>
-              <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full border border-amber-200">
-                🟡 Pendiente de Aprobación
-              </span>
+              <span className="bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">En revisión</span>
             </div>
           </div>
 
@@ -1143,19 +1150,32 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-rose-100 selection:text-rose-900">
         <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
-                F
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+            {/* IZQUIERDA: Frontoiak y debajo usuario */}
+            <div className="flex flex-col items-start min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
+                  F
+                </div>
+                <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">Frontoiak</span>
               </div>
-              <span className="text-2xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
+                👤 {userProfile.nombre_completo || userProfile.email}
+              </span>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="text-stone-500 hover:text-stone-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 transition"
-            >
-              Cerrar Sesión
-            </button>
+
+            {/* DERECHA: Cerrar sesión y debajo idiomas */}
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <button
+                onClick={handleSignOut}
+                className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
+              >
+                {t.common.logout}
+              </button>
+              <div>
+                <LanguageSelector variant="light" />
+              </div>
+            </div>
           </div>
         </header>
 
@@ -1221,66 +1241,73 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2 sm:gap-4">
-          <div 
-            onClick={handleLogoClick}
-            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
-              F
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+          {/* IZQUIERDA: Frontoiak y debajo usuario */}
+          <div className="flex flex-col items-start min-w-0">
+            <div 
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+                F
+              </div>
+              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+                Frontoiak
+              </span>
             </div>
-            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              Frontoiak
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
-            <LanguageSelector variant="light" />
 
             {userProfile ? (
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+              <button 
+                onClick={() => router.push('/auth/ajustes')}
+                title={`${t.common.settings} (${userProfile.nombre_completo || userProfile.email})`}
+                className="text-[11px] sm:text-xs font-semibold text-stone-500 hover:text-emerald-800 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+              >
+                👤 {userProfile.nombre_completo || userProfile.email} {userProfile.role === 'admin' ? '(Admin)' : '(Gestor)'}
+              </button>
+            ) : null}
+          </div>
+
+          {/* DERECHA: Cerrar sesión (y botón superadmin) y debajo idiomas */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            {userProfile ? (
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {userProfile.role === 'admin' && (
                   <button 
                     onClick={() => router.push('/admin/super')}
-                    className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
+                    className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition shadow-xs flex items-center gap-1 flex-shrink-0"
                     title="Ir a la Consola Central Superadmin"
                   >
                     👑 {t.common.superadmin}
                   </button>
                 )}
 
-                {/* BOTÓN DE ACCESO A AJUSTES DE GESTOR EN EL NOMBRE */}
-                <button 
-                  onClick={() => router.push('/auth/ajustes')}
-                  title={`${t.common.settings} (${userProfile.nombre_completo || userProfile.email})`}
-                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
-                >
-                  {userProfile.nombre_completo || userProfile.email} {userProfile.role === 'admin' ? '(Admin)' : '(Gestor)'}
-                </button>
-
                 <button 
                   onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
+                  className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
                 >
                   {t.common.logout}
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
+                  className="text-[11px] sm:text-xs font-bold text-stone-700 hover:text-emerald-700 px-2 py-1 rounded-lg transition whitespace-nowrap"
                 >
                   {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
+                  className="bg-emerald-700 text-white px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
                 >
                   {t.common.register}
                 </button>
               </div>
             )}
+
+            <div>
+              <LanguageSelector variant="light" />
+            </div>
           </div>
         </div>
       </header>

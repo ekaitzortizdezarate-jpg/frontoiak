@@ -89,28 +89,34 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-3">
-          <div 
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 cursor-pointer group"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
-              F
+      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+          {/* IZQUIERDA: Frontoiak */}
+          <div className="flex flex-col items-start min-w-0">
+            <div 
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+                F
+              </div>
+              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+                Frontoiak
+              </span>
             </div>
-            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              Frontoiak
-            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <LanguageSelector variant="light" />
+          {/* DERECHA: Registro y debajo idiomas */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <Link 
               href="/auth/register"
-              className="bg-emerald-700 text-white hover:bg-emerald-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap"
+              className="bg-emerald-700 text-white hover:bg-emerald-800 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition shadow-2xs whitespace-nowrap"
             >
               {t.common.register}
             </Link>
+            <div>
+              <LanguageSelector variant="light" />
+            </div>
           </div>
         </div>
       </header>

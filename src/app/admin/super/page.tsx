@@ -1033,45 +1033,57 @@ export default function SuperAdminDashboard() {
       
       {/* CABECERA SUPERADMIN */}
       <header className="bg-stone-900/90 backdrop-blur-md border-b border-stone-800 sticky top-0 z-30 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md">
-              👑
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-black text-white tracking-tight">Frontoiak</span>
-                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
+          {/* IZQUIERDA: Frontoiak y debajo usuario */}
+          <div className="flex flex-col items-start min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-md">
+                👑
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg sm:text-xl font-black text-white tracking-tight">Frontoiak</span>
+                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] sm:text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                   Superadmin
                 </span>
               </div>
-              <p className="text-xs text-stone-400">{t.superadmin.title}</p>
             </div>
+            <button 
+              onClick={() => router.push('/auth/ajustes')}
+              title={`${t.common.settings} (${adminUser?.nombre_completo || adminUser?.email || 'Superadmin'})`}
+              className="text-[11px] sm:text-xs font-semibold text-stone-400 hover:text-emerald-400 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+            >
+              👤 {adminUser?.nombre_completo || adminUser?.email || 'Superadmin'}
+            </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <LanguageSelector variant="dark" />
+          {/* DERECHA: Cerrar sesión (y navegación) y debajo idiomas */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button 
+                onClick={() => router.push('/admin/dashboard')}
+                className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition flex items-center gap-1 shadow-2xs"
+                title="Ir al panel de gestión municipal local"
+              >
+                🏛️ {t.common.dashboard}
+              </button>
+              <button 
+                onClick={() => router.push('/reservas')}
+                className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition flex items-center gap-1 shadow-2xs"
+                title="Ir a la app de reservas de usuarios"
+              >
+                🎾 {t.common.reservations}
+              </button>
+              <button 
+                onClick={handleSignOut}
+                className="bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition shadow-2xs whitespace-nowrap"
+              >
+                {t.common.logout}
+              </button>
+            </div>
 
-            <button 
-              onClick={() => router.push('/admin/dashboard')}
-              className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
-              title="Ir al panel de gestión municipal local"
-            >
-              🏛️ {t.common.dashboard}
-            </button>
-            <button 
-              onClick={() => router.push('/reservas')}
-              className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
-              title="Ir a la app de reservas de usuarios"
-            >
-              🎾 {t.common.reservations}
-            </button>
-            <button 
-              onClick={handleSignOut}
-              className="bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
-            >
-              {t.common.logout}
-            </button>
+            <div>
+              <LanguageSelector variant="dark" />
+            </div>
           </div>
         </div>
       </header>
