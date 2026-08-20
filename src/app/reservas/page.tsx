@@ -31,6 +31,16 @@ export default function PortalReservas() {
   const [misFavoritos, setMisFavoritos] = useState<any[]>([])
   const [idsFavoritos, setIdsFavoritos] = useState<string[]>([])
 
+  // Incidencias del usuario
+  const [misIncidencias, setMisIncidencias] = useState<any[]>([])
+  const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
+  const [mostrarModalIncidencia, setMostrarModalIncidencia] = useState(false)
+  const [incidenciaFrontonId, setIncidenciaFrontonId] = useState('')
+  const [incidenciaTitulo, setIncidenciaTitulo] = useState('')
+  const [incidenciaDescripcion, setIncidenciaDescripcion] = useState('')
+  const [enviandoIncidencia, setEnviandoIncidencia] = useState(false)
+  const [todosLosFrontones, setTodosLosFrontones] = useState<any[]>([])
+
   // Calendario y Navegación de 4 semanas
   const [offsetSemanas, setOffsetSemanas] = useState(0)
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(new Date().toISOString().split('T')[0])
@@ -94,6 +104,8 @@ export default function PortalReservas() {
 
     await cargarMisReservas(user.id)
     await cargarMisFavoritos(user.id)
+    await cargarMisIncidencias(user.id)
+    await cargarTodosLosFrontones()
 
     setLoading(false)
   }
@@ -166,6 +178,133 @@ export default function PortalReservas() {
     } catch (err) {
       console.error('Error al cargar favoritos:', err)
     }
+  }
+
+  const cargarMisIncidencias = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('incidencias_fronton')
+        .select('*, frontones(id, nombre, municipios(nombre))')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        setMisIncidencias(data)
+        return
+      }
+
+      // Fallback en caso de que el join anidado falle
+      const { data: fallbackData } = await supabase
+        .from('incidencias_fronton')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (fallbackData) {
+        const frontonIds = Array.from(new Set(fallbackData.map((i: any) => i.fronton_id).filter(Boolean)))
+        if (frontonIds.length > 0) {
+          const { data: fronts } = await supabase
+            .from('frontones')
+            .select('id, nombre, municipios(nombre)')
+            .in('id', frontonIds)
+
+          const frontsMap = (fronts || []).reduce((acc: any, f: any) => {
+            acc[f.id] = f
+            return acc
+          }, {})
+
+          setMisIncidencias(fallbackData.map((i: any) => ({
+            ...i,
+            frontones: frontsMap[i.fronton_id]
+          })))
+        } else {
+          setMisIncidencias(fallbackData)
+        }
+      }
+    } catch (err) {
+      console.error('Error al cargar incidencias del usuario:', err)
+    }
+  }
+
+  const cargarTodosLosFrontones = async () => {
+    try {
+      const { data } = await supabase
+        .from('frontones')
+        .select('id, nombre, municipio_id, municipios(nombre)')
+        .order('nombre', { ascending: true })
+
+      setTodosLosFrontones(data || [])
+    } catch (err) {
+      console.error('Error al cargar todos los frontones:', err)
+    }
+  }
+
+  const abrirModalIncidencia = (fronton?: any) => {
+    if (fronton) {
+      setIncidenciaFrontonId(fronton.id)
+    } else if (frontonSeleccionado) {
+      setIncidenciaFrontonId(frontonSeleccionado.id)
+    } else if (todosLosFrontones.length > 0) {
+      setIncidenciaFrontonId(todosLosFrontones[0].id)
+    } else {
+      setIncidenciaFrontonId('')
+    }
+    setIncidenciaTitulo('')
+    setIncidenciaDescripcion('')
+    setMostrarModalIncidencia(true)
+  }
+
+  const handleCrearIncidencia = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user || !incidenciaFrontonId || !incidenciaTitulo.trim()) {
+      alert('Por favor selecciona un frontón e introduce un título para la incidencia.')
+      return
+    }
+
+    setEnviandoIncidencia(true)
+
+    let { error } = await supabase.from('incidencias_fronton').insert([{
+      fronton_id: incidenciaFrontonId,
+      user_id: user.id,
+      titulo: incidenciaTitulo.trim(),
+      descripcion: incidenciaDescripcion.trim(),
+      estado: 'pendiente'
+    }])
+
+    // Si falló por clave foránea (perfil no sincronizado), sincronizamos y reintentamos
+    if (error && error.message?.includes('foreign key')) {
+      const meta = user?.user_metadata || {}
+      const nombreFinal = user.profile?.nombre || user.profile?.nombre_completo || meta.nombre || meta.nombre_completo || 'Usuario'
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        nombre: nombreFinal,
+        nombre_completo: nombreFinal,
+        apellidos: user.profile?.apellidos || meta.apellidos || '',
+        role: user.profile?.role || meta.role || 'usuario'
+      })
+
+      const retry = await supabase.from('incidencias_fronton').insert([{
+        fronton_id: incidenciaFrontonId,
+        user_id: user.id,
+        titulo: incidenciaTitulo.trim(),
+        descripcion: incidenciaDescripcion.trim(),
+        estado: 'pendiente'
+      }])
+      error = retry.error
+    }
+
+    if (error) {
+      alert('Error al enviar la incidencia: ' + error.message)
+    } else {
+      alert('¡Incidencia enviada correctamente al municipio! Podrás consultar su estado y evolución en tu buzón.')
+      setIncidenciaTitulo('')
+      setIncidenciaDescripcion('')
+      setMostrarModalIncidencia(false)
+      await cargarMisIncidencias(user.id)
+    }
+
+    setEnviandoIncidencia(false)
   }
 
   const toggleFavorito = async (frontonId: string) => {
@@ -582,6 +721,11 @@ export default function PortalReservas() {
   const esFavoritoActual = frontonSeleccionado ? idsFavoritos.includes(frontonSeleccionado.id) : false
   const estadoFechaActual = calcularEstadoFechaReservable(fechaSeleccionada)
 
+  const misIncidenciasFiltradas = misIncidencias.filter(inc => {
+    if (filtroEstadoIncidencia === 'todas') return true
+    return inc.estado === filtroEstadoIncidencia
+  })
+
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
@@ -744,7 +888,115 @@ export default function PortalReservas() {
           )}
         </section>
 
-        {/* 3. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
+        {/* 3. SECCIÓN: MIS INCIDENCIAS Y AVISOS DE MANTENIMIENTO */}
+        <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-stone-100 pb-3">
+            <div>
+              <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                <span className="text-rose-500 text-base">⚠️</span>
+                Mis Incidencias y Mantenimiento
+              </h2>
+              <p className="text-xs text-stone-500">
+                Avisos de roturas, luz o desperfectos comunicados a los ayuntamientos
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => abrirModalIncidencia()}
+                className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95"
+              >
+                <span>+ Reportar Incidencia</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Filtros de estado */}
+          {misIncidencias.length > 0 && (
+            <div className="flex gap-1.5 text-xs font-bold flex-wrap">
+              <button 
+                onClick={() => setFiltroEstadoIncidencia('todas')}
+                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'todas' ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-50 text-stone-600 border-stone-200'}`}
+              >
+                Todas ({misIncidencias.length})
+              </button>
+              <button 
+                onClick={() => setFiltroEstadoIncidencia('pendiente')}
+                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'pendiente' ? 'bg-rose-600 text-white border-rose-600' : 'bg-rose-50 text-rose-700 border-rose-200'}`}
+              >
+                Pendientes ({misIncidencias.filter(i => i.estado === 'pendiente').length})
+              </button>
+              <button 
+                onClick={() => setFiltroEstadoIncidencia('en_curso')}
+                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'en_curso' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200'}`}
+              >
+                En curso ({misIncidencias.filter(i => i.estado === 'en_curso').length})
+              </button>
+              <button 
+                onClick={() => setFiltroEstadoIncidencia('resuelta')}
+                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'resuelta' ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}
+              >
+                Resueltas ({misIncidencias.filter(i => i.estado === 'resuelta').length})
+              </button>
+            </div>
+          )}
+
+          {misIncidenciasFiltradas.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-sm text-stone-400 italic">
+                {misIncidencias.length === 0 
+                  ? 'No has reportado ninguna incidencia todavía. Si ves algún desperfecto o avería en un frontón, pulsa en "+ Reportar Incidencia" para avisar al ayuntamiento correspondiente.'
+                  : 'No tienes incidencias en esta categoría.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {misIncidenciasFiltradas.map((inc) => {
+                let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                let estadoTexto = '⏳ Pendiente de revisión'
+                let descEstado = 'El municipio aún no ha comenzado la revisión'
+
+                if (inc.estado === 'en_curso') {
+                  badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                  estadoTexto = '🔧 En curso / En reparación'
+                  descEstado = 'El municipio está trabajando en solucionar este aviso'
+                } else if (inc.estado === 'resuelta') {
+                  badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                  estadoTexto = '✅ Resuelta / Solucionado'
+                  descEstado = 'El municipio ha dado por reparada esta incidencia'
+                }
+
+                return (
+                  <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center shadow-2xs">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-stone-900 text-sm">{inc.titulo}</span>
+                        <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
+                          🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
+                        </span>
+                      </div>
+                      {inc.descripcion && (
+                        <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                      )}
+                      <span className="text-[10px] text-stone-400 font-medium block">
+                        📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
+                        {estadoTexto}
+                      </span>
+                      <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* 4. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
         <section className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden transition-all duration-300">
           <div 
             onClick={() => setBuscadorAbierto(!buscadorAbierto)}
@@ -849,16 +1101,26 @@ export default function PortalReservas() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => toggleFavorito(frontonSeleccionado.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 ${
-                    esFavoritoActual 
-                      ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100' 
-                      : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-stone-100'
-                  }`}
-                >
-                  <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button 
+                    onClick={() => toggleFavorito(frontonSeleccionado.id)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 ${
+                      esFavoritoActual 
+                        ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100' 
+                        : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-stone-100'
+                    }`}
+                  >
+                    <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => abrirModalIncidencia(frontonSeleccionado)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center gap-1.5 transition active:scale-95 shadow-2xs"
+                    title="Avisar de rotura o desperfecto en este frontón"
+                  >
+                    <span>⚠️ Avisar Incidencia</span>
+                  </button>
+                </div>
               </div>
 
               {/* VISTA PREVIA DE 3 DÍAS */}
@@ -1187,6 +1449,95 @@ export default function PortalReservas() {
                   )
                 })}
               </div>
+            </div>
+          </div>
+        )}
+        {/* MODAL CREAR INCIDENCIA */}
+        {mostrarModalIncidencia && (
+          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-stone-200 space-y-5 animate-in fade-in zoom-in duration-150">
+              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-black">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-stone-900">Comunicar Incidencia al Municipio</h3>
+                    <p className="text-xs text-stone-500">Informa de desperfectos, averías de luz o mantenimiento</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setMostrarModalIncidencia(false)}
+                  className="text-stone-400 hover:text-stone-700 text-xl font-bold w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCrearIncidencia} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                    1. Frontón Afectado *
+                  </label>
+                  <select
+                    value={incidenciaFrontonId}
+                    onChange={(e) => setIncidenciaFrontonId(e.target.value)}
+                    required
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  >
+                    <option value="">Selecciona el frontón...</option>
+                    {todosLosFrontones.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.nombre} {f.municipios?.nombre ? `(${f.municipios.nombre})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                    2. Título / Asunto *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="ej. Luces de cuadro 4 fundidas, red rota, goteras..."
+                    value={incidenciaTitulo}
+                    onChange={(e) => setIncidenciaTitulo(e.target.value)}
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                    3. Descripción Detallada
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Explica qué ocurre detalladamente para que el personal de mantenimiento municipal pueda revisarlo..."
+                    value={incidenciaDescripcion}
+                    onChange={(e) => setIncidenciaDescripcion(e.target.value)}
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={enviandoIncidencia}
+                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
+                  >
+                    {enviandoIncidencia ? 'Enviando al municipio...' : 'Enviar Incidencia'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarModalIncidencia(false)}
+                    className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
