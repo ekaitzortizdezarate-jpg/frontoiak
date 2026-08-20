@@ -12,6 +12,16 @@ export default function Home() {
 
   useEffect(() => {
     checkUserSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        await checkUserSession()
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const checkUserSession = async () => {
@@ -34,7 +44,36 @@ export default function Home() {
         role: meta.role || 'usuario',
         email: user.email
       }
+
+      // Si el perfil no existía aún en la tabla profiles (ej. recién confirmado por correo), sincronizarlo
+      if (!profile) {
+        const nombreFinal = finalProfile.nombre_completo || meta.nombre || 'Usuario'
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          nombre: nombreFinal,
+          nombre_completo: nombreFinal,
+          apellidos: finalProfile.apellidos || '',
+          role: finalProfile.role || 'usuario',
+          ...(meta.municipio_id ? { municipio_id: meta.municipio_id } : {}),
+          ...(meta.dni ? { dni: meta.dni } : {}),
+          ...(meta.calle ? { calle: meta.calle } : {}),
+          ...(meta.fecha_nacimiento ? { fecha_nacimiento: meta.fecha_nacimiento } : {}),
+          ...(meta.localidad ? { localidad: meta.localidad } : {}),
+          ...(meta.codigo_postal ? { codigo_postal: meta.codigo_postal } : {})
+        })
+      }
+
       setUser({ ...user, profile: finalProfile })
+
+      // Redirigir automáticamente según el rol del usuario
+      if (finalProfile.role === 'gestor_municipio' || finalProfile.role === 'admin') {
+        router.replace('/admin/dashboard')
+        return
+      } else {
+        router.replace('/reservas')
+        return
+      }
     }
     setLoading(false)
   }

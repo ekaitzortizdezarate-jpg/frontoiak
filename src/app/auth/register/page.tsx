@@ -101,6 +101,7 @@ export default function RegisterPage() {
         email,
         password,
         options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin/dashboard` : undefined,
           data: {
             nombre_completo: nombre,
             nombre: nombre,
@@ -132,7 +133,7 @@ export default function RegisterPage() {
           }
         }
 
-        alert('¡Registro de gestor completado con éxito!')
+        alert('¡Registro de gestor completado con éxito! Revisa tu correo para confirmar la cuenta.')
         router.push('/admin/dashboard')
       }
 
@@ -145,6 +146,7 @@ export default function RegisterPage() {
       email,
       password,
       options: {
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reservas` : undefined,
         data: {
           nombre_completo: nombre,
           nombre: nombre,

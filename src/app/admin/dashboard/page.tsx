@@ -88,7 +88,7 @@ export default function AdminDashboard() {
     hora_cierre: '22:00',
     duracion_slot_minutos: 60,
     dias_antelacion_maxima: 7,
-    max_reservas_activas: 2
+    max_reservas_activas: 1
   })
 
   // Incidencias
@@ -117,13 +117,37 @@ export default function AdminDashboard() {
       return
     }
 
-    const { data: profile } = await supabase
+    let { data: profile } = await supabase
       .from('profiles')
       .select('*, municipios(*)')
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'gestor_municipio') {
+    const meta = user.user_metadata || {}
+
+    // Si el perfil aún no existe en la base de datos (por ejemplo, recién confirmado por correo)
+    if (!profile) {
+      if (meta.role === 'gestor_municipio' || meta.role === 'admin') {
+        const nombreFinal = meta.nombre || meta.nombre_completo || meta.full_name || 'Gestor'
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          nombre: nombreFinal,
+          nombre_completo: nombreFinal,
+          role: meta.role || 'gestor_municipio',
+          municipio_id: meta.municipio_id || null
+        })
+
+        const { data: newProfile } = await supabase
+          .from('profiles')
+          .select('*, municipios(*)')
+          .eq('id', user.id)
+          .single()
+        profile = newProfile
+      }
+    }
+
+    if (!profile || (profile.role !== 'gestor_municipio' && profile.role !== 'admin')) {
       alert('Acceso no autorizado.')
       router.push('/')
       return
@@ -590,7 +614,7 @@ export default function AdminDashboard() {
       hora_cierre: '22:00',
       duracion_slot_minutos: 60,
       dias_antelacion_maxima: 7,
-      max_reservas_activas: 2
+      max_reservas_activas: 1
     })
     setArchivoImagen(null)
   }
@@ -625,7 +649,7 @@ export default function AdminDashboard() {
       hora_cierre: f.hora_cierre || '22:00',
       duracion_slot_minutos: f.duracion_slot_minutos || 60,
       dias_antelacion_maxima: f.dias_antelacion_maxima ?? 7,
-      max_reservas_activas: f.max_reservas_activas || 2
+      max_reservas_activas: f.max_reservas_activas ?? 1
     })
     setArchivoImagen(null)
     setMostrarFormularioFronton(true)

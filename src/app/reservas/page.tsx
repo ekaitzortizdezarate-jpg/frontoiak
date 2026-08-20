@@ -724,6 +724,7 @@ export default function PortalReservas() {
       return
     }
 
+    const maxReservasPermitidas = frontonSeleccionado.max_reservas_activas || 1
     const { count: reservasMismoDiaFronton } = await supabase
       .from('eventos_fronton')
       .select('*', { count: 'exact', head: true })
@@ -731,8 +732,8 @@ export default function PortalReservas() {
       .eq('fronton_id', frontonSeleccionado.id)
       .eq('fecha', fechaSeleccionada)
 
-    if ((reservasMismoDiaFronton || 0) > 0) {
-      alert('Ya tienes una reserva realizada en este frontón para este día. Solo se permite 1 reserva por usuario al día por frontón.')
+    if ((reservasMismoDiaFronton || 0) >= maxReservasPermitidas) {
+      alert(`Ya has alcanzado el límite de ${maxReservasPermitidas} reserva(s) por usuario al día en este frontón.`)
       return
     }
 
