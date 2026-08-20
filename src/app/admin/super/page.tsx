@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 
 // Cliente aislado de Supabase sin persistencia de sesión para crear nuevos usuarios sin alterar la sesión del Superadmin
 const authSignUpClient = createClient(
@@ -1081,7 +1082,8 @@ export default function SuperAdminDashboard() {
               </button>
             </div>
 
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="dark" />
             </div>
           </div>

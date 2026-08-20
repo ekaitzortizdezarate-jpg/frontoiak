@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function RegisterPage() {
   const [tipoCuenta, setTipoCuenta] = useState<'usuario' | 'gestor_municipio'>('usuario')
@@ -165,6 +166,7 @@ export default function RegisterPage() {
       return
     }
 
+    // Registro como Ciudadano / Pelotari
     if (!dni) {
       setErrorMsg(t.auth.dni + ' *')
       setLoading(false)
@@ -248,9 +250,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-between selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 transition-colors">
       {/* HEADER */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
           {/* IZQUIERDA: Frontoiak */}
           <div className="flex flex-col items-start min-w-0">
@@ -258,24 +260,25 @@ export default function RegisterPage() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 dark:group-hover:bg-emerald-700 transition">
                 F
               </div>
-              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+              <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Frontoiak
               </span>
             </div>
           </div>
 
-          {/* DERECHA: Iniciar Sesión y debajo idiomas */}
+          {/* DERECHA: Iniciar Sesión y debajo tema/idiomas */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <Link 
               href="/auth/login"
-              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-2xs whitespace-nowrap active:scale-95"
+              className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-2xs whitespace-nowrap active:scale-95"
             >
               {t.common.login}
             </Link>
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
             </div>
           </div>
@@ -285,25 +288,25 @@ export default function RegisterPage() {
       {/* CONTENIDO */}
       <main className="flex-1 flex flex-col justify-center py-10 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-xl px-4">
-          <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">
+          <h2 className="text-center text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
             {t.auth.register_title}
           </h2>
-          <p className="mt-1 text-center text-xs text-stone-500">
+          <p className="mt-1 text-center text-xs text-stone-500 dark:text-stone-400">
             {t.auth.register_subtitle}
           </p>
 
           {/* SELECTOR DE TIPO DE CUENTA */}
-          <div className="flex bg-stone-200/80 p-1 rounded-2xl mt-6 border border-stone-200">
+          <div className="flex bg-stone-200/80 dark:bg-stone-800 p-1 rounded-2xl mt-6 border border-stone-200 dark:border-stone-700">
             <button
               type="button"
               onClick={() => {
                 setTipoCuenta('usuario')
                 setErrorMsg('')
               }}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
                 tipoCuenta === 'usuario'
-                  ? 'bg-white text-stone-900 shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
               }`}
             >
               <span>{t.auth.tab_user}</span>
@@ -314,10 +317,10 @@ export default function RegisterPage() {
                 setTipoCuenta('gestor_municipio')
                 setErrorMsg('')
               }}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
                 tipoCuenta === 'gestor_municipio'
-                  ? 'bg-white text-emerald-900 shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-white dark:bg-stone-900 text-emerald-900 dark:text-emerald-300 shadow-sm'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
               }`}
             >
               <span>{t.auth.tab_gestor}</span>
@@ -326,21 +329,20 @@ export default function RegisterPage() {
         </div>
 
         <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-xl px-4">
-          <div className="bg-white py-8 px-6 shadow-sm border border-stone-200 rounded-3xl sm:px-10">
+          <div className="bg-white dark:bg-stone-900 py-8 px-6 shadow-sm border border-stone-200 dark:border-stone-800 rounded-3xl sm:px-10">
             {errorMsg && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-medium">
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleRegister} className="space-y-4">
               {tipoCuenta === 'gestor_municipio' ? (
-                /* FORMULARIO GESTOR MUNICIPAL:
-                   1. Nombre, 2. Apellidos, 3. Provincia, 4. Municipio, 5. Códigos Postales, 6. Calle del Ayuntamiento, 7. Correo, 8. Contraseña */
+                /* FORMULARIO GESTOR MUNICIPAL */
                 <>
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
+                  <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-300 rounded-2xl text-xs space-y-1">
                     <span className="font-bold flex items-center gap-1.5">{t.auth.gestor_notice_title}</span>
-                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                    <p className="text-[11px] text-amber-800 dark:text-amber-300/80 leading-relaxed">
                       {t.auth.gestor_notice_desc}
                     </p>
                   </div>
@@ -348,7 +350,7 @@ export default function RegisterPage() {
                   {/* 1 & 2: Nombre & Apellidos */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.name} *
                       </label>
                       <input
@@ -357,11 +359,11 @@ export default function RegisterPage() {
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
                         placeholder="ej. Jon"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.last_name}
                       </label>
                       <input
@@ -369,7 +371,7 @@ export default function RegisterPage() {
                         value={apellidos}
                         onChange={(e) => setApellidos(e.target.value)}
                         placeholder="ej. Pérez Gómez"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                   </div>
@@ -377,14 +379,14 @@ export default function RegisterPage() {
                   {/* 3 & 4: Provincia & Municipio */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.province} *
                       </label>
                       <select
                         value={selectedProvinciaId}
                         onChange={(e) => handleProvinciaChange(e.target.value)}
                         required
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.reservas.select_province}</option>
                         {provincias.map(p => (
@@ -394,7 +396,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.municipality} *
                       </label>
                       <select
@@ -402,7 +404,7 @@ export default function RegisterPage() {
                         onChange={(e) => handleMunicipioChange(e.target.value)}
                         required
                         disabled={!selectedProvinciaId}
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.reservas.select_municipality}</option>
                         {municipiosDisponibles.map(m => (
@@ -414,7 +416,7 @@ export default function RegisterPage() {
 
                   {/* 5: Códigos Postales del Municipio */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                       Códigos Postales del Municipio
                     </label>
                     <div className="flex flex-wrap gap-2 mb-2 min-h-[36px] items-center">
@@ -422,13 +424,13 @@ export default function RegisterPage() {
                         codigosPostales.map((cp) => (
                           <span 
                             key={cp} 
-                            className="bg-stone-50 border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 shadow-2xs flex items-center gap-1.5"
+                            className="bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 shadow-2xs flex items-center gap-1.5"
                           >
                             <span>{cp}</span>
                             <button 
                               type="button" 
                               onClick={() => handleRemoveCp(cp)} 
-                              className="text-rose-500 hover:text-rose-700 font-black ml-1 text-sm leading-none"
+                              className="text-rose-500 hover:text-rose-700 font-black ml-1 text-sm leading-none cursor-pointer"
                               title="Eliminar código postal"
                             >
                               ×
@@ -436,7 +438,7 @@ export default function RegisterPage() {
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-stone-400 italic">No hay códigos postales configurados</span>
+                        <span className="text-xs text-stone-400 dark:text-stone-500 italic">No hay códigos postales configurados</span>
                       )}
                     </div>
 
@@ -452,12 +454,12 @@ export default function RegisterPage() {
                             handleAddCp()
                           }
                         }}
-                        className="p-2.5 border border-stone-300 rounded-xl flex-1 text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl flex-1 text-sm bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                       <button 
                         type="button" 
                         onClick={handleAddCp} 
-                        className="bg-stone-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                        className="bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                       >
                         Añadir C.P.
                       </button>
@@ -466,7 +468,7 @@ export default function RegisterPage() {
 
                   {/* 6: Calle del Ayuntamiento */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                       {t.auth.address_ayuntamiento}
                     </label>
                     <input
@@ -474,16 +476,16 @@ export default function RegisterPage() {
                       value={calleAyuntamiento}
                       onChange={(e) => setCalleAyuntamiento(e.target.value)}
                       placeholder="ej. Plaza Mayor, 1 / Herriko Plaza, 1"
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                     />
                   </div>
 
-                  <hr className="border-stone-100 my-2" />
+                  <hr className="border-stone-100 dark:border-stone-800 my-2" />
 
                   {/* 7 & 8: Correo & Contraseña */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.email} *
                       </label>
                       <input
@@ -492,12 +494,12 @@ export default function RegisterPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="gestor@ayuntamiento.eus"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.password} *
                       </label>
                       <input
@@ -506,7 +508,7 @@ export default function RegisterPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Mínimo 6 caracteres"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                   </div>
@@ -515,20 +517,19 @@ export default function RegisterPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300 cursor-pointer"
+                      className="w-full bg-emerald-700 dark:bg-emerald-600 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm active:scale-95 disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                     >
                       {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>
                   </div>
                 </>
               ) : (
-                /* FORMULARIO CIUDADANO / PELOTARI:
-                   1. Nombre, 2. Apellidos, 3. DNI, 4. Fecha, 5. Provincia, 6. Municipio, 7. Código Postal, 8. Calle, 9. Correo, 10. Contraseña */
+                /* FORMULARIO CIUDADANO / PELOTARI */
                 <>
                   {/* 1 & 2: Nombre & Apellidos */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.name} *
                       </label>
                       <input
@@ -537,12 +538,12 @@ export default function RegisterPage() {
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
                         placeholder="ej. Mikel"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.last_name} *
                       </label>
                       <input
@@ -551,7 +552,7 @@ export default function RegisterPage() {
                         value={apellidos}
                         onChange={(e) => setApellidos(e.target.value)}
                         placeholder="ej. Larrañaga Agirre"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                   </div>
@@ -559,7 +560,7 @@ export default function RegisterPage() {
                   {/* 3 & 4: DNI & Fecha */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.dni} *
                       </label>
                       <input
@@ -568,12 +569,12 @@ export default function RegisterPage() {
                         value={dni}
                         onChange={(e) => setDni(e.target.value)}
                         placeholder="12345678Z"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.birth_date} *
                       </label>
                       <input
@@ -581,7 +582,7 @@ export default function RegisterPage() {
                         required
                         value={fechaNacimiento}
                         onChange={(e) => setFechaNacimiento(e.target.value)}
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                   </div>
@@ -589,14 +590,14 @@ export default function RegisterPage() {
                   {/* 5 & 6: Provincia y Municipio en la misma línea */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.province} *
                       </label>
                       <select
                         value={selectedProvinciaId}
                         onChange={(e) => handleProvinciaChange(e.target.value)}
                         required
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.reservas.select_province}</option>
                         {provincias.map(p => (
@@ -606,7 +607,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.municipality} *
                       </label>
                       <select
@@ -614,7 +615,7 @@ export default function RegisterPage() {
                         onChange={(e) => handleMunicipioChange(e.target.value)}
                         required
                         disabled={!selectedProvinciaId}
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.reservas.select_municipality}</option>
                         {municipiosDisponibles.map(m => (
@@ -626,7 +627,7 @@ export default function RegisterPage() {
 
                   {/* 7: Código Postal debajo */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                       {t.auth.postal_code} *
                     </label>
                     {codigosPostales.length > 0 ? (
@@ -635,7 +636,7 @@ export default function RegisterPage() {
                         onChange={(e) => setCodigoPostal(e.target.value)}
                         required
                         disabled={!selectedMunicipioId}
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.auth.select_postal_code}</option>
                         {codigosPostales.map(cp => (
@@ -650,14 +651,14 @@ export default function RegisterPage() {
                         value={codigoPostal}
                         onChange={(e) => setCodigoPostal(e.target.value)}
                         placeholder="ej. 20001"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     )}
                   </div>
 
                   {/* 8: Calle */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                       {t.auth.address} *
                     </label>
                     <input
@@ -666,16 +667,16 @@ export default function RegisterPage() {
                       value={calle}
                       onChange={(e) => setCalle(e.target.value)}
                       placeholder="ej. Kale Nagusia, 12, 1º A"
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                     />
                   </div>
 
-                  <hr className="border-stone-100 my-2" />
+                  <hr className="border-stone-100 dark:border-stone-800 my-2" />
 
                   {/* 9 & 10: Correo & Contraseña */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.email} *
                       </label>
                       <input
@@ -684,12 +685,12 @@ export default function RegisterPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="mikel@adibidea.eus"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                         {t.auth.password} *
                       </label>
                       <input
@@ -698,7 +699,7 @@ export default function RegisterPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Mínimo 6 caracteres"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
                   </div>
@@ -707,7 +708,7 @@ export default function RegisterPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300 cursor-pointer"
+                      className="w-full bg-emerald-700 dark:bg-emerald-600 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm active:scale-95 disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                     >
                       {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>
@@ -716,8 +717,8 @@ export default function RegisterPage() {
               )}
 
               <div className="text-center pt-2">
-                <span className="text-xs text-stone-500">{t.auth.already_have_account} </span>
-                <Link href="/auth/login" className="text-xs font-bold text-emerald-700 hover:underline">
+                <span className="text-xs text-stone-500 dark:text-stone-400">{t.auth.already_have_account} </span>
+                <Link href="/auth/login" className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                   {t.common.login}
                 </Link>
               </div>
@@ -726,7 +727,7 @@ export default function RegisterPage() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
         {t.home.footer}
       </footer>
     </div>

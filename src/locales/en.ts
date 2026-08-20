@@ -41,7 +41,10 @@ export const en = {
     favorites: 'Favorites',
     incidents: 'Incidents',
     report_incident: 'Report Incident',
-    language: 'Language'
+    language: 'Language',
+    theme_light: 'Light',
+    theme_dark: 'Dark',
+    theme_system: 'Auto'
   },
   home: {
     badge: 'Basque Fronton Network',

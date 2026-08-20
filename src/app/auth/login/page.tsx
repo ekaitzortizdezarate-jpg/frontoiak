@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -29,9 +30,9 @@ export default function LoginPage() {
 
     if (error) {
       if (error.message.includes('Invalid login credentials')) {
-        setErrorMsg('Credenciales incorrectas. Comprueba tu correo y contraseña.')
+        setErrorMsg(t.auth.email + ' / ' + t.auth.password + ' ' + t.common.error)
       } else if (error.message.includes('Email not confirmed')) {
-        setErrorMsg('Tu correo electrónico aún no ha sido confirmado. Si eres un Gestor Municipal nuevo, tu cuenta debe ser aprobada primero por el Administrador.')
+        setErrorMsg(t.auth.gestor_notice_desc)
       } else {
         setErrorMsg(error.message)
       }
@@ -40,13 +41,13 @@ export default function LoginPage() {
     }
 
     if (!user) {
-      setErrorMsg('No se ha podido recuperar la información de usuario.')
+      setErrorMsg(t.common.error)
       setLoading(false)
       return
     }
 
     // 2. Comprobar perfil y rol en la tabla profiles
-    const { data: profileData, error: profileError } = await supabase
+    const { data: profileData } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -54,7 +55,6 @@ export default function LoginPage() {
 
     let userRole = profileData?.role || user.user_metadata?.role || 'usuario'
 
-    // Si el perfil no existe o no tiene datos, lo creamos/sincronizamos desde los metadatos de Auth
     if (!profileData || !profileData.nombre_completo || !profileData.nombre) {
       const meta = user.user_metadata || {}
       userRole = profileData?.role || meta.role || 'usuario'
@@ -87,9 +87,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-between selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 transition-colors">
       {/* CABECERA */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
           {/* IZQUIERDA: Frontoiak */}
           <div className="flex flex-col items-start min-w-0">
@@ -97,24 +97,25 @@ export default function LoginPage() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 dark:group-hover:bg-emerald-700 transition">
                 F
               </div>
-              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+              <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Frontoiak
               </span>
             </div>
           </div>
 
-          {/* DERECHA: Registro y debajo idiomas */}
+          {/* DERECHA: Registro y debajo tema/idiomas */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <Link 
               href="/auth/register"
-              className="bg-emerald-700 text-white hover:bg-emerald-800 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition shadow-2xs whitespace-nowrap"
+              className="bg-emerald-700 dark:bg-emerald-600 text-white hover:bg-emerald-800 dark:hover:bg-emerald-700 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-2xs whitespace-nowrap active:scale-95"
             >
               {t.common.register}
             </Link>
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
             </div>
           </div>
@@ -124,25 +125,25 @@ export default function LoginPage() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">
+          <h2 className="text-center text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
             {t.auth.login_title}
           </h2>
-          <p className="mt-2 text-center text-xs text-stone-500">
+          <p className="mt-2 text-center text-xs text-stone-500 dark:text-stone-400">
             {t.auth.login_subtitle}
           </p>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-          <div className="bg-white py-8 px-6 shadow-sm border border-stone-200 rounded-3xl sm:px-10">
+          <div className="bg-white dark:bg-stone-900 py-8 px-6 shadow-sm border border-stone-200 dark:border-stone-800 rounded-3xl sm:px-10">
             {errorMsg && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-medium">
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                   {t.auth.email}
                 </label>
                 <input
@@ -150,13 +151,13 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="correo@ejemplo.com"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                  placeholder="posta@adibidea.eus"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                   {t.auth.password}
                 </label>
                 <input
@@ -165,7 +166,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
@@ -173,15 +174,15 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                  className="w-full bg-emerald-700 dark:bg-emerald-600 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm active:scale-95 disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                 >
                   {loading ? t.auth.logging_in : t.auth.login_btn}
                 </button>
               </div>
 
-              <div className="text-center pt-4 border-t border-stone-100">
-                <span className="text-xs text-stone-500">{t.auth.no_account} </span>
-                <Link href="/auth/register" className="text-xs font-bold text-emerald-700 hover:underline">
+              <div className="text-center pt-4 border-t border-stone-100 dark:border-stone-800">
+                <span className="text-xs text-stone-500 dark:text-stone-400">{t.auth.no_account} </span>
+                <Link href="/auth/register" className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                   {t.auth.register_free}
                 </Link>
               </div>
@@ -190,8 +191,8 @@ export default function LoginPage() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
+        {t.home.footer}
       </footer>
     </div>
   )

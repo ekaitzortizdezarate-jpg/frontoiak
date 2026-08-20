@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function AjustesUsuarioPage() {
   const [user, setUser] = useState<any>(null)
@@ -392,9 +393,9 @@ export default function AjustesUsuarioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 transition-colors">
       {/* CABECERA */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
           {/* IZQUIERDA: Frontoiak y debajo usuario */}
           <div className="flex flex-col items-start min-w-0">
@@ -402,38 +403,39 @@ export default function AjustesUsuarioPage() {
               onClick={handleVolver}
               className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 dark:group-hover:bg-emerald-700 transition">
                 F
               </div>
-              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+              <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Frontoiak
               </span>
             </div>
 
-            <span className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
+            <span className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
               👤 {`${nombre} ${apellidos}`.trim() || email} {userRole === 'admin' ? '(Admin)' : userRole === 'gestor_municipio' ? '(Gestor)' : ''}
             </span>
           </div>
 
-          {/* DERECHA: Botón volver + Cerrar sesión y debajo idiomas */}
+          {/* DERECHA: Botón volver + Cerrar sesión y debajo tema/idiomas */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button 
                 onClick={handleVolver}
-                className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex-shrink-0 whitespace-nowrap"
+                className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex-shrink-0 whitespace-nowrap cursor-pointer"
               >
                 {userRole === 'gestor_municipio' ? `← ${t.common.dashboard}` : `← ${t.common.reservations}`}
               </button>
 
               <button 
                 onClick={handleSignOut}
-                className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap active:scale-95"
+                className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition shadow-2xs flex-shrink-0 whitespace-nowrap active:scale-95 cursor-pointer"
               >
                 {t.common.logout}
               </button>
             </div>
 
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
             </div>
           </div>

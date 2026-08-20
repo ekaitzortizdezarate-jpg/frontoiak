@@ -41,7 +41,10 @@ export const eu = {
     favorites: 'Gogokoak',
     incidents: 'Gertakariak',
     report_incident: 'Gertakaria Jakinarazi',
-    language: 'Hizkuntza'
+    language: 'Hizkuntza',
+    theme_light: 'Argia',
+    theme_dark: 'Iluna',
+    theme_system: 'Automatikoa'
   },
   home: {
     badge: 'Euskal Frontoi sareak',

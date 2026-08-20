@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
@@ -176,16 +177,16 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50 text-emerald-800 font-medium">
+      <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950 text-emerald-800 dark:text-emerald-400 font-medium">
         {t.common.loading}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-between selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 transition-colors">
       {/* CABECERA */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
           {/* IZQUIERDA: Frontoiak y debajo usuario */}
           <div className="flex flex-col items-start min-w-0">
@@ -193,10 +194,10 @@ export default function Home() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 dark:group-hover:bg-emerald-700 transition">
                 F
               </div>
-              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+              <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Frontoiak
               </span>
             </div>
@@ -204,31 +205,32 @@ export default function Home() {
               <button 
                 onClick={() => router.push('/auth/ajustes')}
                 title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
-                className="text-[11px] sm:text-xs font-semibold text-stone-500 hover:text-emerald-800 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+                className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
               >
                 👤 {user.profile?.nombre_completo || user.email}
               </button>
             )}
           </div>
 
-          {/* DERECHA: Cerrar sesión (o registro) y debajo idiomas */}
+          {/* DERECHA: Cerrar sesión (o registro) y debajo tema/idiomas */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {user ? (
               <button 
                 onClick={handleSignOut}
-                className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap active:scale-95"
+                className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition shadow-2xs whitespace-nowrap active:scale-95 cursor-pointer"
               >
                 {t.common.logout}
               </button>
             ) : (
               <Link 
                 href="/auth/register"
-                className="bg-emerald-700 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-2xs whitespace-nowrap active:scale-95"
+                className="bg-emerald-700 dark:bg-emerald-600 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-2xs whitespace-nowrap active:scale-95"
               >
                 {t.common.register}
               </Link>
             )}
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
             </div>
           </div>
@@ -239,35 +241,35 @@ export default function Home() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-14 flex flex-col justify-center items-center">
         {/* TEXTOS PRINCIPALES DE CABECERA */}
         <div className="text-center space-y-3 max-w-xl mx-auto mb-8">
-          <span className="inline-block bg-emerald-100/80 text-emerald-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200 shadow-2xs">
+          <span className="inline-block bg-emerald-100/80 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200 dark:border-emerald-800 shadow-2xs">
             {t.home.badge}
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-stone-900 dark:text-stone-100 tracking-tight leading-tight">
             {t.home.hero_title}
           </h1>
         </div>
 
         {/* TARJETA DE LOGIN */}
         <div className="w-full max-w-md">
-          <div className="bg-white py-8 px-6 sm:px-8 shadow-sm border border-stone-200 rounded-3xl space-y-6">
+          <div className="bg-white dark:bg-stone-900 py-8 px-6 sm:px-8 shadow-sm border border-stone-200 dark:border-stone-800 rounded-3xl space-y-6">
             <div className="text-center space-y-1">
-              <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 {t.auth.login_title}
               </h2>
-              <p className="text-xs sm:text-sm text-stone-500 font-medium">
+              <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 font-medium">
                 {t.auth.login_subtitle}
               </p>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-medium">
+              <div className="p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-xs font-medium">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                   {t.auth.email}
                 </label>
                 <input
@@ -276,12 +278,12 @@ export default function Home() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="posta@adibidea.eus"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                   {t.auth.password}
                 </label>
                 <input
@@ -290,7 +292,7 @@ export default function Home() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
@@ -298,15 +300,15 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={loginLoading}
-                  className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 disabled:bg-stone-300 cursor-pointer"
+                  className="w-full bg-emerald-700 dark:bg-emerald-600 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm hover:shadow-md active:scale-95 disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                 >
                   {loginLoading ? t.auth.logging_in : t.auth.login_btn}
                 </button>
               </div>
 
-              <div className="text-center pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-center items-center gap-1.5 text-xs text-stone-500 font-medium">
+              <div className="text-center pt-4 border-t border-stone-100 dark:border-stone-800 flex flex-col sm:flex-row justify-center items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
                 <span>{t.auth.no_account}</span>
-                <Link href="/auth/register" className="font-bold text-emerald-700 hover:text-emerald-900 hover:underline">
+                <Link href="/auth/register" className="font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline">
                   {t.auth.register_free}
                 </Link>
               </div>
@@ -316,7 +318,7 @@ export default function Home() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
         {t.home.footer}
       </footer>
     </div>

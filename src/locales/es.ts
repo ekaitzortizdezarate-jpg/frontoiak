@@ -41,7 +41,10 @@ export const es = {
     favorites: 'Favoritos',
     incidents: 'Incidencias',
     report_incident: 'Reportar Incidencia',
-    language: 'Idioma'
+    language: 'Idioma',
+    theme_light: 'Claro',
+    theme_dark: 'Oscuro',
+    theme_system: 'Automático'
   },
   home: {
     badge: 'Red de Frontones de Euskadi',

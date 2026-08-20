@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import ThemeToggle from '@/components/ThemeToggle'
 import { 
   parseSafeDate, 
   formatFullDateWithWeekday, 
@@ -1068,31 +1069,32 @@ export default function AdminDashboard() {
   // PANTALLA PARA GESTOR PENDIENTE DE APROBACIÓN
   if (userProfile?.role === 'gestor_municipio' && userProfile?.estado_aprobacion === 'pendiente') {
     return (
-      <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900">
-        <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-between selection:bg-amber-100 dark:selection:bg-amber-900 selection:text-amber-900 dark:selection:text-amber-100 transition-colors">
+        <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
             {/* IZQUIERDA: Frontoiak y debajo usuario */}
             <div className="flex flex-col items-start min-w-0">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
                   F
                 </div>
-                <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+                <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">Frontoiak</span>
               </div>
-              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
+              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
                 👤 {userProfile.nombre_completo || userProfile.email}
               </span>
             </div>
 
-            {/* DERECHA: Cerrar sesión y debajo idiomas */}
+            {/* DERECHA: Cerrar sesión y debajo tema/idiomas */}
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
               <button
                 onClick={handleSignOut}
-                className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap active:scale-95"
+                className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition shadow-2xs whitespace-nowrap active:scale-95 cursor-pointer"
               >
                 {t.common.logout}
               </button>
-              <div>
+              <div className="flex items-center gap-1.5">
+                <ThemeToggle />
                 <LanguageSelector variant="light" />
               </div>
             </div>
@@ -1148,31 +1150,32 @@ export default function AdminDashboard() {
   // PANTALLA PARA GESTOR RECHAZADO
   if (userProfile?.role === 'gestor_municipio' && userProfile?.estado_aprobacion === 'rechazado') {
     return (
-      <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-rose-100 selection:text-rose-900">
-        <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-between selection:bg-rose-100 dark:selection:bg-rose-900 selection:text-rose-900 dark:selection:text-rose-100 transition-colors">
+        <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
             {/* IZQUIERDA: Frontoiak y debajo usuario */}
             <div className="flex flex-col items-start min-w-0">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm">
                   F
                 </div>
-                <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+                <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">Frontoiak</span>
               </div>
-              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
+              <span className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5">
                 👤 {userProfile.nombre_completo || userProfile.email}
               </span>
             </div>
 
-            {/* DERECHA: Cerrar sesión y debajo idiomas */}
+            {/* DERECHA: Cerrar sesión y debajo tema/idiomas */}
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
               <button
                 onClick={handleSignOut}
-                className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap active:scale-95"
+                className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition shadow-2xs whitespace-nowrap active:scale-95 cursor-pointer"
               >
                 {t.common.logout}
               </button>
-              <div>
+              <div className="flex items-center gap-1.5">
+                <ThemeToggle />
                 <LanguageSelector variant="light" />
               </div>
             </div>
@@ -1238,9 +1241,9 @@ export default function AdminDashboard() {
   const horasDelDia = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`)
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 transition-colors">
       {/* CABECERA */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center gap-2 sm:gap-4">
           {/* IZQUIERDA: Frontoiak y debajo usuario */}
           <div className="flex flex-col items-start min-w-0">
@@ -1248,10 +1251,10 @@ export default function AdminDashboard() {
               onClick={handleLogoClick}
               className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-emerald-700 dark:bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-sm group-hover:bg-emerald-800 dark:group-hover:bg-emerald-700 transition">
                 F
               </div>
-              <span className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+              <span className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Frontoiak
               </span>
             </div>
@@ -1260,21 +1263,21 @@ export default function AdminDashboard() {
               <button 
                 onClick={() => router.push('/auth/ajustes')}
                 title={`${t.common.settings} (${userProfile.nombre_completo || userProfile.email})`}
-                className="text-[11px] sm:text-xs font-semibold text-stone-500 hover:text-emerald-800 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
+                className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] text-left mt-0.5"
               >
                 👤 {userProfile.nombre_completo || userProfile.email} {userProfile.role === 'admin' ? '(Admin)' : '(Gestor)'}
               </button>
             ) : null}
           </div>
 
-          {/* DERECHA: Cerrar sesión (y botón superadmin) y debajo idiomas */}
+          {/* DERECHA: Cerrar sesión (y botón superadmin) y debajo tema/idiomas */}
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {userProfile ? (
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {userProfile.role === 'admin' && (
                   <button 
                     onClick={() => router.push('/admin/super')}
-                    className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition shadow-xs flex items-center gap-1 flex-shrink-0"
+                    className="bg-stone-900 dark:bg-stone-800 text-amber-300 border border-amber-400/40 hover:bg-stone-800 dark:hover:bg-stone-700 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold transition shadow-xs flex items-center gap-1 flex-shrink-0 cursor-pointer"
                     title="Ir a la Consola Central Superadmin"
                   >
                     👑 {t.common.superadmin}
@@ -1283,7 +1286,7 @@ export default function AdminDashboard() {
 
                 <button 
                   onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap active:scale-95"
+                  className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition shadow-2xs whitespace-nowrap active:scale-95 cursor-pointer"
                 >
                   {t.common.logout}
                 </button>
@@ -1292,20 +1295,21 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-2.5 py-1.5 rounded-xl transition whitespace-nowrap"
+                  className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 px-2.5 py-1.5 rounded-xl transition whitespace-nowrap"
                 >
                   {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap active:scale-95"
+                  className="bg-emerald-700 dark:bg-emerald-600 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm whitespace-nowrap active:scale-95"
                 >
                   {t.common.register}
                 </button>
               </div>
             )}
 
-            <div>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
             </div>
           </div>
