@@ -1325,7 +1325,7 @@ export default function AdminDashboard() {
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t.admin.dashboard_title}</span>
               <h1 className="text-2xl md:text-3xl font-black text-stone-900 dark:text-stone-100 mt-0.5">
                 {userProfile?.municipios?.nombre
-                  ? (t.admin.municipality_header_format || 'Ayuntamiento: {name}').replace('{name}', userProfile.municipios.nombre)
+                  ? (t.admin.municipality_header_format || 'Ayuntamiento {name}').replace('{name}', userProfile.municipios.nombre)
                   : t.admin.dashboard_title}
               </h1>
             </div>
