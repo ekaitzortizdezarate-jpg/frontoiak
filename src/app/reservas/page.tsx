@@ -47,6 +47,8 @@ export default function PortalReservas() {
   const [misProximasReservas, setMisProximasReservas] = useState<any[]>([])
   const [misFavoritos, setMisFavoritos] = useState<any[]>([])
   const [idsFavoritos, setIdsFavoritos] = useState<string[]>([])
+  const [proximasReservasDesplegadas, setProximasReservasDesplegadas] = useState(true)
+  const [favoritosDesplegados, setFavoritosDesplegados] = useState(true)
 
   // Incidencias del usuario y globales activas
   const [misIncidencias, setMisIncidencias] = useState<any[]>([])
@@ -1264,121 +1266,197 @@ export default function PortalReservas() {
       <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-8 space-y-8">
         
         {/* 1. SECCIÓN: MIS PRÓXIMAS RESERVAS */}
-        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
-          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
-            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
-              {t.reservas.my_upcoming_bookings}
-            </h2>
-            <span className="text-xs font-bold text-stone-400 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-full">
-              {misProximasReservas.length} {t.reservas.active_count}
-            </span>
-          </div>
-
-          {misProximasReservas.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-sm text-stone-400 dark:text-stone-500 italic">{t.reservas.no_upcoming_bookings}</p>
+        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-200">
+          {/* CABECERA CLICABLE PARA DESPLEGAR / RECOGER */}
+          <button
+            type="button"
+            onClick={() => setProximasReservasDesplegadas(!proximasReservasDesplegadas)}
+            className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-base sm:text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
+                📅
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <span>{t.reservas.my_upcoming_bookings}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    {misProximasReservas.length} {t.reservas.active_count}
+                  </span>
+                </h2>
+                <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                  {misProximasReservas.length === 0
+                    ? t.reservas.no_upcoming_bookings
+                    : 'Consulta o gestiona tus reservas confirmadas'}
+                </p>
+              </div>
             </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {misProximasReservas.map((res) => (
-                <div key={res.id} className="w-full p-4 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/70 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-700 transition">
-                  <div>
-                    <span className="font-bold text-sm text-emerald-950 dark:text-emerald-200 block">
-                      {res.frontones?.nombre} <span className="font-normal text-stone-500 dark:text-stone-400">({res.frontones?.municipios?.nombre})</span>
-                    </span>
-                    <span className="inline-block mt-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg">
-                      📅 {formatFullDateWithWeekday(res.fecha, lang)} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
-                    </span>
-                  </div>
-                  <button 
-                    onClick={() => handleCancelarReserva(res.id)}
-                    className="bg-white dark:bg-stone-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs font-bold px-4 py-2 rounded-xl transition shadow-2xs cursor-pointer"
-                  >
-                    {t.reservas.cancel_booking}
-                  </button>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                proximasReservasDesplegadas
+                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+              }`}>
+                <span>{proximasReservasDesplegadas ? (t.reservas.search_free_toggle_close || 'Recoger') : (t.reservas.search_free_toggle_open || 'Desplegar')}</span>
+                <span className={`text-[10px] transform transition-transform duration-200 ${proximasReservasDesplegadas ? 'rotate-180' : ''}`}>▼</span>
+              </span>
+            </div>
+          </button>
+
+          {/* CONTENIDO DESPLEGABLE */}
+          {proximasReservasDesplegadas && (
+            <div className="p-4 sm:p-6 pt-0 space-y-4 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
+              {misProximasReservas.length === 0 ? (
+                <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200/80 dark:border-stone-800 text-center space-y-1 mt-4">
+                  <span className="text-2xl">📅</span>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">{t.reservas.no_upcoming_bookings}</p>
                 </div>
-              ))}
+              ) : (
+                <div className="flex flex-col gap-3 pt-4">
+                  {misProximasReservas.map((res) => (
+                    <div key={res.id} className="w-full p-4 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/70 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-700 transition">
+                      <div>
+                        <span className="font-bold text-sm text-emerald-950 dark:text-emerald-200 block">
+                          {res.frontones?.nombre} <span className="font-normal text-stone-500 dark:text-stone-400">({res.frontones?.municipios?.nombre})</span>
+                        </span>
+                        <span className="inline-block mt-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg">
+                          📅 {formatFullDateWithWeekday(res.fecha, lang)} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
+                        </span>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => handleCancelarReserva(res.id)}
+                        className="bg-white dark:bg-stone-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs font-bold px-4 py-2 rounded-xl transition shadow-2xs cursor-pointer"
+                      >
+                        {t.reservas.cancel_booking}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </section>
 
         {/* 2. SECCIÓN: MIS FRONTONES FAVORITOS */}
-        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
-          <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 border-b border-stone-100 dark:border-stone-800 pb-3 flex items-center gap-2">
-            <span className="text-amber-500 text-lg">★</span>
-            {t.reservas.my_favorites}
-          </h2>
+        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-200">
+          {/* CABECERA CLICABLE PARA DESPLEGAR / RECOGER */}
+          <button
+            type="button"
+            onClick={() => setFavoritosDesplegados(!favoritosDesplegados)}
+            className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base sm:text-lg font-black shadow-inner border border-amber-200/50 dark:border-amber-800/50 flex-shrink-0">
+                ★
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <span>{t.reservas.my_favorites}</span>
+                  {misFavoritos.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
+                      {misFavoritos.length}
+                    </span>
+                  )}
+                </h2>
+                <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                  {misFavoritos.length === 0
+                    ? t.reservas.no_favorites
+                    : 'Acceso rápido y disponibilidad en tiempo real de tus frontones guardados'}
+                </p>
+              </div>
+            </div>
 
-          {misFavoritos.length === 0 ? (
-            <p className="text-sm text-stone-400 dark:text-stone-500 italic py-2 text-center">
-              {t.reservas.no_favorites}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {misFavoritos.map((f) => {
-                const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
-                return (
-                  <div 
-                    key={f.id}
-                    onClick={() => seleccionarFronton(f)}
-                    className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 hover:border-emerald-300 dark:hover:border-emerald-700 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
-                  >
-                    <div className="flex items-center gap-3">
-                      {f.imagen_url ? (
-                        <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
-                      ) : (
-                        <div className="w-12 h-12 bg-stone-200 dark:bg-stone-800 rounded-xl flex items-center justify-center text-xs text-stone-500 dark:text-stone-400 font-bold">
-                          F
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                favoritosDesplegados
+                  ? 'bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+              }`}>
+                <span>{favoritosDesplegados ? (t.reservas.search_free_toggle_close || 'Recoger') : (t.reservas.search_free_toggle_open || 'Desplegar')}</span>
+                <span className={`text-[10px] transform transition-transform duration-200 ${favoritosDesplegados ? 'rotate-180' : ''}`}>▼</span>
+              </span>
+            </div>
+          </button>
+
+          {/* CONTENIDO DESPLEGABLE */}
+          {favoritosDesplegados && (
+            <div className="p-4 sm:p-6 pt-0 space-y-4 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
+              {misFavoritos.length === 0 ? (
+                <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200/80 dark:border-stone-800 text-center space-y-1 mt-4">
+                  <span className="text-2xl">⭐</span>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                    {t.reservas.no_favorites}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+                  {misFavoritos.map((f) => {
+                    const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
+                    return (
+                      <div 
+                        key={f.id}
+                        onClick={() => seleccionarFronton(f)}
+                        className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 hover:border-emerald-300 dark:hover:border-emerald-700 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          {f.imagen_url ? (
+                            <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
+                          ) : (
+                            <div className="w-12 h-12 bg-stone-200 dark:bg-stone-800 rounded-xl flex items-center justify-center text-xs text-stone-500 dark:text-stone-400 font-bold">
+                              F
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <span className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 block truncate">
+                              {f.nombre} {f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}
+                            </span>
+                            <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
+                              {f.municipios?.nombre}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <span className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 block truncate">
-                          {f.nombre} {f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}
-                        </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
-                          {f.municipios?.nombre}
-                        </span>
-                      </div>
-                    </div>
 
-                    {/* CONTADORES DE INCIDENCIAS EN FAVORITOS */}
-                    {(pendientes > 0 || enCurso > 0) && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {pendientes > 0 && (
-                          <span className="bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600 dark:text-stone-400">{t.common.pending}:</span>
-                            <span className="font-black text-rose-700 dark:text-rose-400">{pendientes}</span>
-                          </span>
+                        {/* CONTADORES DE INCIDENCIAS EN FAVORITOS */}
+                        {(pendientes > 0 || enCurso > 0) && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {pendientes > 0 && (
+                              <span className="bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                                <span className="text-stone-600 dark:text-stone-400">{t.common.pending}:</span>
+                                <span className="font-black text-rose-700 dark:text-rose-400">{pendientes}</span>
+                              </span>
+                            )}
+                            {enCurso > 0 && (
+                              <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                                <span className="text-stone-600 dark:text-stone-400">{t.reservas.status_in_progress_short}:</span>
+                                <span className="font-black text-amber-800 dark:text-amber-400">{enCurso}</span>
+                              </span>
+                            )}
+                          </div>
                         )}
-                        {enCurso > 0 && (
-                          <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600 dark:text-stone-400">{t.reservas.status_in_progress_short}:</span>
-                            <span className="font-black text-amber-800 dark:text-amber-400">{enCurso}</span>
-                          </span>
-                        )}
-                      </div>
-                    )}
 
-                    {/* Estado en tiempo real */}
-                    <div className="flex justify-between items-center pt-2 border-t border-stone-200/80 dark:border-stone-800">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                        f.en_uso
-                          ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                          : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                        }`}></span>
-                        {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
-                      </span>
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition">
-                        {t.reservas.view}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
+                        {/* Estado en tiempo real */}
+                        <div className="flex justify-between items-center pt-2 border-t border-stone-200/80 dark:border-stone-800">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                            f.en_uso
+                              ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                              : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                            }`}></span>
+                            {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition">
+                            {t.reservas.view}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )}
         </section>
