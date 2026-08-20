@@ -3,7 +3,21 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+
+// Cliente aislado de Supabase sin persistencia de sesión para crear nuevos usuarios sin alterar la sesión del Superadmin
+const authSignUpClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    }
+  }
+)
 
 export default function SuperAdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null)
@@ -14,6 +28,7 @@ export default function SuperAdminDashboard() {
   const [municipios, setMunicipios] = useState<any[]>([])
   const [provincias, setProvincias] = useState<any[]>([])
   const [gestores, setGestores] = useState<any[]>([])
+  const [ciudadanos, setCiudadanos] = useState<any[]>([])
   const [frontones, setFrontones] = useState<any[]>([])
 
   // Filtros y búsquedas
@@ -142,6 +157,13 @@ export default function SuperAdminDashboard() {
     }
     setGestores(profsData)
 
+    // 3b. Otros usuarios para poder promoverlos a gestores
+    const { data: ciuds } = await supabase
+      .from('profiles')
+      .select('*')
+      .neq('role', 'gestor_municipio')
+    setCiudadanos(ciuds || [])
+
     // 4. Frontones
     const { data: fronts } = await supabase
       .from('frontones')
@@ -202,61 +224,45 @@ export default function SuperAdminDashboard() {
     })
   }
 
-  const subirImagenMunicipioStorage = async (): Promise<string | null> => {
-    if (!archivoImagenMun) return nuevoMunicipio.imagen_url || null
-
-    try {
-      const extension = archivoImagenMun.name.split('.').pop() || 'jpg'
-      const nombreArchivo = `municipio-superadmin-${Date.now()}.${extension}`
-
-      const { data, error } = await supabase.storage
-        .from('frontones-fotos')
-        .upload(nombreArchivo, archivoImagenMun, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: archivoImagenMun.type || 'image/jpeg'
-        })
-
-      if (error) {
-        console.error('Error al subir imagen a Supabase Storage:', error)
-        alert('Error al subir imagen: ' + error.message)
-        return nuevoMunicipio.imagen_url || null
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from('frontones-fotos')
-        .getPublicUrl(data.path)
-
-      return publicUrlData.publicUrl
-    } catch (err: any) {
-      console.error('Excepción al subir imagen:', err)
-      return nuevoMunicipio.imagen_url || null
-    }
-  }
-
   const handleGuardarMunicipio = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nuevoMunicipio.nombre.trim() || !nuevoMunicipio.provincia_id) {
-      alert('Por favor completa el nombre y la provincia.')
+      alert('Por favor completa el nombre del municipio y la provincia.')
       return
     }
 
     setGuardandoMunicipio(true)
-    let finalImageUrl = nuevoMunicipio.imagen_url
+    let finalImagenUrl = nuevoMunicipio.imagen_url
+
+    // Subir imagen si se seleccionó archivo
     if (archivoImagenMun) {
-      const subida = await subirImagenMunicipioStorage()
-      if (subida) finalImageUrl = subida
+      const fileExt = archivoImagenMun.name.split('.').pop()
+      const fileName = `municipio_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+      const filePath = `municipios/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('frontones-fotos')
+        .upload(filePath, archivoImagenMun, { upsert: true, contentType: archivoImagenMun.type })
+
+      if (uploadError) {
+        console.warn('Aviso al subir imagen de municipio:', uploadError)
+      } else {
+        const { data: urlData } = supabase.storage
+          .from('frontones-fotos')
+          .getPublicUrl(filePath)
+        finalImagenUrl = urlData.publicUrl
+      }
     }
 
-    const datosMunicipio: any = {
+    const datosMunicipio = {
       nombre: nuevoMunicipio.nombre.trim(),
       provincia_id: nuevoMunicipio.provincia_id,
       estado: nuevoMunicipio.estado,
       codigos_postales: nuevoMunicipio.codigos_postales,
-      imagen_url: finalImageUrl || null
+      imagen_url: finalImagenUrl || null
     }
 
-    let error
+    let error = null
     if (municipioEnEdicion) {
       const res = await supabase
         .from('municipios')
@@ -272,11 +278,10 @@ export default function SuperAdminDashboard() {
 
     if (error) {
       console.warn('Aviso al guardar municipio:', error)
-      // Fallback si la columna estado o imagen_url no existiera aún en Postgres
       if (error.message?.includes('column') || error.code === 'PGRST204') {
         const fallback = { ...datosMunicipio }
-        delete fallback.estado
-        delete fallback.imagen_url
+        delete (fallback as any).estado
+        delete (fallback as any).imagen_url
         if (municipioEnEdicion) {
           await supabase.from('municipios').update(fallback).eq('id', municipioEnEdicion.id)
         } else {
@@ -413,8 +418,8 @@ export default function SuperAdminDashboard() {
       ? `${nuevoGestor.nombre.trim()} ${nuevoGestor.apellidos.trim()}`
       : nuevoGestor.nombre.trim()
 
-    // 1. Crear usuario en Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Crear usuario en Auth mediante cliente aislado sin persistencia de sesión
+    const { data: authData, error: authError } = await authSignUpClient.auth.signUp({
       email: nuevoGestor.email.trim(),
       password: nuevoGestor.password,
       options: {
@@ -429,15 +434,29 @@ export default function SuperAdminDashboard() {
     })
 
     if (authError) {
-      alert('Error al crear cuenta de gestor: ' + authError.message)
+      alert('Error al crear cuenta en Supabase Auth: ' + authError.message)
       setGuardandoGestor(false)
       return
     }
 
-    if (authData.user) {
-      if (authData.user.identities && authData.user.identities.length === 0) {
-        // El usuario ya existía en Auth, actualizamos su perfil por email
-        const { error: updateErr } = await supabase
+    const userId = authData?.user?.id
+
+    if (userId) {
+      // 2. Insertar o actualizar perfil en la tabla profiles
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: userId,
+        email: nuevoGestor.email.trim(),
+        nombre: nuevoGestor.nombre.trim(),
+        apellidos: nuevoGestor.apellidos.trim(),
+        nombre_completo: nombreCompleto,
+        role: 'gestor_municipio',
+        municipio_id: nuevoGestor.municipio_id || null
+      })
+
+      if (profileError) {
+        console.error('Aviso al insertar perfil de gestor:', profileError)
+        // Intento directo por email si el id ya existía
+        await supabase
           .from('profiles')
           .update({
             role: 'gestor_municipio',
@@ -447,29 +466,22 @@ export default function SuperAdminDashboard() {
             nombre_completo: nombreCompleto
           })
           .eq('email', nuevoGestor.email.trim())
-
-        if (updateErr) {
-          console.warn('Aviso al actualizar perfil existente:', updateErr)
-        }
-      } else {
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: authData.user.id,
-          email: nuevoGestor.email.trim(),
+      }
+    } else {
+      // Si ya existía el usuario en Auth, actualizamos su rol en profiles
+      await supabase
+        .from('profiles')
+        .update({
+          role: 'gestor_municipio',
+          municipio_id: nuevoGestor.municipio_id || null,
           nombre: nuevoGestor.nombre.trim(),
           apellidos: nuevoGestor.apellidos.trim(),
-          nombre_completo: nombreCompleto,
-          role: 'gestor_municipio',
-          municipio_id: nuevoGestor.municipio_id || null
+          nombre_completo: nombreCompleto
         })
-
-        if (profileError) {
-          console.error('Error al insertar perfil de gestor:', profileError)
-          alert('Aviso al guardar perfil en la base de datos: ' + profileError.message + '\n\nPor favor ejecuta el script SQL de permisos RLS en Supabase.')
-        }
-      }
+        .eq('email', nuevoGestor.email.trim())
     }
 
-    alert(`¡Gestor "${nombreCompleto}" procesado con éxito!`)
+    alert(`¡Gestor "${nombreCompleto}" dado de alta con éxito!`)
     setGuardandoGestor(false)
     setMostrarFormGestor(false)
     setNuevoGestor({
@@ -1319,72 +1331,82 @@ export default function SuperAdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-800/60 font-medium">
-                    {gestoresFiltrados.map((g) => {
-                      const tieneMunicipio = !!g.municipios
-                      return (
-                        <tr key={g.id} className="hover:bg-stone-800/40 transition">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-xl bg-teal-950/60 border border-teal-800/60 text-teal-300 flex items-center justify-center font-bold text-xs">
-                                {g.nombre ? g.nombre.slice(0, 1).toUpperCase() : 'G'}
+                    {gestoresFiltrados.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-stone-500 italic">
+                          No se encontraron gestores municipales registrados.
+                        </td>
+                      </tr>
+                    ) : (
+                      gestoresFiltrados.map((g) => {
+                        const munObj = g.municipios || municipios.find(m => m.id === g.municipio_id)
+                        const tieneMunicipio = !!munObj
+
+                        return (
+                          <tr key={g.id} className="hover:bg-stone-800/40 transition">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-teal-950/60 border border-teal-800/60 text-teal-300 flex items-center justify-center font-bold text-xs">
+                                  {g.nombre ? g.nombre.slice(0, 1).toUpperCase() : 'G'}
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white block">
+                                    {g.nombre_completo || g.nombre || 'Gestor'}
+                                  </span>
+                                  <span className="text-stone-400 text-[11px] block">{g.email}</span>
+                                </div>
                               </div>
-                              <div>
-                                <span className="font-bold text-white block">
-                                  {g.nombre_completo || g.nombre || 'Gestor'}
+                            </td>
+
+                            <td className="p-4">
+                              {tieneMunicipio ? (
+                                <span className="bg-stone-800 border border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-200 inline-flex items-center gap-1.5">
+                                  🏛️ {munObj.nombre}
                                 </span>
-                                <span className="text-stone-400 text-[11px] block">{g.email}</span>
+                              ) : (
+                                <span className="bg-rose-950/40 text-rose-300 border border-rose-800/50 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                                  Sin municipio asignado
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="p-4">
+                              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black px-2.5 py-0.5 rounded-full">
+                                Gestor Municipal
+                              </span>
+                            </td>
+
+                            <td className="p-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button 
+                                  onClick={() => {
+                                    setGestorParaReasignar(g)
+                                    setMunicipioReasignadoId(g.municipio_id || '')
+                                  }}
+                                  className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition"
+                                >
+                                  Reasignar Pueblo
+                                </button>
+                                <button 
+                                  onClick={() => handleResetPasswordEmail(g.email)}
+                                  className="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                                  title="Enviar email de reseteo de contraseña"
+                                >
+                                  🔑 Reset Pass
+                                </button>
+                                <button 
+                                  onClick={() => handleRevocarAccesoGestor(g)}
+                                  className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                                  title="Revocar permisos de gestor"
+                                >
+                                  Revocar
+                                </button>
                               </div>
-                            </div>
-                          </td>
-
-                          <td className="p-4">
-                            {tieneMunicipio ? (
-                              <span className="bg-stone-800 border border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-200 inline-flex items-center gap-1.5">
-                                🏛️ {g.municipios.nombre}
-                              </span>
-                            ) : (
-                              <span className="bg-rose-950/40 text-rose-300 border border-rose-800/50 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-                                Sin municipio asignado
-                              </span>
-                            )}
-                          </td>
-
-                          <td className="p-4">
-                            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black px-2.5 py-0.5 rounded-full">
-                              Gestor Municipal
-                            </span>
-                          </td>
-
-                          <td className="p-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <button 
-                                onClick={() => {
-                                  setGestorParaReasignar(g)
-                                  setMunicipioReasignadoId(g.municipio_id || '')
-                                }}
-                                className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition"
-                              >
-                                Reasignar Pueblo
-                              </button>
-                              <button 
-                                onClick={() => handleResetPasswordEmail(g.email)}
-                                className="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
-                                title="Enviar email de reseteo de contraseña"
-                              >
-                                🔑 Reset Pass
-                              </button>
-                              <button 
-                                onClick={() => handleRevocarAccesoGestor(g)}
-                                className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
-                                title="Revocar permisos de gestor"
-                              >
-                                Revocar
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
