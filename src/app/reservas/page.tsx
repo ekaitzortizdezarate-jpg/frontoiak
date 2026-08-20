@@ -719,6 +719,11 @@ export default function PortalReservas() {
     const hoyStr = `${anio}-${mes}-${dia}`
     const horaActualStr = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`
 
+    if (frontonSeleccionado.habilitado === false) {
+      alert('Este frontón está actualmente deshabilitado para reservas por decisión del municipio.')
+      return
+    }
+
     if (fechaSeleccionada === hoyStr && horaInicio < horaActualStr) {
       alert('No se puede reservar una franja horaria que ya ha pasado.')
       return
@@ -950,7 +955,7 @@ export default function PortalReservas() {
                       )}
                       <div className="flex-1 min-w-0">
                         <span className="font-bold text-sm text-stone-900 group-hover:text-emerald-900 block truncate">
-                          {f.nombre}
+                          {f.nombre} {f.habilitado === false ? ' (🚫 Deshabilitado)' : ''}
                         </span>
                         <span className="text-xs text-stone-500 block truncate">
                           {f.municipios?.nombre}
@@ -1176,7 +1181,7 @@ export default function PortalReservas() {
                 >
                   <option value="">Selecciona frontón...</option>
                   {frontones.map(f => (
-                    <option key={f.id} value={f.id}>{f.nombre}</option>
+                    <option key={f.id} value={f.id}>{f.nombre}{f.habilitado === false ? ' (🚫 Deshabilitado)' : ''}</option>
                   ))}
                 </select>
               </div>
@@ -1204,16 +1209,22 @@ export default function PortalReservas() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
                       
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
-                        frontonSeleccionado.en_uso
-                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full ${
-                          frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                        }`}></span>
-                        {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
-                      </span>
+                      {frontonSeleccionado.habilitado === false ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 text-rose-800 border border-rose-200">
+                          🚫 Deshabilitado para reservas
+                        </span>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
+                          frontonSeleccionado.en_uso
+                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          <span className={`w-2 h-2 rounded-full ${
+                            frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                          }`}></span>
+                          {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
+                        </span>
+                      )}
                     </div>
 
                     {/* Fila 2: Horario y características */}
@@ -1286,6 +1297,17 @@ export default function PortalReservas() {
                   })()}
                 </div>
               </div>
+
+              {/* AVISO SI EL FRONTÓN ESTÁ DESHABILITADO */}
+              {frontonSeleccionado.habilitado === false && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-900 p-4 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-2xs">
+                  <span className="text-lg">🚫</span>
+                  <div>
+                    <p className="text-rose-900 font-extrabold text-xs uppercase tracking-wide">Frontón deshabilitado temporalmente</p>
+                    <p className="text-rose-700 font-medium text-xs mt-0.5">El municipio ha deshabilitado este frontón para nuevas reservas.</p>
+                  </div>
+                </div>
+              )}
 
               {/* VISTA PREVIA DE 3 DÍAS */}
               <div className="pt-2 border-t border-stone-100 space-y-3">
@@ -1535,7 +1557,10 @@ export default function PortalReservas() {
                   let badgeTexto = 'Disponible'
                   let descripcionTexto = 'Hueco libre para jugar'
 
-                  if (slot.ocupado) {
+                  if (frontonSeleccionado.habilitado === false) {
+                    badgeTexto = 'Deshabilitado'
+                    descripcionTexto = 'Frontón deshabilitado para reservas por el municipio'
+                  } else if (slot.ocupado) {
                     if (slot.esMunicipal) {
                       badgeTexto = 'Evento Municipal'
                       descripcionTexto = `Motivo: ${slot.titulo}`
@@ -1548,6 +1573,8 @@ export default function PortalReservas() {
                     descripcionTexto = estadoFechaActual.esPasado ? 'Día pasado' : slot.esPasadoPorHora ? 'Hora ya pasada' : 'Supera la antelación máxima permitida'
                   }
 
+                  const estaBloqueado = frontonSeleccionado.habilitado === false || estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora
+
                   return (
                     <div 
                       key={idx}
@@ -1556,7 +1583,7 @@ export default function PortalReservas() {
                           ? slot.esMunicipal
                             ? 'bg-blue-50/70 border-blue-200'
                             : 'bg-rose-50/60 border-rose-200' 
-                          : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora)
+                          : estaBloqueado
                             ? 'bg-stone-100/70 border-stone-200 opacity-60'
                             : 'bg-emerald-50/60 border-emerald-200 hover:border-emerald-300'
                       }`}
@@ -1571,7 +1598,7 @@ export default function PortalReservas() {
                               ? slot.esMunicipal
                                 ? 'bg-blue-200 text-blue-950'
                                 : 'bg-rose-200 text-rose-900' 
-                              : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora)
+                              : estaBloqueado
                                 ? 'bg-stone-200 text-stone-600'
                                 : 'bg-emerald-200 text-emerald-900'
                           }`}>
@@ -1584,7 +1611,14 @@ export default function PortalReservas() {
                       </div>
 
                       {!slot.ocupado ? (
-                        (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
+                        frontonSeleccionado.habilitado === false ? (
+                          <button 
+                            disabled
+                            className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
+                          >
+                            Frontón Deshabilitado
+                          </button>
+                        ) : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
                           <button 
                             disabled
                             className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"

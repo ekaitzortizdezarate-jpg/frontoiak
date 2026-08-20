@@ -88,7 +88,8 @@ export default function AdminDashboard() {
     hora_cierre: '22:00',
     duracion_slot_minutos: 60,
     dias_antelacion_maxima: 7,
-    max_reservas_activas: 1
+    max_reservas_activas: 1,
+    habilitado: true
   })
 
   // Incidencias
@@ -554,7 +555,8 @@ export default function AdminDashboard() {
       hora_cierre: nuevoFronton.hora_cierre,
       duracion_slot_minutos: Number(nuevoFronton.duracion_slot_minutos),
       dias_antelacion_maxima: Number(nuevoFronton.dias_antelacion_maxima),
-      max_reservas_activas: Number(nuevoFronton.max_reservas_activas)
+      max_reservas_activas: Number(nuevoFronton.max_reservas_activas),
+      habilitado: nuevoFronton.habilitado
     }
 
     let res
@@ -576,6 +578,7 @@ export default function AdminDashboard() {
         delete fallbackDatos.largura
         delete fallbackDatos.labur
         delete fallbackDatos.luze
+        delete fallbackDatos.habilitado
         if (frontonEnEdicion) {
           await supabase.from('frontones').update(fallbackDatos).eq('id', frontonEnEdicion.id)
         } else {
@@ -614,7 +617,8 @@ export default function AdminDashboard() {
       hora_cierre: '22:00',
       duracion_slot_minutos: 60,
       dias_antelacion_maxima: 7,
-      max_reservas_activas: 1
+      max_reservas_activas: 1,
+      habilitado: true
     })
     setArchivoImagen(null)
   }
@@ -649,13 +653,44 @@ export default function AdminDashboard() {
       hora_cierre: f.hora_cierre || '22:00',
       duracion_slot_minutos: f.duracion_slot_minutos || 60,
       dias_antelacion_maxima: f.dias_antelacion_maxima ?? 7,
-      max_reservas_activas: f.max_reservas_activas ?? 1
+      max_reservas_activas: f.max_reservas_activas ?? 1,
+      habilitado: f.habilitado !== false
     })
     setArchivoImagen(null)
     setMostrarFormularioFronton(true)
     setTimeout(() => {
       formularioFrontonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 100)
+  }
+
+  const handleToggleHabilitarFronton = async (f: any) => {
+    const nuevoEstado = !(f.habilitado !== false)
+    const accion = nuevoEstado ? 'habilitar' : 'deshabilitar'
+    if (!confirm(`¿Estás seguro de que deseas ${accion} el frontón "${f.nombre}"?\n\n${!nuevoEstado ? 'Los usuarios no podrán realizar reservas mientras esté deshabilitado.' : 'Los usuarios volverán a poder realizar reservas.'}`)) {
+      return
+    }
+
+    let { error } = await supabase
+      .from('frontones')
+      .update({ habilitado: nuevoEstado })
+      .eq('id', f.id)
+
+    if (error) {
+      console.warn('Aviso al actualizar habilitado en frontón:', error)
+      if (error.message?.includes('column') || error.code === 'PGRST204') {
+        const resActivo = await supabase.from('frontones').update({ activo: nuevoEstado }).eq('id', f.id)
+        if (resActivo.error) {
+          alert('Error al cambiar estado del frontón: ' + error.message)
+          return
+        }
+      } else {
+        alert('Error al cambiar estado del frontón: ' + error.message)
+        return
+      }
+    }
+
+    alert(`Frontón "${f.nombre}" ${nuevoEstado ? 'habilitado' : 'deshabilitado'} correctamente.`)
+    await loadInitialData()
   }
 
   const generarDiasCalendario = () => {
@@ -1067,9 +1102,15 @@ export default function AdminDashboard() {
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-100 pb-4">
                         <div className="flex items-center gap-2.5 flex-wrap">
                           <h3 className="font-bold text-xl text-stone-900">{f.nombre}</h3>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                            {f.en_uso ? 'En uso (IoT)' : 'Libre'}
-                          </span>
+                          {f.habilitado === false ? (
+                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full">
+                              🚫 Deshabilitado
+                            </span>
+                          ) : (
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                              {f.en_uso ? 'En uso (IoT)' : 'Libre'}
+                            </span>
+                          )}
 
                           {/* CONTADORES DE INCIDENCIAS */}
                           {pendientes > 0 && (
@@ -1586,6 +1627,17 @@ export default function AdminDashboard() {
                                 <div className="flex items-center gap-2.5 flex-wrap">
                                   <h3 className="font-bold text-lg text-stone-900">{f.nombre}</h3>
                                   
+                                  {/* BADGE HABILITADO / DESHABILITADO */}
+                                  {f.habilitado === false ? (
+                                    <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                      🚫 Deshabilitado (Sin reservas)
+                                    </span>
+                                  ) : (
+                                    <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                      🟢 Habilitado
+                                    </span>
+                                  )}
+
                                   {/* CONTADORES DE INCIDENCIAS */}
                                   {pendientes > 0 && (
                                     <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
@@ -1624,23 +1676,25 @@ export default function AdminDashboard() {
                               </div>
                             </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap items-center">
                             {f.tiene_sensor_iot && (
-                              <>
-                                <button 
-                                  onClick={() => abrirGraficaIoT(f)}
-                                  className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
-                                >
-                                  Utilización
-                                </button>
-                                <button 
-                                  onClick={() => setFrontonTokenModal(f)}
-                                  className="bg-stone-100 text-stone-700 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-200 transition"
-                                >
-                                  Token IoT
-                                </button>
-                              </>
+                              <button 
+                                onClick={() => abrirGraficaIoT(f)}
+                                className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                              >
+                                Telemetría IoT
+                              </button>
                             )}
+                            <button 
+                              onClick={() => handleToggleHabilitarFronton(f)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center gap-1.5 ${
+                                f.habilitado === false
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
+                                  : 'bg-stone-100 text-stone-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border-stone-300'
+                              }`}
+                            >
+                              {f.habilitado === false ? '✓ Habilitar' : '🚫 Deshabilitar'}
+                            </button>
                             <button 
                               onClick={() => iniciarEdicion(f)}
                               className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 transition"
@@ -1877,6 +1931,10 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="pt-3 border-t border-stone-200 space-y-2">
+                          <label className="flex items-center space-x-2">
+                            <input type="checkbox" checked={nuevoFronton.habilitado} onChange={(e) => setNuevoFronton({...nuevoFronton, habilitado: e.target.checked})} className="rounded text-emerald-700"/>
+                            <span className="text-xs font-bold text-stone-800">Frontón Habilitado (Permitir reservas de ciudadanos)</span>
+                          </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_sensor_iot} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_sensor_iot: e.target.checked})} className="rounded text-emerald-700"/>
                             <span className="text-xs font-extrabold text-emerald-900">Dispositivo IoT Activo (Sensor de ocupación)</span>
@@ -2254,7 +2312,16 @@ export default function AdminDashboard() {
                   <h3 className="font-bold text-lg text-stone-900">Telemetría IoT: {frontonGraficaModal.nombre}</h3>
                   <p className="text-xs text-stone-500">Presencia detectada en tiempo real por franjas</p>
                 </div>
-                <button onClick={() => setFrontonGraficaModal(null)} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setFrontonTokenModal(frontonGraficaModal)}
+                    className="bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                    title="Ver token de hardware ESP32"
+                  >
+                    🔑 Token IoT
+                  </button>
+                  <button onClick={() => setFrontonGraficaModal(null)} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
@@ -2297,12 +2364,20 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <button 
-                onClick={() => setFrontonGraficaModal(null)}
-                className="w-full bg-stone-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-stone-800"
-              >
-                Cerrar Visualizador
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setFrontonTokenModal(frontonGraficaModal)}
+                  className="bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+                >
+                  🔑 Token IoT (ESP32)
+                </button>
+                <button 
+                  onClick={() => setFrontonGraficaModal(null)}
+                  className="flex-1 bg-stone-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-stone-800 transition"
+                >
+                  Cerrar Visualizador
+                </button>
+              </div>
             </div>
           </div>
         )}
