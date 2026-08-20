@@ -2102,24 +2102,49 @@ export default function PortalReservas() {
             </div>
 
             {/* CALENDARIO 4 SEMANAS COLAPSABLE */}
-            <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-300">
-              <div 
+            <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-200">
+              {/* CABECERA CLICABLE PARA DESPLEGAR / RECOGER */}
+              <button
+                type="button"
                 onClick={() => setCalendarioAbierto(!calendarioAbierto)}
-                className="p-6 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
+                className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
               >
-                <div>
-                  <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.reservas.select_day_calendar}</h3>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">{calendarioAbierto ? t.reservas.calendar_desc_open : t.reservas.calendar_desc_closed}</p>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-base sm:text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
+                    🗓️
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                      <span>{t.reservas.select_day_calendar}</span>
+                      {fechaSeleccionada && (
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          {formatPreviewDay(fechaSeleccionada, lang)}
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      {calendarioAbierto ? t.reservas.calendar_desc_open : t.reservas.calendar_desc_closed}
+                    </p>
+                  </div>
                 </div>
-                <span className="w-8 h-8 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center font-bold text-stone-600 dark:text-stone-300 shadow-2xs">
-                  {calendarioAbierto ? '−' : '+'}
-                </span>
-              </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    calendarioAbierto
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                      : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+                  }`}>
+                    <span>{calendarioAbierto ? (t.reservas.search_free_toggle_close || 'Recoger') : (t.reservas.search_free_toggle_open || 'Desplegar')}</span>
+                    <span className={`text-[10px] transform transition-transform duration-200 ${calendarioAbierto ? 'rotate-180' : ''}`}>▼</span>
+                  </span>
+                </div>
+              </button>
 
               {calendarioAbierto && (
-                <div className="p-6 border-t border-stone-100 dark:border-stone-800 overflow-x-auto space-y-4">
-                  <div className="flex justify-between items-center">
+                <div className="p-4 sm:p-6 pt-0 border-t border-stone-100 dark:border-stone-800 overflow-x-auto space-y-4 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-center pt-4">
                     <button 
+                      type="button"
                       onClick={() => setOffsetSemanas(prev => prev - 1)}
                       className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer"
                     >
