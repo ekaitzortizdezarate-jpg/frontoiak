@@ -77,6 +77,8 @@ export const es = {
     filter_date: 'Día / Fecha',
     filter_start_time: 'Hora inicial',
     filter_end_time: 'Hora final',
+    search_scope_all: 'Todos los frontones',
+    search_scope_favorites: 'Mis favoritos ⭐',
     search_free_btn: 'Buscar Frontones Libres',
     searching_free: 'Buscando frontones libres...',
     free_frontons_found: 'frontón(es) libre(s) encontrado(s)',

@@ -70,6 +70,7 @@ export default function PortalReservas() {
   const [frontonesLibresResultados, setFrontonesLibresResultados] = useState<any[]>([])
   const [buscandoLibres, setBuscandoLibres] = useState(false)
   const [busquedaLibresRealizada, setBusquedaLibresRealizada] = useState(false)
+  const [busquedaLibresSoloFavoritos, setBusquedaLibresSoloFavoritos] = useState(false)
   const [reservandoDesdeLibresId, setReservandoDesdeLibresId] = useState<string | null>(null)
   const [slotDestacadoHoraInicio, setSlotDestacadoHoraInicio] = useState<string | null>(null)
 
@@ -523,7 +524,8 @@ export default function PortalReservas() {
     provId = busquedaLibresProvincia,
     fecha = busquedaLibresFecha,
     horaIni = busquedaLibresHoraInicio,
-    horaFin = busquedaLibresHoraFin
+    horaFin = busquedaLibresHoraFin,
+    soloFavs = busquedaLibresSoloFavoritos
   ) => {
     if (horaFin <= horaIni) {
       alert(t.reservas.time_range_error || 'La hora final debe ser posterior a la hora inicial.')
@@ -546,10 +548,11 @@ export default function PortalReservas() {
         return
       }
 
-      // 2. Filtrar candidatos según provincia, horarios del frontón y antelación
+      // 2. Filtrar candidatos según favoritos, provincia, horarios del frontón y antelación
       const frontonesCandidatos = todosFronts.filter(f => {
         if (f.habilitado === false) return false
         if (f.municipios?.estado === 'inactivo') return false
+        if (soloFavs && !idsFavoritos.includes(f.id)) return false
         if (provId) {
           const pId = f.municipios?.provincia_id || f.municipios?.provincias?.id
           if (pId !== provId) return false
@@ -1397,9 +1400,24 @@ export default function PortalReservas() {
               e.preventDefault()
               ejecutarBusquedaFrontonesLibres()
             }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
           >
-            {/* 1. Provincia */}
+            {/* 1. Ámbito: Todos vs Favoritos */}
+            <div>
+              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                {t.reservas.filter_favorites || 'Favoritos'}
+              </label>
+              <select
+                value={busquedaLibresSoloFavoritos ? 'favoritos' : 'todos'}
+                onChange={(e) => setBusquedaLibresSoloFavoritos(e.target.value === 'favoritos')}
+                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+              >
+                <option value="todos">{t.reservas.search_scope_all || 'Todos los frontones'}</option>
+                <option value="favoritos">{t.reservas.search_scope_favorites || 'Mis favoritos ⭐'}</option>
+              </select>
+            </div>
+
+            {/* 2. Provincia */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.all_provinces ? t.reservas.all_provinces.replace('Todas las ', '') : 'Provincia'}
@@ -1416,7 +1434,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 2. Día / Fecha */}
+            {/* 3. Día / Fecha */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_date || 'Día / Fecha'}
@@ -1430,7 +1448,7 @@ export default function PortalReservas() {
               />
             </div>
 
-            {/* 3. Hora Inicial */}
+            {/* 4. Hora Inicial */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_start_time || 'Hora inicial'}
@@ -1446,7 +1464,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 4. Hora Final */}
+            {/* 5. Hora Final */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_end_time || 'Hora final'}
@@ -1462,7 +1480,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 5. Botón de Búsqueda */}
+            {/* 6. Botón de Búsqueda */}
             <div>
               <button
                 type="submit"

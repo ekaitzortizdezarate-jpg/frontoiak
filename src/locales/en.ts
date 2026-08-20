@@ -77,6 +77,8 @@ export const en = {
     filter_date: 'Day / Date',
     filter_start_time: 'Start time',
     filter_end_time: 'End time',
+    search_scope_all: 'All frontons',
+    search_scope_favorites: 'My favorites ⭐',
     search_free_btn: 'Search Free Frontons',
     searching_free: 'Searching free frontons...',
     free_frontons_found: 'free fronton(s) found',

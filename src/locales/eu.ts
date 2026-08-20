@@ -77,6 +77,8 @@ export const eu = {
     filter_date: 'Eguna / Data',
     filter_start_time: 'Hasiera ordua',
     filter_end_time: 'Amaiera ordua',
+    search_scope_all: 'Frontoi guztiak',
+    search_scope_favorites: 'Nire gogokoak ⭐',
     search_free_btn: 'Bilatu Frontoi Libreak',
     searching_free: 'Frontoi libreak bilatzen...',
     free_frontons_found: 'frontoi libre aurkitu d(ir)a',
