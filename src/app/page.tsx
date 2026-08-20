@@ -175,7 +175,7 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-stone-900 group-hover:text-emerald-800 transition">
-                Soy Pelotari / Jugador
+                Soy Pelotari / Usuario
               </h3>
               <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
                 Encuentra tu frontón, mira si está libre con sensores en vivo y reserva tu plaza.

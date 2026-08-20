@@ -247,7 +247,7 @@ export default function RegisterPage() {
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span>👤 Ciudadano</span>
+              <span>👤 Pelotari / Usuario</span>
             </button>
             <button
               type="button"
