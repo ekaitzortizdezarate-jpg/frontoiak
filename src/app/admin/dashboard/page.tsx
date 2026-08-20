@@ -336,7 +336,7 @@ export default function AdminDashboard() {
   }
 
   const handleBorrarCiudadano = async (userId: string, nombreCiudadano: string) => {
-    const confirmado = confirm(`¿Estás seguro de que quieres borrar al ciudadano "${nombreCiudadano || 'Sin nombre'}"?\n\nEsto eliminará permanentemente su cuenta, su perfil y todas sus reservas activas de la base de datos. Esta acción no se puede deshacer.`)
+    const confirmado = confirm(`¿Estás seguro de que quieres borrar al usuario "${nombreCiudadano || 'Sin nombre'}"?\n\nEsto eliminará permanentemente su cuenta, su perfil y todas sus reservas activas de la base de datos. Esta acción no se puede deshacer.`)
 
     if (!confirmado) return
 
@@ -346,9 +346,9 @@ export default function AdminDashboard() {
       .eq('id', userId)
 
     if (error) {
-      alert('Error al borrar al ciudadano: ' + error.message)
+      alert('Error al borrar al usuario: ' + error.message)
     } else {
-      alert('El ciudadano ha sido eliminado correctamente de la plataforma.')
+      alert('El usuario ha sido eliminado correctamente de la plataforma.')
       if (userProfile?.municipios) {
         cargarCiudadanos(userProfile.municipios.nombre, userProfile.municipios.codigos_postales || [])
       }
@@ -546,7 +546,7 @@ export default function AdminDashboard() {
   }
 
   const handleBorrarImagenMunicipio = async () => {
-    if (!confirm('¿Estás seguro de que deseas eliminar la imagen/escudo de la población?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar la imagen/escudo del municipio?')) {
       return
     }
 
@@ -590,13 +590,13 @@ export default function AdminDashboard() {
       if (munError.message?.includes('column') || munError.code === 'PGRST204') {
         await supabase.from('municipios').update({ codigos_postales: codigosPostales }).eq('id', selectedMunicipioId)
       } else {
-        alert('Error al guardar datos de la población: ' + munError.message)
+        alert('Error al guardar datos del municipio: ' + munError.message)
         return
       }
     }
 
     await supabase.from('profiles').update({ municipio_id: selectedMunicipioId }).eq('id', userProfile.id)
-    alert('Datos de población guardados correctamente.')
+    alert('Datos del municipio guardados correctamente.')
     setArchivoImagenMunicipio(null)
     setEditandoAjustes(false)
     await loadInitialData()
@@ -1381,7 +1381,7 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             {!puebloConfigurado ? (
               <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 text-center">
-                <p className="text-amber-700 dark:text-amber-400 font-bold text-sm">Configura primero los datos de tu población en la pestaña Ajustes.</p>
+                <p className="text-amber-700 dark:text-amber-400 font-bold text-sm">Configura primero los datos de tu municipio en la pestaña Ajustes.</p>
               </div>
             ) : frontones.length === 0 ? (
               <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 text-center">
