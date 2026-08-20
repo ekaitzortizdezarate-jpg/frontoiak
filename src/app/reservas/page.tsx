@@ -579,7 +579,7 @@ export default function PortalReservas() {
 
   const calcularEstadoFechaReservable = (fechaStr: string) => {
     if (!frontonSeleccionado) {
-      return { esPasado: false, bloqueadoPorAntelacion: false, noReservable: false, diasFaltantes: 0 }
+      return { esPasado: false, bloqueadoPorAntelacion: false, noReservable: false, diasFaltantes: 0, antelacionMaxima: 7 }
     }
 
     const hoy = new Date()
@@ -590,13 +590,14 @@ export default function PortalReservas() {
     fechaObj.setHours(0, 0, 0, 0)
 
     const diffDias = Math.round((fechaObj.getTime() - hoy.getTime()) / (1000 * 3600 * 24))
-    const antelacionMinima = frontonSeleccionado.dias_antelacion_maxima ?? 1
+    const antelacionMaxima = frontonSeleccionado.dias_antelacion_maxima ?? 7
 
     const esPasado = diffDias < 0
-    const bloqueadoPorAntelacion = !esPasado && diffDias < antelacionMinima
+    // Si diffDias > antelacionMaxima (ej. 6 días cuando el máximo es 5), no se puede reservar
+    const bloqueadoPorAntelacion = !esPasado && diffDias > antelacionMaxima
     const noReservable = esPasado || bloqueadoPorAntelacion
 
-    return { esPasado, bloqueadoPorAntelacion, noReservable, diasFaltantes: diffDias }
+    return { esPasado, bloqueadoPorAntelacion, noReservable, diasFaltantes: diffDias, antelacionMaxima }
   }
 
   const obtenerTextoVisibilidadEvento = (ev: any) => {
@@ -632,6 +633,16 @@ export default function PortalReservas() {
 
     const eventosDia = eventosFronton.filter(ev => ev.fecha === fechaStr)
 
+    // Calculamos si la fecha es hoy para bloquear franjas horarias pasadas
+    const ahora = new Date()
+    const anio = ahora.getFullYear()
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0')
+    const dia = String(ahora.getDate()).padStart(2, '0')
+    const hoyStr = `${anio}-${mes}-${dia}`
+    const horaActualStr = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`
+
+    const esFechaHoy = fechaStr === hoyStr
+
     while (minutoActual + duracionMin <= minutoCierre) {
       const hIni = Math.floor(minutoActual / 60)
       const mIni = minutoActual % 60
@@ -659,6 +670,9 @@ export default function PortalReservas() {
         esMunicipal = info.esDelMunicipio
       }
 
+      // Si la fecha es hoy y la hora de inicio ya ha transcurrido
+      const esPasadoPorHora = esFechaHoy && horaInicioStr < horaActualStr
+
       slots.push({
         inicio: horaInicioStr,
         fin: horaFinStr,
@@ -666,6 +680,7 @@ export default function PortalReservas() {
         titulo: tituloMostrado,
         esMia,
         esMunicipal,
+        esPasadoPorHora,
         idEvento: eventoOcupante ? eventoOcupante.id : null
       })
     }
@@ -684,8 +699,7 @@ export default function PortalReservas() {
   const handleReservarSlot = async (horaInicio: string, horaFin: string) => {
     if (!frontonSeleccionado || !user) return
 
-    const { esPasado, bloqueadoPorAntelacion } = calcularEstadoFechaReservable(fechaSeleccionada)
-    const antelacionMinima = frontonSeleccionado.dias_antelacion_maxima ?? 1
+    const { esPasado, bloqueadoPorAntelacion, antelacionMaxima } = calcularEstadoFechaReservable(fechaSeleccionada)
 
     if (esPasado) {
       alert('No se pueden hacer reservas en fechas pasadas.')
@@ -693,7 +707,20 @@ export default function PortalReservas() {
     }
 
     if (bloqueadoPorAntelacion) {
-      alert(`Este frontón requiere realizar la reserva con un mínimo de ${antelacionMinima} día(s) de antelación.`)
+      alert(`Este frontón solo permite realizar reservas con un máximo de ${antelacionMaxima} día(s) de antelación.`)
+      return
+    }
+
+    // Comprobamos si la franja horaria ya ha pasado si la reserva es para hoy
+    const ahora = new Date()
+    const anio = ahora.getFullYear()
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0')
+    const dia = String(ahora.getDate()).padStart(2, '0')
+    const hoyStr = `${anio}-${mes}-${dia}`
+    const horaActualStr = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`
+
+    if (fechaSeleccionada === hoyStr && horaInicio < horaActualStr) {
+      alert('No se puede reservar una franja horaria que ya ha pasado.')
       return
     }
 
@@ -1190,7 +1217,7 @@ export default function PortalReservas() {
 
                     {/* Fila 2: Horario y características */}
                     <p className="text-xs text-stone-500 font-medium">
-                      Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Mínimo: {frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) antelación
+                      Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Máximo: {frontonSeleccionado.dias_antelacion_maxima ?? 7} día(s) antelación
                     </p>
 
                     {/* Fila 3: 'Incidencias', 'Pendientes: X' y 'En curso: Y' todo seguido en la misma fila */}
@@ -1322,7 +1349,7 @@ export default function PortalReservas() {
                         {noReservable && (
                           <div className="mb-2">
                             <span className="bg-stone-300/90 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider block text-center shadow-2xs">
-                              {esPasado ? 'Bloqueado (Día pasado)' : 'Bloqueado (Antelación)'}
+                              {esPasado ? 'Bloqueado (Día pasado)' : 'Bloqueado (Máx. antelación)'}
                             </span>
                           </div>
                         )}
@@ -1472,7 +1499,7 @@ export default function PortalReservas() {
                           <span className={`text-[10px] mt-auto text-center font-bold ${
                             noReservable ? 'text-stone-400' : 'text-stone-500'
                           }`}>
-                            {esSeleccionado ? '✓ Elegido' : noReservable ? (esPasado ? 'No disponible' : 'Min. antelación') : 'Ver franjas'}
+                            {esSeleccionado ? '✓ Elegido' : noReservable ? (esPasado ? 'No disponible' : 'Excede máx. antelación') : 'Ver franjas'}
                           </span>
                         </div>
                       )
@@ -1491,7 +1518,7 @@ export default function PortalReservas() {
                 
                 {estadoFechaActual.noReservable && (
                   <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
-                    ⚠️ {estadoFechaActual.esPasado ? 'Fecha pasada (No reservable)' : `Requiere mínimo ${frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) de antelación`}
+                    ⚠️ {estadoFechaActual.esPasado ? 'Fecha pasada (No reservable)' : `Supera la antelación máxima permitida (${frontonSeleccionado.dias_antelacion_maxima ?? 7} día(s))`}
                   </span>
                 )}
               </div>
@@ -1509,9 +1536,9 @@ export default function PortalReservas() {
                       badgeTexto = 'Ocupado'
                       descripcionTexto = `Estado: ${slot.titulo}`
                     }
-                  } else if (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion) {
+                  } else if (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) {
                     badgeTexto = 'No disponible'
-                    descripcionTexto = estadoFechaActual.esPasado ? 'Día pasado' : 'Fuera del margen de antelación mínima'
+                    descripcionTexto = estadoFechaActual.esPasado ? 'Día pasado' : slot.esPasadoPorHora ? 'Hora ya pasada' : 'Supera la antelación máxima permitida'
                   }
 
                   return (
@@ -1522,7 +1549,7 @@ export default function PortalReservas() {
                           ? slot.esMunicipal
                             ? 'bg-blue-50/70 border-blue-200'
                             : 'bg-rose-50/60 border-rose-200' 
-                          : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion)
+                          : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora)
                             ? 'bg-stone-100/70 border-stone-200 opacity-60'
                             : 'bg-emerald-50/60 border-emerald-200 hover:border-emerald-300'
                       }`}
@@ -1537,7 +1564,7 @@ export default function PortalReservas() {
                               ? slot.esMunicipal
                                 ? 'bg-blue-200 text-blue-950'
                                 : 'bg-rose-200 text-rose-900' 
-                              : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion)
+                              : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora)
                                 ? 'bg-stone-200 text-stone-600'
                                 : 'bg-emerald-200 text-emerald-900'
                           }`}>
@@ -1550,12 +1577,12 @@ export default function PortalReservas() {
                       </div>
 
                       {!slot.ocupado ? (
-                        (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion) ? (
+                        (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
                           <button 
                             disabled
                             className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
-                            No disponible
+                            {slot.esPasadoPorHora ? 'Hora pasada' : 'No disponible'}
                           </button>
                         ) : (
                           <button 

@@ -1411,7 +1411,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <p className="text-xs text-stone-500 font-medium mt-0.5">
-                                  Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Mínimo: {f.dias_antelacion_maxima ?? 7}d
+                                  Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Máximo: {f.dias_antelacion_maxima ?? 7}d
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">Luz {f.luz_pago ? '(Pago)' : ''}</span>}
@@ -1580,12 +1580,13 @@ export default function AdminDashboard() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Antelación Mín.</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">Antelación Máx.</label>
                               <select 
                                 value={nuevoFronton.dias_antelacion_maxima} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, dias_antelacion_maxima: Number(e.target.value)})}
                                 className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
                               >
+                                <option value="0">0 días (Solo hoy)</option>
                                 <option value="1">1 día</option>
                                 <option value="2">2 días</option>
                                 <option value="3">3 días</option>
