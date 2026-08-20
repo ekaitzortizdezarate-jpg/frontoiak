@@ -917,13 +917,15 @@ export default function PortalReservas() {
                     {(pendientes > 0 || enCurso > 0) && (
                       <div className="flex flex-wrap gap-1.5">
                         {pendientes > 0 && (
-                          <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                          <span className="bg-rose-50 text-rose-800 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            <span className="text-stone-600">Pendientes:</span>
+                            <span className="font-black text-rose-700">{pendientes}</span>
                           </span>
                         )}
                         {enCurso > 0 && (
-                          <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            🔧 {enCurso} en curso
+                          <span className="bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            <span className="text-stone-600">En curso:</span>
+                            <span className="font-black text-amber-800">{enCurso}</span>
                           </span>
                         )}
                       </div>
@@ -1223,8 +1225,14 @@ export default function PortalReservas() {
                   {/* CONTADORES DE INCIDENCIAS DEBAJO DEL BOTÓN DE FAVORITOS */}
                   {(() => {
                     const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
+                    if (pendientes === 0 && enCurso === 0) return null
+
                     return (
-                      <div className="flex flex-col items-start sm:items-end gap-1 text-xs w-full">
+                      <div className="flex flex-col items-start sm:items-end gap-1 text-xs w-full pt-1">
+                        <span className="text-[11px] font-bold text-stone-500 tracking-wider">
+                          Incidencias
+                        </span>
+
                         <div className={`px-2.5 py-0.5 rounded-lg border flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs shadow-2xs ${
                           pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
                         }`}>
