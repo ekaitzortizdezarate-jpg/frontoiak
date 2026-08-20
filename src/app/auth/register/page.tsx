@@ -26,10 +26,21 @@ export default function RegisterPage() {
     setLoading(true)
     setErrorMsg('')
 
-    // 1. Registrar el usuario en Supabase Auth
+    // 1. Registrar el usuario en Supabase Auth enviando todos los datos en metadata
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          nombre_completo: nombre,
+          apellidos,
+          dni,
+          calle,
+          fecha_nacimiento: fechaNacimiento || null,
+          localidad,
+          codigo_postal: codigoPostal,
+        }
+      }
     })
 
     if (authError) {
@@ -40,22 +51,10 @@ export default function RegisterPage() {
 
     const user = authData.user
     if (user) {
-      // 2. Guardar todos los campos extendidos en la tabla profiles
+      // 2. Asegurarnos de insertar o actualizar explícitamente en la tabla profiles
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
-          nombre_completo: nombre,
-          apellidos,
-          dni,
-          calle,
-          fecha_nacimiento: fechaNacimiento || null,
-          localidad,
-          codigo_postal: codigoPostal,
-        })
-        .eq('id', user.id)
-
-      if (profileError) {
-        await supabase.from('profiles').upsert({
+        .upsert({
           id: user.id,
           nombre_completo: nombre,
           apellidos,
@@ -65,9 +64,12 @@ export default function RegisterPage() {
           localidad,
           codigo_postal: codigoPostal,
         })
+
+      if (profileError) {
+        console.error('Error al guardar perfil:', profileError.message)
       }
 
-      alert('¡Registro completado con éxito! Ya puedes iniciar sesión o acceder a la plataforma.')
+      alert('¡Registro completado con éxito! Ya puedes acceder a la plataforma.')
       router.push('/reservas')
     }
 
