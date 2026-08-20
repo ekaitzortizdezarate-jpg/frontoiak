@@ -26,18 +26,17 @@ export default function RegisterPage() {
     setLoading(true)
     setErrorMsg('')
 
-    // 1. Registramos enviando todos los datos dentro de options.data para que el Trigger de Supabase cree la fila en profiles
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           nombre_completo: nombre,
-          apellidos,
-          dni,
-          calle,
-          fecha_nacimiento: fechaNacimiento || null,
-          localidad,
+          apellidos: apellidos,
+          dni: dni,
+          calle: calle,
+          fecha_nacimiento: fechaNacimiento || '',
+          localidad: localidad,
           codigo_postal: codigoPostal,
           role: 'usuario'
         }
@@ -60,7 +59,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
-      {/* HEADER */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div 
@@ -87,7 +85,6 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* CONTENIDO */}
       <main className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-xl">
           <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">
