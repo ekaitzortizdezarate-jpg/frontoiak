@@ -124,12 +124,23 @@ export default function SuperAdminDashboard() {
     setMunicipios(muns || [])
 
     // 3. Gestores
-    const { data: profs } = await supabase
+    let profsData: any[] = []
+    const { data: profs, error: profsError } = await supabase
       .from('profiles')
       .select('*, municipios(id, nombre, provincia_id, provincias(nombre))')
       .eq('role', 'gestor_municipio')
-      .order('created_at', { ascending: false })
-    setGestores(profs || [])
+
+    if (profsError) {
+      console.warn('Aviso al cargar gestores con relación:', profsError)
+      const { data: fallbackProfs } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'gestor_municipio')
+      profsData = fallbackProfs || []
+    } else {
+      profsData = profs || []
+    }
+    setGestores(profsData)
 
     // 4. Frontones
     const { data: fronts } = await supabase
@@ -424,19 +435,41 @@ export default function SuperAdminDashboard() {
     }
 
     if (authData.user) {
-      // 2. Crear o actualizar perfil en la tabla profiles
-      await supabase.from('profiles').upsert({
-        id: authData.user.id,
-        email: nuevoGestor.email.trim(),
-        nombre: nuevoGestor.nombre.trim(),
-        apellidos: nuevoGestor.apellidos.trim(),
-        nombre_completo: nombreCompleto,
-        role: 'gestor_municipio',
-        municipio_id: nuevoGestor.municipio_id || null
-      })
+      if (authData.user.identities && authData.user.identities.length === 0) {
+        // El usuario ya existía en Auth, actualizamos su perfil por email
+        const { error: updateErr } = await supabase
+          .from('profiles')
+          .update({
+            role: 'gestor_municipio',
+            municipio_id: nuevoGestor.municipio_id || null,
+            nombre: nuevoGestor.nombre.trim(),
+            apellidos: nuevoGestor.apellidos.trim(),
+            nombre_completo: nombreCompleto
+          })
+          .eq('email', nuevoGestor.email.trim())
+
+        if (updateErr) {
+          console.warn('Aviso al actualizar perfil existente:', updateErr)
+        }
+      } else {
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: authData.user.id,
+          email: nuevoGestor.email.trim(),
+          nombre: nuevoGestor.nombre.trim(),
+          apellidos: nuevoGestor.apellidos.trim(),
+          nombre_completo: nombreCompleto,
+          role: 'gestor_municipio',
+          municipio_id: nuevoGestor.municipio_id || null
+        })
+
+        if (profileError) {
+          console.error('Error al insertar perfil de gestor:', profileError)
+          alert('Aviso al guardar perfil en la base de datos: ' + profileError.message + '\n\nPor favor ejecuta el script SQL de permisos RLS en Supabase.')
+        }
+      }
     }
 
-    alert(`¡Gestor "${nombreCompleto}" dado de alta con éxito!`)
+    alert(`¡Gestor "${nombreCompleto}" procesado con éxito!`)
     setGuardandoGestor(false)
     setMostrarFormGestor(false)
     setNuevoGestor({
