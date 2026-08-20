@@ -59,6 +59,34 @@ export default function SuperAdminDashboard() {
   const [archivoImagenMun, setArchivoImagenMun] = useState<File | null>(null)
   const [guardandoMunicipio, setGuardandoMunicipio] = useState(false)
 
+  // Formulario y gestión de Frontones dentro de Municipio
+  const [mostrarFormFronton, setMostrarFormFronton] = useState(false)
+  const [frontonEnEdicion, setFrontonEnEdicion] = useState<any | null>(null)
+  const [nuevoFronton, setNuevoFronton] = useState({
+    nombre: '',
+    anchura: '',
+    largura: '',
+    cuadros: '',
+    labur: '',
+    luze: '',
+    tiene_luz: false,
+    luz_pago: false,
+    tiene_vestuarios: false,
+    tiene_duchas: false,
+    solo_empadronados: false,
+    tiene_sensor_iot: false,
+    hardware_token: '',
+    imagen_url: '',
+    hora_apertura: '08:00',
+    hora_cierre: '22:00',
+    duracion_slot_minutos: 60,
+    dias_antelacion_maxima: 7,
+    max_reservas_activas: 1,
+    habilitado: true
+  })
+  const [archivoImagenFronton, setArchivoImagenFronton] = useState<File | null>(null)
+  const [guardandoFronton, setGuardandoFronton] = useState(false)
+
   // Formulario de Gestor
   const [mostrarFormGestor, setMostrarFormGestor] = useState(false)
   const [nuevoGestor, setNuevoGestor] = useState({
@@ -342,6 +370,191 @@ export default function SuperAdminDashboard() {
     } else {
       alert('Municipio eliminado correctamente.')
       setMunicipiosSeleccionados(prev => prev.filter(id => id !== mun.id))
+      await cargarDatosGlobales()
+    }
+  }
+
+  // ==========================================
+  // GESTIÓN DE FRONTONES DEL MUNICIPIO
+  // ==========================================
+  const resetFormFronton = () => {
+    setNuevoFronton({
+      nombre: '',
+      anchura: '',
+      largura: '',
+      cuadros: '',
+      labur: '',
+      luze: '',
+      tiene_luz: false,
+      luz_pago: false,
+      tiene_vestuarios: false,
+      tiene_duchas: false,
+      solo_empadronados: false,
+      tiene_sensor_iot: false,
+      hardware_token: '',
+      imagen_url: '',
+      hora_apertura: '08:00',
+      hora_cierre: '22:00',
+      duracion_slot_minutos: 60,
+      dias_antelacion_maxima: 7,
+      max_reservas_activas: 1,
+      habilitado: true
+    })
+    setArchivoImagenFronton(null)
+    setFrontonEnEdicion(null)
+    setMostrarFormFronton(false)
+  }
+
+  const handleIniciarCrearFronton = () => {
+    resetFormFronton()
+    setMostrarFormFronton(true)
+  }
+
+  const handleIniciarEditarFronton = (f: any) => {
+    let anchura = f.anchura ?? ''
+    let largura = f.largura ?? ''
+    if (!anchura && !largura && f.medidas) {
+      const match = f.medidas.match(/(\d+(?:[.,]\d+)?)\s*[xX*]\s*(\d+(?:[.,]\d+)?)/)
+      if (match) {
+        largura = match[1]
+        anchura = match[2]
+      }
+    }
+
+    setFrontonEnEdicion(f)
+    setNuevoFronton({
+      nombre: f.nombre || '',
+      anchura: anchura ? String(anchura) : '',
+      largura: largura ? String(largura) : '',
+      cuadros: f.cuadros ? String(f.cuadros) : '',
+      labur: f.labur ? String(f.labur) : '',
+      luze: f.luze ? String(f.luze) : '',
+      tiene_luz: !!f.tiene_luz,
+      luz_pago: !!f.luz_pago,
+      tiene_vestuarios: !!f.tiene_vestuarios,
+      tiene_duchas: !!f.tiene_duchas,
+      solo_empadronados: !!f.solo_empadronados,
+      tiene_sensor_iot: !!f.tiene_sensor_iot,
+      hardware_token: f.hardware_token || f.iot_token || '',
+      imagen_url: f.imagen_url || '',
+      hora_apertura: f.hora_apertura ? f.hora_apertura.slice(0, 5) : '08:00',
+      hora_cierre: f.hora_cierre ? f.hora_cierre.slice(0, 5) : '22:00',
+      duracion_slot_minutos: f.duracion_slot_minutos || 60,
+      dias_antelacion_maxima: f.dias_antelacion_maxima || 7,
+      max_reservas_activas: f.max_reservas_activas || 1,
+      habilitado: f.habilitado !== false
+    })
+    setArchivoImagenFronton(null)
+    setMostrarFormFronton(true)
+  }
+
+  const handleGuardarFronton = async (e: React.FormEvent, municipioId: string) => {
+    e.preventDefault()
+    if (!nuevoFronton.nombre.trim()) {
+      alert('Por favor introduce el nombre del frontón.')
+      return
+    }
+
+    setGuardandoFronton(true)
+    let finalImageUrl = nuevoFronton.imagen_url
+
+    if (archivoImagenFronton) {
+      const fileExt = archivoImagenFronton.name.split('.').pop()
+      const fileName = `fronton_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+      const filePath = `frontones/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('frontones-fotos')
+        .upload(filePath, archivoImagenFronton, { upsert: true, contentType: archivoImagenFronton.type })
+
+      if (uploadError) {
+        console.warn('Aviso al subir imagen de frontón:', uploadError)
+      } else {
+        const { data: urlData } = supabase.storage
+          .from('frontones-fotos')
+          .getPublicUrl(filePath)
+        finalImageUrl = urlData.publicUrl
+      }
+    }
+
+    const datosFronton: any = {
+      nombre: nuevoFronton.nombre.trim(),
+      municipio_id: municipioId,
+      largura: nuevoFronton.largura || null,
+      anchura: nuevoFronton.anchura || null,
+      medidas: nuevoFronton.largura && nuevoFronton.anchura 
+        ? `${nuevoFronton.largura}x${nuevoFronton.anchura} m` 
+        : nuevoFronton.largura ? `${nuevoFronton.largura} m` : nuevoFronton.anchura ? `${nuevoFronton.anchura} m` : null,
+      cuadros: nuevoFronton.cuadros || null,
+      labur: nuevoFronton.labur || null,
+      luze: nuevoFronton.luze || null,
+      tiene_luz: nuevoFronton.tiene_luz,
+      luz_pago: nuevoFronton.luz_pago,
+      tiene_vestuarios: nuevoFronton.tiene_vestuarios,
+      tiene_duchas: nuevoFronton.tiene_duchas,
+      solo_empadronados: nuevoFronton.solo_empadronados,
+      tiene_sensor_iot: nuevoFronton.tiene_sensor_iot,
+      hardware_token: nuevoFronton.hardware_token || (nuevoFronton.tiene_sensor_iot ? `esp32-${Date.now().toString(36)}` : null),
+      imagen_url: finalImageUrl || null,
+      hora_apertura: nuevoFronton.hora_apertura,
+      hora_cierre: nuevoFronton.hora_cierre,
+      duracion_slot_minutos: Number(nuevoFronton.duracion_slot_minutos) || 60,
+      dias_antelacion_maxima: Number(nuevoFronton.dias_antelacion_maxima) || 7,
+      max_reservas_activas: Number(nuevoFronton.max_reservas_activas) || 1,
+      habilitado: nuevoFronton.habilitado
+    }
+
+    let res
+    if (frontonEnEdicion) {
+      res = await supabase.from('frontones').update(datosFronton).eq('id', frontonEnEdicion.id)
+    } else {
+      res = await supabase.from('frontones').insert([datosFronton])
+    }
+
+    if (res.error) {
+      console.warn('Aviso al guardar frontón:', res.error)
+      if (res.error.message?.includes('column') || res.error.code === 'PGRST204') {
+        const fallback = { ...datosFronton }
+        delete fallback.anchura
+        delete fallback.largura
+        delete fallback.labur
+        delete fallback.luze
+        delete fallback.habilitado
+        if (frontonEnEdicion) {
+          await supabase.from('frontones').update(fallback).eq('id', frontonEnEdicion.id)
+        } else {
+          await supabase.from('frontones').insert([fallback])
+        }
+      } else {
+        alert('Error al guardar frontón: ' + res.error.message)
+        setGuardandoFronton(false)
+        return
+      }
+    }
+
+    alert(`Frontón "${nuevoFronton.nombre}" guardado correctamente.`)
+    setGuardandoFronton(false)
+    resetFormFronton()
+    await cargarDatosGlobales()
+  }
+
+  const handleEliminarFronton = async (f: any) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el frontón "${f.nombre}"? Esta acción borrará el frontón y sus reservas.`)) {
+      return
+    }
+
+    // 1. Eliminar reservas asociadas
+    await supabase.from('reservas').delete().eq('fronton_id', f.id)
+
+    // 2. Eliminar telemetría si existiera
+    await supabase.from('telemetria_iot').delete().eq('fronton_id', f.id)
+
+    // 3. Eliminar frontón
+    const { error } = await supabase.from('frontones').delete().eq('id', f.id)
+    if (error) {
+      alert('Error al eliminar frontón: ' + error.message)
+    } else {
+      alert(`Frontón "${f.nombre}" eliminado correctamente.`)
       await cargarDatosGlobales()
     }
   }
@@ -1013,20 +1226,355 @@ export default function SuperAdminDashboard() {
                       disabled={guardandoMunicipio}
                       className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl text-xs font-bold transition disabled:bg-stone-800"
                     >
-                      {guardandoMunicipio ? 'Guardando...' : municipioEnEdicion ? 'Actualizar Municipio' : 'Crear Municipio'}
+                      {guardandoMunicipio ? 'Guardando...' : municipioEnEdicion ? 'Actualizar Datos del Municipio' : 'Crear Municipio'}
                     </button>
                     <button 
                       type="button" 
                       onClick={() => {
                         setMostrarFormMunicipio(false)
                         resetFormMunicipio()
+                        resetFormFronton()
                       }}
                       className="bg-stone-800 text-stone-300 hover:bg-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold"
                     >
-                      Cancelar
+                      Cerrar
                     </button>
                   </div>
                 </form>
+
+                {/* GESTIÓN DE FRONTONES DEL MUNICIPIO */}
+                {municipioEnEdicion && (
+                  <div className="border-t border-stone-800 pt-6 mt-6 space-y-4">
+                    <div className="flex justify-between items-center flex-wrap gap-2">
+                      <div>
+                        <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                          <span>🏟️</span> Frontones de {municipioEnEdicion.nombre}
+                          <span className="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                            {frontones.filter(f => f.municipio_id === municipioEnEdicion.id).length}
+                          </span>
+                        </h4>
+                        <p className="text-xs text-stone-400">Edita los frontones existentes, añade nuevos o elimina instalaciones de este municipio</p>
+                      </div>
+
+                      {!mostrarFormFronton && (
+                        <button
+                          type="button"
+                          onClick={handleIniciarCrearFronton}
+                          className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span>+</span> Añadir Nuevo Frontón
+                        </button>
+                      )}
+                    </div>
+
+                    {/* FORMULARIO CREAR / EDITAR FRONTÓN */}
+                    {mostrarFormFronton && (
+                      <div className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-4 animate-in fade-in">
+                        <div className="flex justify-between items-center border-b border-stone-800 pb-2">
+                          <h5 className="font-bold text-xs text-emerald-400 uppercase tracking-wider">
+                            {frontonEnEdicion ? `Editar Frontón: ${frontonEnEdicion.nombre}` : 'Crear Nuevo Frontón'}
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={resetFormFronton}
+                            className="text-stone-400 hover:text-white font-bold text-xs"
+                          >
+                            ✕ Cancelar
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="sm:col-span-2">
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Nombre del Frontón *</label>
+                              <input
+                                type="text"
+                                required
+                                value={nuevoFronton.nombre}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, nombre: e.target.value })}
+                                placeholder="ej. Frontón Municipal Uarkape"
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Largura (m)</label>
+                              <input
+                                type="text"
+                                value={nuevoFronton.largura}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, largura: e.target.value })}
+                                placeholder="ej. 36"
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Anchura (m)</label>
+                              <input
+                                type="text"
+                                value={nuevoFronton.anchura}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, anchura: e.target.value })}
+                                placeholder="ej. 10"
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Hora Apertura</label>
+                              <input
+                                type="time"
+                                value={nuevoFronton.hora_apertura}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_apertura: e.target.value })}
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Hora Cierre</label>
+                              <input
+                                type="time"
+                                value={nuevoFronton.hora_cierre}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_cierre: e.target.value })}
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Duración Slot (minutos)</label>
+                              <input
+                                type="number"
+                                min={30}
+                                step={15}
+                                value={nuevoFronton.duracion_slot_minutos}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, duracion_slot_minutos: Number(e.target.value) })}
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Antelación Máx. (días)</label>
+                              <input
+                                type="number"
+                                min={1}
+                                value={nuevoFronton.dias_antelacion_maxima}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, dias_antelacion_maxima: Number(e.target.value) })}
+                                className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {/* SERVICIOS Y EQUIPAMIENTO */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.tiene_luz}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, tiene_luz: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>💡 Tiene Luz</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.luz_pago}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, luz_pago: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>💳 Luz de Pago</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.tiene_vestuarios}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, tiene_vestuarios: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>🚪 Vestuarios</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.tiene_duchas}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, tiene_duchas: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>🚿 Duchas</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.solo_empadronados}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, solo_empadronados: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>👥 Solo Empadronados</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.habilitado}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, habilitado: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>🟢 Habilitado</span>
+                            </label>
+                          </div>
+
+                          {/* SENSOR IOT Y TOKEN */}
+                          <div className="p-3.5 bg-stone-900 rounded-xl border border-stone-800 space-y-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-stone-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={nuevoFronton.tiene_sensor_iot}
+                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, tiene_sensor_iot: e.target.checked })}
+                                className="rounded text-emerald-600 focus:ring-0"
+                              />
+                              <span>📡 Equipado con Sensor de Presencia IoT (ESP32)</span>
+                            </label>
+
+                            {nuevoFronton.tiene_sensor_iot && (
+                              <div>
+                                <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1">Token ESP32 (Opcional, se genera automáticamente)</label>
+                                <input
+                                  type="text"
+                                  value={nuevoFronton.hardware_token}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, hardware_token: e.target.value })}
+                                  placeholder="esp32-xxxx..."
+                                  className="w-full p-2 bg-stone-950 border border-stone-800 rounded-lg text-xs font-mono text-stone-300 focus:border-emerald-500 focus:outline-none"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* IMAGEN DEL FRONTÓN */}
+                          <div>
+                            <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Foto del Frontón</label>
+                            {(archivoImagenFronton || nuevoFronton.imagen_url) && (
+                              <div className="flex items-center gap-3 mb-2 p-2.5 bg-stone-900 rounded-xl border border-stone-800">
+                                <img
+                                  src={archivoImagenFronton ? URL.createObjectURL(archivoImagenFronton) : nuevoFronton.imagen_url}
+                                  alt="Frontón"
+                                  className="w-14 h-14 object-cover rounded-xl border border-stone-700 bg-stone-950"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNuevoFronton({ ...nuevoFronton, imagen_url: '' })
+                                    setArchivoImagenFronton(null)
+                                  }}
+                                  className="text-xs text-rose-400 hover:text-rose-300 font-bold"
+                                >
+                                  Quitar foto
+                                </button>
+                              </div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setArchivoImagenFronton(e.target.files[0])
+                                }
+                              }}
+                              className="w-full text-xs text-stone-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 pt-2">
+                            <button
+                              type="button"
+                              disabled={guardandoFronton}
+                              onClick={(e) => handleGuardarFronton(e, municipioEnEdicion.id)}
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl text-xs font-bold transition disabled:bg-stone-800 shadow-sm"
+                            >
+                              {guardandoFronton ? 'Guardando Frontón...' : frontonEnEdicion ? 'Actualizar Frontón' : 'Guardar Nuevo Frontón'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={resetFormFronton}
+                              className="bg-stone-900 hover:bg-stone-800 text-stone-300 px-4 py-2.5 rounded-xl text-xs font-bold border border-stone-800"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* LISTA DE FRONTONES DEL MUNICIPIO */}
+                    <div className="space-y-2">
+                      {frontones.filter(f => f.municipio_id === municipioEnEdicion.id).length === 0 ? (
+                        <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800/80 text-center text-xs text-stone-500 italic">
+                          Este municipio no tiene frontones registrados todavía. Pulsa "+ Añadir Nuevo Frontón" para crear uno.
+                        </div>
+                      ) : (
+                        frontones.filter(f => f.municipio_id === municipioEnEdicion.id).map(f => (
+                          <div
+                            key={f.id}
+                            className="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 flex items-center justify-between gap-3 hover:border-stone-700 transition"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              {f.imagen_url ? (
+                                <img src={f.imagen_url} alt="" className="w-10 h-10 object-cover rounded-xl border border-stone-800 bg-stone-900 flex-shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-center text-base flex-shrink-0">
+                                  🎾
+                                </div>
+                              )}
+                              <div className="space-y-0.5 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h6 className="font-bold text-xs text-white truncate">{f.nombre}</h6>
+                                  {f.medidas && (
+                                    <span className="text-[10px] text-stone-400 bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
+                                      {f.medidas}
+                                    </span>
+                                  )}
+                                  {f.tiene_sensor_iot && (
+                                    <span className="text-[10px] text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-800/60 font-bold">
+                                      📡 IoT
+                                    </span>
+                                  )}
+                                  {f.tiene_luz && (
+                                    <span className="text-[10px] text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60 font-bold">
+                                      💡 Luz
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-stone-500">
+                                  Horario: {f.hora_apertura?.slice(0, 5)} - {f.hora_cierre?.slice(0, 5)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleIniciarEditarFronton(f)}
+                                className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                              >
+                                ✏️ Editar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleEliminarFronton(f)}
+                                className="bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/60 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                                title="Eliminar frontón"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
