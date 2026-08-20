@@ -1676,68 +1676,95 @@ export default function PortalReservas() {
         </section>
 
         {/* 3. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
-        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-300">
-          <div 
+        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-200">
+          {/* CABECERA CLICABLE PARA DESPLEGAR / RECOGER */}
+          <button
+            type="button"
             onClick={() => setBuscadorAbierto(!buscadorAbierto)}
-            className="p-6 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
+            className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
           >
-            <div>
-              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.reservas.search_and_explore}</h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">{buscadorAbierto ? t.reservas.search_desc_open : t.reservas.search_desc_closed}</p>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-base sm:text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
+                🏛️
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <span>{t.reservas.search_and_explore || 'Buscar y Explorar Frontones'}</span>
+                  {frontonSeleccionado && (
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 truncate max-w-[150px] sm:max-w-[220px]">
+                      {frontonSeleccionado.nombre}
+                    </span>
+                  )}
+                </h2>
+                <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                  {buscadorAbierto ? t.reservas.search_desc_open : t.reservas.search_desc_closed}
+                </p>
+              </div>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center font-bold text-stone-600 dark:text-stone-300 shadow-2xs">
-              {buscadorAbierto ? '−' : '+'}
-            </span>
-          </div>
 
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                buscadorAbierto
+                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+              }`}>
+                <span>{buscadorAbierto ? (t.reservas.search_free_toggle_close || 'Recoger') : (t.reservas.search_free_toggle_open || 'Desplegar')}</span>
+                <span className={`text-[10px] transform transition-transform duration-200 ${buscadorAbierto ? 'rotate-180' : ''}`}>▼</span>
+              </span>
+            </div>
+          </button>
+
+          {/* CONTENIDO DESPLEGABLE */}
           {buscadorAbierto && (
-            <div className="p-6 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_province}</label>
-                <select 
-                  value={provinciaSeleccionada}
-                  onChange={(e) => handleProvinciaChange(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
-                >
-                  <option value="">{t.reservas.select_province}</option>
-                  {provincias.map(p => (
-                    <option key={p.id} value={p.id}>{p.nombre}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_province}</label>
+                  <select 
+                    value={provinciaSeleccionada}
+                    onChange={(e) => handleProvinciaChange(e.target.value)}
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  >
+                    <option value="">{t.reservas.select_province}</option>
+                    {provincias.map(p => (
+                      <option key={p.id} value={p.id}>{p.nombre}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_municipality}</label>
-                <select 
-                  value={municipioSeleccionado}
-                  onChange={(e) => handleMunicipioChange(e.target.value)}
-                  disabled={!provinciaSeleccionada}
-                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
-                >
-                  <option value="">{t.reservas.select_town}</option>
-                  {municipios.map(m => (
-                    <option key={m.id} value={m.id}>{m.nombre}</option>
-                  ))}
-                </select>
-              </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_municipality}</label>
+                  <select 
+                    value={municipioSeleccionado}
+                    onChange={(e) => handleMunicipioChange(e.target.value)}
+                    disabled={!provinciaSeleccionada}
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
+                  >
+                    <option value="">{t.reservas.select_town}</option>
+                    {municipios.map(m => (
+                      <option key={m.id} value={m.id}>{m.nombre}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_fronton}</label>
-                <select 
-                  value={frontonSeleccionado?.id || ''}
-                  onChange={(e) => {
-                    const f = frontones.find(item => item.id === e.target.value)
-                    if (f) seleccionarFronton(f)
-                    else setFrontonSeleccionado(null)
-                  }}
-                  disabled={!municipioSeleccionado}
-                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
-                >
-                  <option value="">{t.reservas.select_fronton}</option>
-                  {frontones.map(f => (
-                    <option key={f.id} value={f.id}>{f.nombre}{f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}</option>
-                  ))}
-                </select>
+                <div>
+                  <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_fronton}</label>
+                  <select 
+                    value={frontonSeleccionado?.id || ''}
+                    onChange={(e) => {
+                      const f = frontones.find(item => item.id === e.target.value)
+                      if (f) seleccionarFronton(f)
+                      else setFrontonSeleccionado(null)
+                    }}
+                    disabled={!municipioSeleccionado}
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
+                  >
+                    <option value="">{t.reservas.select_fronton}</option>
+                    {frontones.map(f => (
+                      <option key={f.id} value={f.id}>{f.nombre}{f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           )}
