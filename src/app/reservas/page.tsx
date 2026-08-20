@@ -61,6 +61,17 @@ export default function PortalReservas() {
   const [todosLosFrontones, setTodosLosFrontones] = useState<any[]>([])
   const [incidenciasHistorialAbierto, setIncidenciasHistorialAbierto] = useState<string[]>([])
 
+  // Búsqueda de frontones libres por fecha y hora
+  const hoyInicialStr = new Date().toISOString().split('T')[0]
+  const [busquedaLibresProvincia, setBusquedaLibresProvincia] = useState('')
+  const [busquedaLibresFecha, setBusquedaLibresFecha] = useState(hoyInicialStr)
+  const [busquedaLibresHoraInicio, setBusquedaLibresHoraInicio] = useState('17:00')
+  const [busquedaLibresHoraFin, setBusquedaLibresHoraFin] = useState('18:00')
+  const [frontonesLibresResultados, setFrontonesLibresResultados] = useState<any[]>([])
+  const [buscandoLibres, setBuscandoLibres] = useState(false)
+  const [busquedaLibresRealizada, setBusquedaLibresRealizada] = useState(false)
+  const [reservandoDesdeLibresId, setReservandoDesdeLibresId] = useState<string | null>(null)
+
   // Calendario y Navegación de 4 semanas
   const [offsetSemanas, setOffsetSemanas] = useState(0)
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(new Date().toISOString().split('T')[0])
@@ -505,6 +516,204 @@ export default function PortalReservas() {
       .eq('municipio_id', munId)
 
     setFrontones(fronts || [])
+  }
+
+  const ejecutarBusquedaFrontonesLibres = async (
+    provId = busquedaLibresProvincia,
+    fecha = busquedaLibresFecha,
+    horaIni = busquedaLibresHoraInicio,
+    horaFin = busquedaLibresHoraFin
+  ) => {
+    if (horaFin <= horaIni) {
+      alert(t.reservas.time_range_error || 'La hora final debe ser posterior a la hora inicial.')
+      return
+    }
+
+    setBuscandoLibres(true)
+    setBusquedaLibresRealizada(true)
+
+    try {
+      // 1. Consultar todos los frontones con sus municipios y provincias
+      const { data: todosFronts, error: frontsError } = await supabase
+        .from('frontones')
+        .select('*, municipios(*, provincias(*))')
+        .neq('habilitado', false)
+
+      if (frontsError || !todosFronts) {
+        setFrontonesLibresResultados([])
+        setBuscandoLibres(false)
+        return
+      }
+
+      // 2. Filtrar candidatos según provincia, horarios del frontón y antelación
+      const frontonesCandidatos = todosFronts.filter(f => {
+        if (f.habilitado === false) return false
+        if (f.municipios?.estado === 'inactivo') return false
+        if (provId) {
+          const pId = f.municipios?.provincia_id || f.municipios?.provincias?.id
+          if (pId !== provId) return false
+        }
+
+        // Horarios del frontón
+        const apertura = (f.hora_apertura || '08:00').slice(0, 5)
+        const cierre = (f.hora_cierre || '22:00').slice(0, 5)
+        if (horaIni < apertura || horaFin > cierre) {
+          return false
+        }
+
+        // Comprobación de antelación máxima
+        const hoy = new Date()
+        hoy.setHours(0, 0, 0, 0)
+        const [anio, mes, dia] = fecha.split('-').map(Number)
+        const fechaObj = new Date(anio, mes - 1, dia)
+        fechaObj.setHours(0, 0, 0, 0)
+        const diffDias = Math.round((fechaObj.getTime() - hoy.getTime()) / (1000 * 3600 * 24))
+        const antelacionMaxima = f.dias_antelacion_maxima ?? 7
+
+        if (diffDias < 0 || diffDias > antelacionMaxima) {
+          return false
+        }
+
+        // Si la fecha es hoy, comprobar si la hora ya pasó
+        const ahora = new Date()
+        const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`
+        const horaActualStr = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`
+        if (fecha === hoyStr && horaIni < horaActualStr) {
+          return false
+        }
+
+        return true
+      })
+
+      if (frontonesCandidatos.length === 0) {
+        setFrontonesLibresResultados([])
+        setBuscandoLibres(false)
+        return
+      }
+
+      // 3. Consultar eventos/reservas para esa fecha
+      const { data: eventosDia } = await supabase
+        .from('eventos_fronton')
+        .select('*')
+        .eq('fecha', fecha)
+
+      const eventos = eventosDia || []
+
+      // 4. Comprobar cuáles NO tienen colisión con la franja solicitada
+      const frontonesLibres = frontonesCandidatos.filter(f => {
+        const eventosFronton = eventos.filter(ev => ev.fronton_id === f.id)
+        const hayConflicto = eventosFronton.some(ev => {
+          const evInicio = (ev.hora_inicio || '').slice(0, 5)
+          const evFin = (ev.hora_fin || '').slice(0, 5)
+          return horaIni < evFin && horaFin > evInicio
+        })
+        return !hayConflicto
+      })
+
+      setFrontonesLibresResultados(frontonesLibres)
+    } catch (err) {
+      console.error('Error al buscar frontones libres:', err)
+      setFrontonesLibresResultados([])
+    } finally {
+      setBuscandoLibres(false)
+    }
+  }
+
+  const handleReservarDesdeBusqueda = async (fronton: any) => {
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    const munNombre = fronton.municipios?.nombre || ''
+    const confirmMsg = `¿Deseas reservar el frontón "${fronton.nombre}" (${munNombre}) para el ${formatFullDateWithWeekday(busquedaLibresFecha, lang)} de ${busquedaLibresHoraInicio} a ${busquedaLibresHoraFin}?`
+    if (!confirm(confirmMsg)) return
+
+    setReservandoDesdeLibresId(fronton.id)
+
+    try {
+      if (fronton.habilitado === false) {
+        alert('Este frontón está actualmente deshabilitado.')
+        return
+      }
+
+      if (fronton.solo_empadronados && !esUsuarioEmpadronado(user, fronton)) {
+        alert(`Acceso restringido: Este frontón está reservado exclusivamente para personas empadronadas en ${munNombre}.`)
+        return
+      }
+
+      const maxReservas = fronton.max_reservas_activas || 1
+      const { count: reservasMismoDia } = await supabase
+        .from('eventos_fronton')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('fronton_id', fronton.id)
+        .eq('fecha', busquedaLibresFecha)
+
+      if ((reservasMismoDia || 0) >= maxReservas) {
+        alert(`Ya has alcanzado el límite de ${maxReservas} reserva(s) por usuario al día en este frontón.`)
+        return
+      }
+
+      let { error } = await supabase.from('eventos_fronton').insert([{
+        fronton_id: fronton.id,
+        user_id: user.id,
+        titulo: user.profile?.nombre_completo || user.email,
+        fecha: busquedaLibresFecha,
+        hora_inicio: busquedaLibresHoraInicio,
+        hora_fin: busquedaLibresHoraFin,
+        tipo: 'reserva_usuario'
+      }])
+
+      if (error && error.message?.includes('foreign key')) {
+        const meta = user?.user_metadata || {}
+        const nombreFinal = user.profile?.nombre || user.profile?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || 'Usuario'
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          nombre: nombreFinal,
+          nombre_completo: nombreFinal,
+          apellidos: user.profile?.apellidos || meta.apellidos || '',
+          role: user.profile?.role || meta.role || 'usuario',
+          dni: meta.dni || '',
+          calle: meta.calle || '',
+          fecha_nacimiento: meta.fecha_nacimiento || null,
+          localidad: meta.localidad || '',
+          codigo_postal: meta.codigo_postal || ''
+        })
+
+        const retry = await supabase.from('eventos_fronton').insert([{
+          fronton_id: fronton.id,
+          user_id: user.id,
+          titulo: user.profile?.nombre_completo || user.email,
+          fecha: busquedaLibresFecha,
+          hora_inicio: busquedaLibresHoraInicio,
+          hora_fin: busquedaLibresHoraFin,
+          tipo: 'reserva_usuario'
+        }])
+        error = retry.error
+      }
+
+      if (error) {
+        alert('Error al realizar la reserva: ' + error.message)
+      } else {
+        alert(t.reservas.booking_success || '¡Reserva realizada con éxito!')
+        await cargarMisReservas(user.id)
+        await ejecutarBusquedaFrontonesLibres()
+        if (frontonSeleccionado?.id === fronton.id) {
+          await cargarEventosFronton(fronton.id)
+        }
+      }
+    } catch (err: any) {
+      alert('Error inesperado: ' + err.message)
+    } finally {
+      setReservandoDesdeLibresId(null)
+    }
+  }
+
+  const handleVerFrontonDesdeBusqueda = async (fronton: any) => {
+    await seleccionarFronton(fronton)
+    setFechaSeleccionada(busquedaLibresFecha)
   }
 
   const seleccionarFronton = async (fronton: any) => {
@@ -1109,6 +1318,234 @@ export default function PortalReservas() {
                   </div>
                 )
               })}
+            </div>
+          )}
+        </section>
+
+        {/* SECCIÓN: BÚSQUEDA DE FRONTONES LIBRES POR FECHA Y HORA */}
+        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-5">
+          <div className="border-b border-stone-100 dark:border-stone-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <span className="text-emerald-600 dark:text-emerald-400 text-lg">🔍</span>
+                {t.reservas.search_free_frontons_title || 'Búsqueda de Frontones Libres'}
+              </h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                {t.reservas.search_free_frontons_subtitle || 'Selecciona provincia, día y franja horaria para encontrar pistas activas y libres al instante'}
+              </p>
+            </div>
+          </div>
+
+          {/* FORMULARIO DE FILTROS */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              ejecutarBusquedaFrontonesLibres()
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
+          >
+            {/* 1. Provincia */}
+            <div>
+              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                {t.reservas.all_provinces ? t.reservas.all_provinces.replace('Todas las ', '') : 'Provincia'}
+              </label>
+              <select
+                value={busquedaLibresProvincia}
+                onChange={(e) => setBusquedaLibresProvincia(e.target.value)}
+                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+              >
+                <option value="">{t.reservas.all_provinces || 'Todas las provincias'}</option>
+                {provincias.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 2. Día / Fecha */}
+            <div>
+              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                {t.reservas.filter_date || 'Día / Fecha'}
+              </label>
+              <input
+                type="date"
+                min={new Date().toISOString().split('T')[0]}
+                value={busquedaLibresFecha}
+                onChange={(e) => setBusquedaLibresFecha(e.target.value)}
+                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+              />
+            </div>
+
+            {/* 3. Hora Inicial */}
+            <div>
+              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                {t.reservas.filter_start_time || 'Hora inicial'}
+              </label>
+              <select
+                value={busquedaLibresHoraInicio}
+                onChange={(e) => setBusquedaLibresHoraInicio(e.target.value)}
+                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+              >
+                {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'].map((h) => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 4. Hora Final */}
+            <div>
+              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                {t.reservas.filter_end_time || 'Hora final'}
+              </label>
+              <select
+                value={busquedaLibresHoraFin}
+                onChange={(e) => setBusquedaLibresHoraFin(e.target.value)}
+                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+              >
+                {['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00'].map((h) => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 5. Botón de Búsqueda */}
+            <div>
+              <button
+                type="submit"
+                disabled={buscandoLibres}
+                className="w-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold transition shadow-xs active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
+              >
+                <span>{buscandoLibres ? '⏳' : '🔎'}</span>
+                <span>{buscandoLibres ? (t.reservas.searching_free || 'Buscando...') : (t.reservas.search_free_btn || 'Buscar Libres')}</span>
+              </button>
+            </div>
+          </form>
+
+          {/* RESULTADOS DE LA BÚSQUEDA */}
+          {busquedaLibresRealizada && (
+            <div className="space-y-4 pt-1">
+              <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                <span className="font-bold text-stone-700 dark:text-stone-300">
+                  {frontonesLibresResultados.length} {t.reservas.free_frontons_found || 'frontón(es) libre(s) encontrado(s)'} (📅 {formatFullDateWithWeekday(busquedaLibresFecha, lang)} • ⏰ {busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
+                </span>
+              </div>
+
+              {frontonesLibresResultados.length === 0 ? (
+                <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200 dark:border-stone-800 text-center space-y-1">
+                  <span className="text-2xl">🏟️</span>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                    {t.reservas.no_free_frontons_found || 'No se han encontrado frontones activos y libres para la fecha, horario y provincia seleccionados.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {frontonesLibresResultados.map((f) => {
+                    const esEmpadronado = esUsuarioEmpadronado(user, f)
+                    const puedeReservar = !f.solo_empadronados || esEmpadronado
+
+                    return (
+                      <div
+                        key={f.id}
+                        className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:border-emerald-300 dark:hover:border-emerald-700 transition flex flex-col justify-between gap-3 shadow-2xs group"
+                      >
+                        <div className="space-y-2.5">
+                          {/* Fila superior: Imagen y Nombre */}
+                          <div className="flex items-start gap-3">
+                            {f.imagen_url ? (
+                              <img
+                                src={f.imagen_url}
+                                alt=""
+                                className="w-14 h-14 object-cover rounded-xl border border-stone-200 dark:border-stone-700 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-emerald-200/50 dark:border-emerald-800/50">
+                                🎾
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 truncate">
+                                {f.nombre}
+                              </h3>
+                              <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
+                                🏛️ {f.municipios?.nombre} {f.municipios?.provincias?.nombre ? `(${f.municipios.provincias.nombre})` : ''}
+                              </span>
+                              <span className="text-[11px] text-stone-400 dark:text-stone-500 block">
+                                ⏰ {f.hora_apertura?.slice(0,5) || '08:00'} - {f.hora_cierre?.slice(0,5) || '22:00'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Medidas y badges */}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {f.medidas && (
+                              <span className="bg-stone-200/60 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                📏 {f.medidas}
+                              </span>
+                            )}
+                            {f.luz_disponible && (
+                              <span className="bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                💡 {t.admin?.light || 'Luz'}
+                              </span>
+                            )}
+                            {f.vestuarios && (
+                              <span className="bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                🚪 {t.admin?.dressing_rooms || 'Vestuarios'}
+                              </span>
+                            )}
+                            {f.duchas && (
+                              <span className="bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                🚿 {t.admin?.showers || 'Duchas'}
+                              </span>
+                            )}
+                            {f.sensor_iot_disponible && (
+                              <span className="bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                📡 IoT
+                              </span>
+                            )}
+                            {f.solo_empadronados && (
+                              <span className="bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                🔒 {t.common?.solo_empadronados || 'Solo Empadronados'}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Estado de libre en la franja */}
+                          <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl flex items-center justify-between text-xs">
+                            <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-[11px]">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                              {t.reservas.free_in_selected_slot || 'Libre en esta franja'}
+                            </span>
+                            <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-[11px]">
+                              {busquedaLibresHoraInicio} - {busquedaLibresHoraFin}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Botones de acción */}
+                        <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleVerFrontonDesdeBusqueda(f)}
+                            className="flex-1 px-3 py-2 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold transition text-center cursor-pointer"
+                          >
+                            {t.reservas.select_and_view || 'Ver Frontón'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!puedeReservar || reservandoDesdeLibresId === f.id}
+                            onClick={() => handleReservarDesdeBusqueda(f)}
+                            className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition text-center shadow-xs disabled:opacity-50 cursor-pointer"
+                          >
+                            {reservandoDesdeLibresId === f.id
+                              ? 'Reservando...'
+                              : (t.reservas.book_this_slot || 'Reservar')}
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )}
         </section>
