@@ -34,7 +34,7 @@ export default function SuperAdminDashboard() {
   // Filtros y búsquedas
   const [busquedaMunicipio, setBusquedaMunicipio] = useState('')
   const [filtroProvinciaMun, setFiltroProvinciaMun] = useState('')
-  const [filtroEstadoMun, setFiltroEstadoMun] = useState<'todos' | 'activo' | 'en_pruebas' | 'inactivo'>('todos')
+  const [filtroEstadoMun, setFiltroEstadoMun] = useState<'todos' | 'activo' | 'en_pruebas' | 'inactivo'>('activo')
   const [municipiosSeleccionados, setMunicipiosSeleccionados] = useState<string[]>([])
   const [ejecutandoAccionLote, setEjecutandoAccionLote] = useState(false)
 
@@ -232,6 +232,13 @@ export default function SuperAdminDashboard() {
     })
     setArchivoImagenMun(null)
     setMostrarFormMunicipio(true)
+
+    setTimeout(() => {
+      const el = document.getElementById('formulario-municipio-edicion')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
   }
 
   const handleAddCpMun = () => {
@@ -408,6 +415,13 @@ export default function SuperAdminDashboard() {
   const handleIniciarCrearFronton = () => {
     resetFormFronton()
     setMostrarFormFronton(true)
+
+    setTimeout(() => {
+      const el = document.getElementById('formulario-fronton-edicion')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
   }
 
   const handleIniciarEditarFronton = (f: any) => {
@@ -446,6 +460,13 @@ export default function SuperAdminDashboard() {
     })
     setArchivoImagenFronton(null)
     setMostrarFormFronton(true)
+
+    setTimeout(() => {
+      const el = document.getElementById('formulario-fronton-edicion')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
   }
 
   const handleGuardarFronton = async (e: React.FormEvent, municipioId: string) => {
@@ -547,6 +568,13 @@ export default function SuperAdminDashboard() {
     setGuardandoFronton(false)
     resetFormFronton()
     await cargarDatosGlobales()
+
+    setTimeout(() => {
+      const el = document.getElementById('seccion-frontones-municipio') || document.getElementById('formulario-municipio-edicion')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 150)
   }
 
   const handleEliminarFronton = async (f: any) => {
@@ -566,7 +594,15 @@ export default function SuperAdminDashboard() {
       alert('Error al eliminar frontón: ' + error.message)
     } else {
       alert(`Frontón "${f.nombre}" eliminado correctamente.`)
+      resetFormFronton()
       await cargarDatosGlobales()
+
+      setTimeout(() => {
+        const el = document.getElementById('seccion-frontones-municipio') || document.getElementById('formulario-municipio-edicion')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 150)
     }
   }
 
@@ -1103,7 +1139,7 @@ export default function SuperAdminDashboard() {
 
             {/* FORMULARIO CREAR / EDITAR MUNICIPIO */}
             {mostrarFormMunicipio && (
-              <div className="bg-stone-900 p-6 rounded-3xl border border-stone-800 space-y-4 shadow-xl animate-in fade-in duration-150">
+              <div id="formulario-municipio-edicion" className="bg-stone-900 p-6 rounded-3xl border border-stone-800 space-y-4 shadow-xl animate-in fade-in duration-150">
                 <div className="flex justify-between items-center border-b border-stone-800 pb-3">
                   <h3 className="font-bold text-base text-white">
                     {municipioEnEdicion ? `Editar Municipio: ${municipioEnEdicion.nombre}` : 'Dar de Alta Nuevo Municipio'}
@@ -1255,7 +1291,7 @@ export default function SuperAdminDashboard() {
 
                 {/* GESTIÓN DE FRONTONES DEL MUNICIPIO */}
                 {municipioEnEdicion && (
-                  <div className="border-t border-stone-800 pt-6 mt-6 space-y-4">
+                  <div id="seccion-frontones-municipio" className="border-t border-stone-800 pt-6 mt-6 space-y-4">
                     <div className="flex justify-between items-center flex-wrap gap-2">
                       <div>
                         <h4 className="font-bold text-sm text-white flex items-center gap-2">
@@ -1280,7 +1316,7 @@ export default function SuperAdminDashboard() {
 
                     {/* FORMULARIO CREAR / EDITAR FRONTÓN */}
                     {mostrarFormFronton && (
-                      <div className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-4 animate-in fade-in">
+                      <div id="formulario-fronton-edicion" className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-4 animate-in fade-in">
                         <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                           <h5 className="font-bold text-xs text-emerald-400 uppercase tracking-wider">
                             {frontonEnEdicion ? `Editar Frontón: ${frontonEnEdicion.nombre}` : 'Crear Nuevo Frontón'}
