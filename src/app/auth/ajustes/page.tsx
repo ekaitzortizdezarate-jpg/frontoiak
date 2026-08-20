@@ -9,14 +9,10 @@ export default function AjustesUsuarioPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(false)
-  
-  // Estado para controlar si el perfil está en modo edición
   const [editandoPerfil, setEditandoPerfil] = useState(false)
-
-  // Control para el cambio de contraseña
   const [modoCambioPass, setModoCambioPass] = useState(false)
 
-  // Campos del formulario de perfil
+  // Campos de perfil correspondientes al registro
   const [nombre, setNombre] = useState('')
   const [apellidos, setApellidos] = useState('')
   const [dni, setDni] = useState('')
@@ -26,7 +22,7 @@ export default function AjustesUsuarioPage() {
   const [codigoPostal, setCodigoPostal] = useState('')
   const [email, setEmail] = useState('')
 
-  // Campos para cambio de contraseña seguro
+  // Seguridad y contraseñas
   const [passwordActual, setPasswordActual] = useState('')
   const [nuevaPassword, setNuevaPassword] = useState('')
   const [confirmarPassword, setConfirmarPassword] = useState('')
@@ -48,7 +44,8 @@ export default function AjustesUsuarioPage() {
     setUser(user)
     setEmail(user.email || '')
 
-    const { data: profile } = await supabase
+    // Consultamos los datos en la tabla profiles asociados al ID del usuario
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -62,7 +59,10 @@ export default function AjustesUsuarioPage() {
       setFechaNacimiento(profile.fecha_nacimiento || '')
       setLocalidad(profile.localidad || '')
       setCodigoPostal(profile.codigo_postal || '')
+    } else if (error) {
+      console.error('Error al cargar el perfil:', error.message)
     }
+
     setLoading(false)
   }
 
@@ -86,9 +86,9 @@ export default function AjustesUsuarioPage() {
       .eq('id', user.id)
 
     if (error) {
-      alert('Error al actualizar perfil: ' + error.message)
+      alert('Error al actualizar el perfil: ' + error.message)
     } else {
-      alert('¡Datos de usuario actualizados correctamente!')
+      alert('¡Datos actualizados correctamente!')
       setEditandoPerfil(false)
     }
 
@@ -137,21 +137,21 @@ export default function AjustesUsuarioPage() {
     setCambiandoPass(false)
   }
 
-  const handleLogoClick = () => {
-    router.push('/reservas')
-  }
-
   if (loading) {
-    return <div className="p-8 text-center text-emerald-800 font-medium">Cargando ajustes de usuario...</div>
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <p className="text-emerald-800 font-bold text-sm">Cargando ajustes de usuario...</p>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
-      {/* CABECERA */}
+      {/* HEADER */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div 
-            onClick={handleLogoClick}
+            onClick={() => router.push('/reservas')}
             className="flex items-center gap-2 cursor-pointer group"
           >
             <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm group-hover:bg-emerald-800 transition">
@@ -174,7 +174,7 @@ export default function AjustesUsuarioPage() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10 space-y-8">
         
-        {/* TARJETA 1: INFORMACIÓN PERSONAL */}
+        {/* TARJETA 1: DATOS PERSONALES */}
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
           <div className="flex justify-between items-center border-b border-stone-100 pb-4">
             <div className="flex items-center gap-4">
@@ -183,7 +183,7 @@ export default function AjustesUsuarioPage() {
               </div>
               <div>
                 <h1 className="text-xl font-black text-stone-900">Mi Perfil y Datos Personales</h1>
-                <p className="text-xs text-stone-500 font-medium">Información de tu cuenta en la plataforma</p>
+                <p className="text-xs text-stone-500 font-medium">Información registrada en tu cuenta</p>
               </div>
             </div>
 
@@ -200,115 +200,93 @@ export default function AjustesUsuarioPage() {
           <form onSubmit={handleGuardarPerfil} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Nombre
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nombre</label>
                 <input 
                   type="text" 
                   value={nombre} 
                   onChange={(e) => setNombre(e.target.value)} 
                   disabled={!editandoPerfil}
-                  placeholder="Tu nombre"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Apellidos
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Apellidos</label>
                 <input 
                   type="text" 
                   value={apellidos} 
                   onChange={(e) => setApellidos(e.target.value)} 
                   disabled={!editandoPerfil}
-                  placeholder="Tus apellidos"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  DNI
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">DNI</label>
                 <input 
                   type="text" 
                   value={dni} 
                   onChange={(e) => setDni(e.target.value)} 
                   disabled={!editandoPerfil}
-                  placeholder="00000000X"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Fecha de Nacimiento
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Fecha de Nacimiento</label>
                 <input 
                   type="date" 
                   value={fechaNacimiento} 
                   onChange={(e) => setFechaNacimiento(e.target.value)} 
                   disabled={!editandoPerfil}
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                Calle / Dirección
-              </label>
+              <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Calle / Dirección</label>
               <input 
                 type="text" 
                 value={calle} 
                 onChange={(e) => setCalle(e.target.value)} 
                 disabled={!editandoPerfil}
-                placeholder="ej. Kale Nagusia, 12, 1º A"
-                className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Localidad
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Localidad</label>
                 <input 
                   type="text" 
                   value={localidad} 
                   onChange={(e) => setLocalidad(e.target.value)} 
                   disabled={!editandoPerfil}
-                  placeholder="ej. Donostia"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Código Postal
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Código Postal</label>
                 <input 
                   type="text" 
                   value={codigoPostal} 
                   onChange={(e) => setCodigoPostal(e.target.value)} 
                   disabled={!editandoPerfil}
-                  placeholder="ej. 20001"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Correo Electrónico
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Correo</label>
                 <input 
                   type="email" 
                   value={email} 
                   disabled 
-                  className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-500 cursor-not-allowed font-medium truncate"
+                  className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-600 cursor-not-allowed font-medium truncate"
                 />
               </div>
             </div>
@@ -318,7 +296,7 @@ export default function AjustesUsuarioPage() {
                 <button 
                   type="submit" 
                   disabled={guardando}
-                  className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                  className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm disabled:bg-stone-300"
                 >
                   {guardando ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
@@ -326,7 +304,7 @@ export default function AjustesUsuarioPage() {
                   type="button" 
                   onClick={() => {
                     setEditandoPerfil(false)
-                    cargarDatosUsuario() // Recarga los datos originales si cancela
+                    cargarDatosUsuario()
                   }}
                   className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-4 py-3 rounded-2xl text-sm font-bold transition"
                 >
@@ -337,7 +315,7 @@ export default function AjustesUsuarioPage() {
           </form>
         </div>
 
-        {/* TARJETA 2: SEGURIDAD / CAMBIAR CONTRASEÑA */}
+        {/* TARJETA 2: SEGURIDAD */}
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
           <div className="flex items-center gap-4 border-b border-stone-100 pb-4">
             <div className="w-12 h-12 bg-stone-100 text-stone-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
@@ -353,7 +331,7 @@ export default function AjustesUsuarioPage() {
             <div className="text-center py-2">
               <button 
                 onClick={() => setModoCambioPass(true)}
-                className="bg-stone-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm active:scale-95"
+                className="bg-stone-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm"
               >
                 Cambiar contraseña
               </button>
@@ -361,43 +339,34 @@ export default function AjustesUsuarioPage() {
           ) : (
             <form onSubmit={handleCambiarPassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Contraseña Actual (Obligatoria)
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Contraseña Actual</label>
                 <input 
                   type="password" 
                   value={passwordActual} 
                   onChange={(e) => setPasswordActual(e.target.value)} 
                   required 
-                  placeholder="Introduce tu contraseña actual"
                   className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Nueva Contraseña
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nueva Contraseña</label>
                 <input 
                   type="password" 
                   value={nuevaPassword} 
                   onChange={(e) => setNuevaPassword(e.target.value)} 
                   required 
-                  placeholder="Mínimo 6 caracteres"
                   className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Confirmar Nueva Contraseña
-                </label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Confirmar Nueva Contraseña</label>
                 <input 
                   type="password" 
                   value={confirmarPassword} 
                   onChange={(e) => setConfirmarPassword(e.target.value)} 
                   required 
-                  placeholder="Repite la nueva contraseña"
                   className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
                 />
               </div>
@@ -406,18 +375,13 @@ export default function AjustesUsuarioPage() {
                 <button 
                   type="submit" 
                   disabled={cambiandoPass}
-                  className="flex-1 bg-stone-900 text-white p-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                  className="flex-1 bg-stone-900 text-white p-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm disabled:bg-stone-300"
                 >
-                  {cambiandoPass ? 'Actualizando...' : 'Confirmar Cambio de Contraseña'}
+                  {cambiandoPass ? 'Actualizando...' : 'Confirmar Cambio'}
                 </button>
                 <button 
                   type="button" 
-                  onClick={() => {
-                    setModoCambioPass(false)
-                    setPasswordActual('')
-                    setNuevaPassword('')
-                    setConfirmarPassword('')
-                  }}
+                  onClick={() => setModoCambioPass(false)}
                   className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-4 py-3 rounded-2xl text-sm font-bold transition"
                 >
                   Cancelar
