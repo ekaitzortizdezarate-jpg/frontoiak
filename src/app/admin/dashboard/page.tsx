@@ -1,7 +1,7 @@
 // src/app/admin/dashboard/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -9,6 +9,13 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'gestion' | 'frontones' | 'incidencias' | 'ciudadanos' | 'ajustes'>('gestion')
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
+
+  // Refs para scroll
+  const calendarioCompletoRef = useRef<HTMLDivElement>(null)
+  const formSueltoRef = useRef<HTMLDivElement>(null)
+  const formRepetitivoRef = useRef<HTMLDivElement>(null)
+  const edicionEventoRef = useRef<HTMLDivElement>(null)
+  const formularioFrontonRef = useRef<HTMLDivElement>(null)
 
   // Listas maestras
   const [provincias, setProvincias] = useState<any[]>([])
@@ -550,6 +557,9 @@ export default function AdminDashboard() {
     })
     setArchivoImagen(null)
     setMostrarFormularioFronton(true)
+    setTimeout(() => {
+      formularioFrontonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
   }
 
   const generarDiasCalendario = () => {
@@ -741,6 +751,9 @@ export default function AdminDashboard() {
   const abrirEdicionEvento = (ev: any) => {
     setEventoEnEdicion(ev)
     setAplicarATodaLaSerie(true)
+    setTimeout(() => {
+      edicionEventoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
   }
 
   if (loading) {
@@ -936,6 +949,9 @@ export default function AdminDashboard() {
                               setOffsetSemanas(0)
                               setFrontonSeleccionadoCalendario(f)
                               cargarEventosFronton(f.id)
+                              setTimeout(() => {
+                                calendarioCompletoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                              }, 100)
                             }}
                             className="bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-xs"
                           >
@@ -1005,7 +1021,7 @@ export default function AdminDashboard() {
                 })}
               </div>
             ) : (
-              <div className="space-y-6">
+              <div ref={calendarioCompletoRef} className="space-y-6 scroll-mt-24">
                 <div className="flex justify-between items-center bg-white p-5 rounded-3xl border border-stone-200 shadow-sm">
                   {(() => {
                     const { pendientes: pendCal, enCurso: enCursoCal } = getContadorIncidenciasFronton(frontonSeleccionadoCalendario.id)
@@ -1044,9 +1060,17 @@ export default function AdminDashboard() {
                 {/* Formularios de Bloqueo */}
                 <div className="space-y-4">
                   {/* Evento suelto */}
-                  <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
+                  <div ref={formSueltoRef} className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden scroll-mt-24">
                     <div 
-                      onClick={() => setMostrarFormSuelto(!mostrarFormSuelto)}
+                      onClick={() => {
+                        const nuevoEstado = !mostrarFormSuelto
+                        setMostrarFormSuelto(nuevoEstado)
+                        if (nuevoEstado) {
+                          setTimeout(() => {
+                            formSueltoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          }, 100)
+                        }
+                      }}
                       className="p-4 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
                     >
                       <h3 className="text-sm font-bold text-stone-800">+ Añadir Bloqueo / Evento Suelto</h3>
@@ -1107,9 +1131,17 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Evento Repetitivo */}
-                  <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
+                  <div ref={formRepetitivoRef} className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden scroll-mt-24">
                     <div 
-                      onClick={() => setMostrarFormRepetitivo(!mostrarFormRepetitivo)}
+                      onClick={() => {
+                        const nuevoEstado = !mostrarFormRepetitivo
+                        setMostrarFormRepetitivo(nuevoEstado)
+                        if (nuevoEstado) {
+                          setTimeout(() => {
+                            formRepetitivoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          }, 100)
+                        }
+                      }}
                       className="p-4 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
                     >
                       <h3 className="text-sm font-bold text-stone-800">+ Añadir Serie Repetitiva Semanal</h3>
@@ -1209,7 +1241,7 @@ export default function AdminDashboard() {
 
                 {/* Modal Edición de Evento */}
                 {eventoEnEdicion && (
-                  <div className="bg-amber-50/80 border border-amber-300 p-6 rounded-3xl shadow-md space-y-4">
+                  <div ref={edicionEventoRef} className="bg-amber-50/80 border border-amber-300 p-6 rounded-3xl shadow-md space-y-4 scroll-mt-24">
                     <div className="flex justify-between items-center">
                       <h3 className="text-sm font-bold text-amber-900">
                         Editar Bloqueo {eventoEnEdicion.grupo_repeticion_id ? '(Serie Semanal)' : ''}
@@ -1454,7 +1486,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Formulario Añadir/Editar */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200">
+                <div ref={formularioFrontonRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 scroll-mt-24">
                   {!mostrarFormularioFronton ? (
                     <div className="flex justify-between items-center">
                       <div>
@@ -1468,6 +1500,9 @@ export default function AdminDashboard() {
                             setFrontonEnEdicion(null)
                             resetFormulario()
                             setMostrarFormularioFronton(true)
+                            setTimeout(() => {
+                              formularioFrontonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            }, 100)
                           }
                         }}
                         className="bg-emerald-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95"
