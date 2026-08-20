@@ -165,7 +165,16 @@ export default function RegisterPage() {
       return
     }
 
-    // Registro como Ciudadano / Pelotari
+    if (!dni) {
+      setErrorMsg(t.auth.dni + ' *')
+      setLoading(false)
+      return
+    }
+    if (!fechaNacimiento) {
+      setErrorMsg(t.auth.birth_date + ' *')
+      setLoading(false)
+      return
+    }
     if (!selectedProvinciaId) {
       setErrorMsg(t.reservas.select_province || 'Por favor selecciona una provincia.')
       setLoading(false)
@@ -565,10 +574,11 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        {t.auth.birth_date}
+                        {t.auth.birth_date} *
                       </label>
                       <input
                         type="date"
+                        required
                         value={fechaNacimiento}
                         onChange={(e) => setFechaNacimiento(e.target.value)}
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
