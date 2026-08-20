@@ -168,6 +168,7 @@ export const en = {
     in_favorites: '★ In Favorites',
     mark_favorite: '☆ Add to Favorites',
     my_incidents: 'My Incidents',
+    incidents_reported: 'incident(s) reported',
     show_my_incidents: 'Show my incidents',
     hide_my_incidents: 'Hide my incidents',
     report_incident_btn: '+ Report Incident',

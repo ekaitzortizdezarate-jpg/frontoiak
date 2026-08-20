@@ -168,6 +168,7 @@ export const eu = {
     in_favorites: '★ Gogokoetan',
     mark_favorite: '☆ Gogoko gisa markatu',
     my_incidents: 'Nire Gertakariak',
+    incidents_reported: 'gertakari jakinarazita',
     show_my_incidents: 'Erakutsi nire gertakariak',
     hide_my_incidents: 'Ezkutatu nire gertakariak',
     report_incident_btn: '+ Gertakaria Jakinarazi',
