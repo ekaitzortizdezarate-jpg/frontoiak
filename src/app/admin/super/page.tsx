@@ -2679,6 +2679,11 @@ export default function SuperAdminDashboard() {
         )}
 
       </main>
+
+      {/* FOOTER */}
+      <footer className="bg-stone-900 border-t border-stone-800 py-6 text-center text-xs text-stone-500">
+        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+      </footer>
     </div>
   )
 }

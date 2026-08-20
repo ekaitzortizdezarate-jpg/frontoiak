@@ -1102,42 +1102,42 @@ export default function AdminDashboard() {
         </header>
 
         <main className="flex-1 max-w-xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="w-20 h-20 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-amber-200">
+          <div className="w-20 h-20 bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-amber-200 dark:border-amber-800">
             ⏳
           </div>
           <div className="space-y-2">
-            <span className="inline-block bg-amber-100 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-200">
+            <span className="inline-block bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-200 dark:border-amber-800">
               Solicitud de Gestor Municipal
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
               Cuenta pendiente de validación
             </h2>
-            <p className="text-stone-600 text-sm max-w-md leading-relaxed">
-              Hola <span className="font-bold text-stone-900">{userProfile.nombre_completo || userProfile.nombre || userProfile.email}</span>. Tu solicitud como Gestor Municipal ha sido registrada y está en espera de validación por el Administrador de la plataforma.
+            <p className="text-stone-600 dark:text-stone-400 text-sm max-w-md leading-relaxed">
+              Hola <span className="font-bold text-stone-900 dark:text-stone-100">{userProfile.nombre_completo || userProfile.nombre || userProfile.email}</span>. Tu solicitud como Gestor Municipal ha sido registrada y está en espera de validación por el Administrador de la plataforma.
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm w-full space-y-2.5 text-xs text-stone-500 text-left">
-            <div className="flex justify-between items-center py-1.5 border-b border-stone-100">
-              <span className="font-bold text-stone-700">Municipio Solicitado:</span>
-              <span className="font-bold text-emerald-800">🏛️ {userProfile.municipios?.nombre || 'Pendiente de asignar'}</span>
+          <div className="bg-white dark:bg-stone-900 p-5 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm w-full space-y-2.5 text-xs text-stone-500 dark:text-stone-400 text-left">
+            <div className="flex justify-between items-center py-1.5 border-b border-stone-100 dark:border-stone-800">
+              <span className="font-bold text-stone-700 dark:text-stone-300">Municipio Solicitado:</span>
+              <span className="font-bold text-emerald-800 dark:text-emerald-300">🏛️ {userProfile.municipios?.nombre || 'Pendiente de asignar'}</span>
             </div>
-            <div className="flex justify-between items-center py-1.5 border-b border-stone-100">
-              <span className="font-bold text-stone-700">Estado:</span>
-              <span className="bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">En revisión</span>
+            <div className="flex justify-between items-center py-1.5 border-b border-stone-100 dark:border-stone-800">
+              <span className="font-bold text-stone-700 dark:text-stone-300">Estado:</span>
+              <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-2.5 py-0.5 rounded-full font-bold">En revisión</span>
             </div>
           </div>
 
           <div className="flex gap-3 w-full sm:w-auto pt-2">
             <button
               onClick={() => router.push('/reservas')}
-              className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm"
+              className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm cursor-pointer"
             >
               Explorar Reservas →
             </button>
             <button
               onClick={handleSignOut}
-              className="bg-stone-200 hover:bg-stone-300 text-stone-700 px-5 py-3 rounded-2xl text-xs font-bold transition"
+              className="bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-3 rounded-2xl text-xs font-bold transition cursor-pointer"
             >
               Cerrar Sesión
             </button>
@@ -1183,31 +1183,31 @@ export default function AdminDashboard() {
         </header>
 
         <main className="flex-1 max-w-xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="w-20 h-20 bg-rose-100 text-rose-700 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-rose-200">
+          <div className="w-20 h-20 bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-rose-200 dark:border-rose-800">
             🚫
           </div>
           <div className="space-y-2">
-            <span className="inline-block bg-rose-100 text-rose-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-rose-200">
+            <span className="inline-block bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-300 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-rose-200 dark:border-rose-800">
               Acceso Denegado
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
               Solicitud no aprobada
             </h2>
-            <p className="text-stone-600 text-sm max-w-md leading-relaxed">
-              La solicitud como Gestor Municipal para la cuenta <span className="font-bold text-stone-900">{userProfile.email}</span> no ha sido autorizada por el Administrador. Si crees que se trata de un error, contacta con el soporte de Frontoiak.
+            <p className="text-stone-600 dark:text-stone-400 text-sm max-w-md leading-relaxed">
+              La solicitud como Gestor Municipal para la cuenta <span className="font-bold text-stone-900 dark:text-stone-100">{userProfile.email}</span> no ha sido autorizada por el Administrador. Si crees que se trata de un error, contacta con el soporte de Frontoiak.
             </p>
           </div>
 
           <div className="flex gap-3 w-full sm:w-auto pt-2">
             <button
               onClick={() => router.push('/reservas')}
-              className="flex-1 sm:flex-none bg-stone-900 hover:bg-stone-800 text-white px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm"
+              className="flex-1 sm:flex-none bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-stone-200 text-white dark:text-stone-900 px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm cursor-pointer"
             >
               Ir a Reservas →
             </button>
             <button
               onClick={handleSignOut}
-              className="bg-stone-200 hover:bg-stone-300 text-stone-700 px-5 py-3 rounded-2xl text-xs font-bold transition"
+              className="bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-3 rounded-2xl text-xs font-bold transition cursor-pointer"
             >
               Cerrar Sesión
             </button>
@@ -1295,13 +1295,13 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 px-2.5 py-1.5 rounded-xl transition whitespace-nowrap"
+                  className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 px-2.5 py-1.5 rounded-xl transition whitespace-nowrap cursor-pointer"
                 >
                   {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 dark:bg-emerald-600 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm whitespace-nowrap active:scale-95"
+                  className="bg-emerald-700 dark:bg-emerald-600 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer"
                 >
                   {t.common.register}
                 </button>
@@ -1318,11 +1318,11 @@ export default function AdminDashboard() {
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8 space-y-6">
-        <div className="flex justify-between items-center border-b border-stone-200 pb-4">
+        <div className="flex justify-between items-center border-b border-stone-200 dark:border-stone-800 pb-4">
           <div className="flex items-center gap-4 flex-wrap">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">{t.admin.dashboard_title}</span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t.admin.dashboard_title}</span>
+              <h1 className="text-2xl md:text-3xl font-black text-stone-900 dark:text-stone-100 mt-0.5">
                 {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : t.admin.dashboard_title}
               </h1>
             </div>
@@ -1330,29 +1330,29 @@ export default function AdminDashboard() {
               <img 
                 src={userProfile?.municipios?.imagen_url || imagenMunicipioUrl} 
                 alt="Escudo/Imagen del municipio" 
-                className="w-14 h-14 object-cover rounded-2xl border border-stone-200 shadow-sm"
+                className="w-14 h-14 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 shadow-sm"
               />
             )}
           </div>
         </div>
 
         {/* Pestañas de Navegación */}
-        <div className="flex border-b border-stone-200 overflow-x-auto gap-2">
+        <div className="flex border-b border-stone-200 dark:border-stone-800 overflow-x-auto gap-2">
           <button 
             onClick={() => setActiveTab('gestion')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'gestion' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition cursor-pointer ${activeTab === 'gestion' ? 'border-emerald-700 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300' : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
           >
             {t.admin.schedule_tab}
           </button>
           <button 
             onClick={() => setActiveTab('frontones')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'frontones' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition cursor-pointer ${activeTab === 'frontones' ? 'border-emerald-700 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300' : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
           >
             {t.admin.frontons_tab} ({frontones.length}/5)
           </button>
           <button 
             onClick={() => setActiveTab('incidencias')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition ${activeTab === 'incidencias' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition cursor-pointer ${activeTab === 'incidencias' ? 'border-emerald-700 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300' : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
           >
             {t.admin.incidents_tab}
             {incidencias.filter(i => i.estado === 'pendiente').length > 0 && (
@@ -1363,13 +1363,13 @@ export default function AdminDashboard() {
           </button>
           <button 
             onClick={() => setActiveTab('ciudadanos')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'ciudadanos' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition cursor-pointer ${activeTab === 'ciudadanos' ? 'border-emerald-700 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300' : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
           >
             {t.admin.citizens_tab}
           </button>
           <button 
             onClick={() => setActiveTab('ajustes')}
-            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'ajustes' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
+            className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition cursor-pointer ${activeTab === 'ajustes' ? 'border-emerald-700 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300' : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'}`}
           >
             {t.admin.settings_tab}
           </button>
@@ -1379,12 +1379,12 @@ export default function AdminDashboard() {
         {activeTab === 'gestion' && (
           <div className="space-y-6">
             {!puebloConfigurado ? (
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 text-center">
-                <p className="text-amber-700 font-bold text-sm">Configura primero los datos de tu población en la pestaña Ajustes.</p>
+              <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 text-center">
+                <p className="text-amber-700 dark:text-amber-400 font-bold text-sm">Configura primero los datos de tu población en la pestaña Ajustes.</p>
               </div>
             ) : frontones.length === 0 ? (
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 text-center">
-                <p className="text-stone-500 text-sm">Da de alta al menos un frontón en la pestaña Frontones para organizar los horarios.</p>
+              <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 text-center">
+                <p className="text-stone-500 dark:text-stone-400 text-sm">Da de alta al menos un frontón en la pestaña Frontones para organizar los horarios.</p>
               </div>
             ) : !frontonSeleccionadoCalendario ? (
               <div className="space-y-4">
@@ -1392,33 +1392,33 @@ export default function AdminDashboard() {
                   const diasPreviewFronton = generarDiasPreviewParaFronton(f.id)
                   const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                   return (
-                    <div key={f.id} id={`fronton-card-${f.id}`} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-100 pb-4">
+                    <div key={f.id} id={`fronton-card-${f.id}`} className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4 scroll-mt-24">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-100 dark:border-stone-800 pb-4">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <h3 className="font-bold text-xl text-stone-900">{f.nombre}</h3>
+                          <h3 className="font-bold text-xl text-stone-900 dark:text-stone-100">{f.nombre}</h3>
                           {f.habilitado === false ? (
-                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full">
+                            <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-black px-2.5 py-0.5 rounded-full">
                               🚫 {t.reservas.disabled}
                             </span>
                           ) : (
-                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300' : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'}`}>
                               {f.en_uso ? `🔴 ${t.common.in_use} (IoT)` : `🟢 ${t.common.free}`}
                             </span>
                           )}
 
                           {/* CONTADORES DE INCIDENCIAS */}
                           {pendientes > 0 && (
-                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                            <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                               ⏳ {pendientes} {t.common.pending}
                             </span>
                           )}
                           {enCurso > 0 && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                            <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                               🔧 {enCurso} {t.reservas.status_in_progress_short}
                             </span>
                           )}
                           {pendientes === 0 && enCurso === 0 && (
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                               ✅ {t.reservas.no_incidents_recorded}
                             </span>
                           )}
@@ -1427,7 +1427,7 @@ export default function AdminDashboard() {
                           {f.tiene_sensor_iot && (
                             <button 
                               onClick={() => abrirGraficaIoT(f)}
-                              className="bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                              className="bg-stone-800 dark:bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-stone-900 dark:hover:bg-stone-700 transition cursor-pointer"
                             >
                               {t.admin.see_usage}
                             </button>
@@ -1441,7 +1441,7 @@ export default function AdminDashboard() {
                                 calendarioCompletoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                               }, 100)
                             }}
-                            className="bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-xs"
+                            className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
                           >
                             {t.admin.open_full_calendar}
                           </button>
@@ -1451,23 +1451,23 @@ export default function AdminDashboard() {
                       {/* Vista previa 3 días */}
                       <div>
                         <div className="flex justify-between items-center mb-3">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">{t.admin.next_occupation}</h4>
-                          <div className="flex items-center gap-1.5 bg-stone-50 px-2 py-1 rounded-xl border border-stone-200 text-xs">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">{t.admin.next_occupation}</h4>
+                          <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-stone-950 px-2 py-1 rounded-xl border border-stone-200 dark:border-stone-800 text-xs">
                             <button 
                               onClick={() => cambiarOffsetFronton(f.id, -1)}
-                              className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2"
+                              className="p-1 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold px-2 cursor-pointer"
                             >
                               ←
                             </button>
                             <button 
                               onClick={() => resetOffsetFronton(f.id)}
-                              className="px-2 py-0.5 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-[11px]"
+                              className="px-2 py-0.5 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold text-[11px] cursor-pointer"
                             >
                               {t.reservas.today}
                             </button>
                             <button 
                               onClick={() => cambiarOffsetFronton(f.id, 1)}
-                              className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2"
+                              className="p-1 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold px-2 cursor-pointer"
                             >
                               →
                             </button>
@@ -1481,27 +1481,27 @@ export default function AdminDashboard() {
                             const esHoy = new Date().toISOString().split('T')[0] === fechaStr
 
                             return (
-                              <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${esHoy ? 'bg-emerald-50/40 border-emerald-300' : 'bg-stone-50 border-stone-200'}`}>
-                                <div className="font-bold text-stone-800 border-b border-stone-200 pb-1 mb-2 flex justify-between">
+                              <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${esHoy ? 'bg-emerald-50/40 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700' : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800'}`}>
+                                <div className="font-bold text-stone-800 dark:text-stone-200 border-b border-stone-200 dark:border-stone-800 pb-1 mb-2 flex justify-between">
                                   <span>{formatPreviewDay(dia, lang)}</span>
-                                  {esHoy && <span className="text-emerald-700 font-extrabold">({t.reservas.today})</span>}
+                                  {esHoy && <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">({t.reservas.today})</span>}
                                 </div>
                                 
                                 {eventosDelDia.length === 0 ? (
-                                  <p className="text-stone-400 italic text-[11px]">{t.reservas.free_now}</p>
+                                  <p className="text-stone-400 dark:text-stone-500 italic text-[11px]">{t.reservas.free_now}</p>
                                 ) : (
                                   <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
                                     {eventosDelDia.map(ev => (
                                       <div 
                                         key={ev.id} 
                                         onClick={() => abrirEdicionEvento(ev, f, true)}
-                                        className="bg-white border border-stone-200 rounded-xl p-2 shadow-2xs flex justify-between items-center text-[11px] cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/40 transition group"
+                                        className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-2 shadow-2xs flex justify-between items-center text-[11px] cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/40 transition group"
                                       >
                                         <div className="min-w-0 pr-1.5">
-                                          <span className="font-bold text-emerald-900 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
-                                          <span className="text-stone-600 truncate max-w-[120px] font-medium block">{ev.titulo}</span>
+                                          <span className="font-bold text-emerald-900 dark:text-emerald-300 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
+                                          <span className="text-stone-600 dark:text-stone-400 truncate max-w-[120px] font-medium block">{ev.titulo}</span>
                                         </div>
-                                        <span className="text-emerald-700 font-bold px-1.5 py-0.5 rounded-lg bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200/60 transition text-[11px] flex-shrink-0">
+                                        <span className="text-emerald-700 dark:text-emerald-400 font-bold px-1.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900 border border-emerald-200/60 dark:border-emerald-800/60 transition text-[11px] flex-shrink-0">
                                           ✎
                                         </span>
                                       </div>
@@ -1519,36 +1519,36 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div ref={calendarioCompletoRef} className="space-y-6 scroll-mt-24">
-                <div className="flex justify-between items-center bg-white p-5 rounded-3xl border border-stone-200 shadow-sm">
+                <div className="flex justify-between items-center bg-white dark:bg-stone-900 p-5 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
                   {(() => {
                     const { pendientes: pendCal, enCurso: enCursoCal } = getContadorIncidenciasFronton(frontonSeleccionadoCalendario.id)
                     return (
                       <div>
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <h2 className="text-xl font-bold text-stone-900">Calendario: {frontonSeleccionadoCalendario.nombre}</h2>
+                          <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">Calendario: {frontonSeleccionadoCalendario.nombre}</h2>
                           {pendCal > 0 && (
-                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                            <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                               ⏳ {pendCal} {pendCal === 1 ? 'pendiente' : 'pendientes'}
                             </span>
                           )}
                           {enCursoCal > 0 && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                            <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                               🔧 {enCursoCal} en curso
                             </span>
                           )}
                           {pendCal === 0 && enCursoCal === 0 && (
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                               ✅ Sin incidencias
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-stone-500 mt-0.5">Bloqueo de horarios, escuelas y eventos</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Bloqueo de horarios, escuelas y eventos</p>
                       </div>
                     )
                   })()}
                   <button 
                     onClick={() => setFrontonSeleccionadoCalendario(null)}
-                    className="bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl text-xs font-bold transition"
+                    className="bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer"
                   >
                     ← Volver a lista
                   </button>
@@ -1557,7 +1557,7 @@ export default function AdminDashboard() {
                 {/* Formularios de Bloqueo */}
                 <div className="space-y-4">
                   {/* Evento suelto */}
-                  <div ref={formSueltoRef} className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden scroll-mt-24">
+                  <div ref={formSueltoRef} className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden scroll-mt-24">
                     <div 
                       onClick={() => {
                         const nuevoEstado = !mostrarFormSuelto
@@ -1568,59 +1568,59 @@ export default function AdminDashboard() {
                           }, 100)
                         }
                       }}
-                      className="p-4 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
+                      className="p-4 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
                     >
-                      <h3 className="text-sm font-bold text-stone-800">+ Añadir Bloqueo / Evento Suelto</h3>
-                      <span className="text-lg font-bold text-stone-500">{mostrarFormSuelto ? '−' : '+'}</span>
+                      <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200">+ Añadir Bloqueo / Evento Suelto</h3>
+                      <span className="text-lg font-bold text-stone-500 dark:text-stone-400">{mostrarFormSuelto ? '−' : '+'}</span>
                     </div>
                     {mostrarFormSuelto && (
-                      <form onSubmit={handleCrearEventoSuelto} className="p-6 space-y-4 border-t border-stone-100">
+                      <form onSubmit={handleCrearEventoSuelto} className="p-6 space-y-4 border-t border-stone-100 dark:border-stone-800">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Título / Motivo</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Título / Motivo</label>
                             <input 
                               type="text" 
                               placeholder="Ej. Mantenimiento de suelo"
                               value={eventoSuelto.titulo} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, titulo: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Fecha</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Fecha</label>
                             <input 
                               type="date" 
                               value={eventoSuelto.fecha} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, fecha: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Inicio</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Inicio</label>
                             <input 
                               type="time" 
                               value={eventoSuelto.hora_inicio} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, hora_inicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Fin</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Fin</label>
                             <input 
                               type="time" 
                               value={eventoSuelto.hora_fin} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, hora_fin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
-                        <button type="submit" className="w-full bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-sm">
+                        <button type="submit" className="w-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
                           Guardar Bloqueo Suelto
                         </button>
                       </form>
@@ -1628,7 +1628,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Evento Repetitivo */}
-                  <div ref={formRepetitivoRef} className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden scroll-mt-24">
+                  <div ref={formRepetitivoRef} className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden scroll-mt-24">
                     <div 
                       onClick={() => {
                         const nuevoEstado = !mostrarFormRepetitivo
@@ -1639,27 +1639,27 @@ export default function AdminDashboard() {
                           }, 100)
                         }
                       }}
-                      className="p-4 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
+                      className="p-4 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
                     >
-                      <h3 className="text-sm font-bold text-stone-800">+ Añadir Serie Repetitiva Semanal</h3>
-                      <span className="text-lg font-bold text-stone-500">{mostrarFormRepetitivo ? '−' : '+'}</span>
+                      <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200">+ Añadir Serie Repetitiva Semanal</h3>
+                      <span className="text-lg font-bold text-stone-500 dark:text-stone-400">{mostrarFormRepetitivo ? '−' : '+'}</span>
                     </div>
                     {mostrarFormRepetitivo && (
-                      <form onSubmit={handleCrearEventoRepetitivo} className="p-6 space-y-4 border-t border-stone-100">
+                      <form onSubmit={handleCrearEventoRepetitivo} className="p-6 space-y-4 border-t border-stone-100 dark:border-stone-800">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Título / Actividad</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Título / Actividad</label>
                             <input 
                               type="text" 
                               placeholder="Ej. Escuela de Pelota"
                               value={eventoRepetitivo.titulo} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, titulo: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Días de la semana</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Días de la semana</label>
                             <div className="flex flex-wrap gap-1.5">
                               {diasSemanaMap.map((d) => {
                                 const seleccionado = eventoRepetitivo.diasSeleccionados.includes(d.id)
@@ -1668,10 +1668,10 @@ export default function AdminDashboard() {
                                     key={d.id}
                                     type="button"
                                     onClick={() => toggleDiaSemana(d.id)}
-                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
                                       seleccionado 
-                                        ? 'bg-emerald-700 text-white border-emerald-700' 
-                                        : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
+                                        ? 'bg-emerald-700 dark:bg-emerald-600 text-white border-emerald-700 dark:border-emerald-600' 
+                                        : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-700'
                                     }`}
                                   >
                                     {d.nombre}
@@ -1684,51 +1684,51 @@ export default function AdminDashboard() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Inicio</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Inicio</label>
                             <input 
                               type="time" 
                               value={eventoRepetitivo.hora_inicio} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, hora_inicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Fin</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Fin</label>
                             <input 
                               type="time" 
                               value={eventoRepetitivo.hora_fin} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, hora_fin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Desde Fecha</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Desde Fecha</label>
                             <input 
                               type="date" 
                               value={eventoRepetitivo.fechaInicio} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, fechaInicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hasta Fecha</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hasta Fecha</label>
                             <input 
                               type="date" 
                               value={eventoRepetitivo.fechaFin} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, fechaFin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
 
-                        <button type="submit" className="w-full bg-emerald-800 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-emerald-900 transition shadow-sm">
+                        <button type="submit" className="w-full bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white p-2.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
                           Generar Bloqueos Repetitivos
                         </button>
                       </form>
@@ -1738,64 +1738,64 @@ export default function AdminDashboard() {
 
                 {/* Modal Edición de Evento */}
                 {eventoEnEdicion && (
-                  <div ref={edicionEventoRef} className="bg-amber-50/80 border border-amber-300 p-6 rounded-3xl shadow-md space-y-4 scroll-mt-24">
+                  <div ref={edicionEventoRef} className="bg-amber-50/80 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 p-6 rounded-3xl shadow-md space-y-4 scroll-mt-24">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-bold text-amber-900">
+                      <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">
                         Editar Bloqueo {eventoEnEdicion.grupo_repeticion_id ? '(Serie Semanal)' : ''}
                       </h3>
-                      <button onClick={handleCerrarEdicion} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
+                      <button onClick={handleCerrarEdicion} className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer">✕</button>
                     </div>
 
                     <form onSubmit={handleActualizarEvento} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Título</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Título</label>
                           <input 
                             type="text" 
                             value={eventoEnEdicion.titulo} 
                             onChange={(e) => setEventoEnEdicion({...eventoEnEdicion, titulo: e.target.value})} 
                             required 
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white"
+                            className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Fecha</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Fecha</label>
                           <input 
                             type="date" 
                             value={eventoEnEdicion.fecha} 
                             onChange={(e) => setEventoEnEdicion({...eventoEnEdicion, fecha: e.target.value})} 
                             required 
                             disabled={Boolean(eventoEnEdicion.grupo_repeticion_id && aplicarATodaLaSerie)}
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white disabled:bg-stone-100"
+                            className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-900"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Inicio</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Inicio</label>
                           <input 
                             type="time" 
                             value={eventoEnEdicion.hora_inicio} 
                             onChange={(e) => setEventoEnEdicion({...eventoEnEdicion, hora_inicio: e.target.value})} 
                             required 
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white"
+                            className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Hora Fin</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Hora Fin</label>
                           <input 
                             type="time" 
                             value={eventoEnEdicion.hora_fin} 
                             onChange={(e) => setEventoEnEdicion({...eventoEnEdicion, hora_fin: e.target.value})} 
                             required 
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white"
+                            className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                           />
                         </div>
                       </div>
 
                       {eventoEnEdicion.grupo_repeticion_id && (
-                        <div className="p-3 bg-amber-100/70 border border-amber-300 rounded-2xl">
+                        <div className="p-3 bg-amber-100/70 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-800 rounded-2xl">
                           <label className="flex items-center space-x-2">
                             <input 
                               type="checkbox" 
@@ -1803,7 +1803,7 @@ export default function AdminDashboard() {
                               onChange={(e) => setAplicarATodaLaSerie(e.target.checked)} 
                               className="rounded text-amber-700"
                             />
-                            <span className="text-xs font-bold text-amber-900">
+                            <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
                               Aplicar a toda la serie repetitiva
                             </span>
                           </label>
@@ -1811,13 +1811,13 @@ export default function AdminDashboard() {
                       )}
 
                       <div className="flex gap-2">
-                        <button type="submit" className="flex-1 bg-amber-700 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-amber-800 transition">
+                        <button type="submit" className="flex-1 bg-amber-700 hover:bg-amber-800 text-white p-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
                           Guardar Cambios
                         </button>
                         <button 
                           type="button" 
                           onClick={() => handleBorrarEvento(eventoEnEdicion.id, eventoEnEdicion.grupo_repeticion_id)}
-                          className="bg-rose-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-700 transition"
+                          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                         >
                           Borrar
                         </button>
@@ -1827,23 +1827,23 @@ export default function AdminDashboard() {
                 )}
 
                 {/* CALENDARIO 4 SEMANAS */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 overflow-x-auto space-y-4">
+                <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-x-auto space-y-4">
                   <div className="flex justify-between items-center">
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev - 1)}
-                      className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
+                      className="bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer"
                     >
                       {t.reservas.prev_4_weeks}
                     </button>
                     <div className="text-center">
-                      <h3 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h3>
-                      <p className="text-xs text-stone-500">
+                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">{t.reservas.monthly_grid}</h3>
+                      <p className="text-xs text-stone-500 dark:text-stone-400">
                         {diasCalendario[0] && formatShortMonthDay(diasCalendario[0], lang)} — {diasCalendario[27] && formatShortMonthDay(diasCalendario[27], lang, true)}
                       </p>
                     </div>
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev + 1)}
-                      className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
+                      className="bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer"
                     >
                       {t.reservas.next_4_weeks}
                     </button>
@@ -1859,7 +1859,7 @@ export default function AdminDashboard() {
                       t.reservas.days_of_week.sat,
                       t.reservas.days_of_week.sun
                     ].map((diaSemana, idx) => (
-                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 py-1 bg-stone-100/60 rounded-xl">
+                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 py-1 bg-stone-100/60 dark:bg-stone-800/60 rounded-xl">
                         {diaSemana}
                       </div>
                     ))}
@@ -1872,23 +1872,23 @@ export default function AdminDashboard() {
                       const esHoy = new Date().toISOString().split('T')[0] === fechaStr
 
                       return (
-                        <div key={idx} className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col ${esHoy ? 'border-emerald-500 bg-emerald-50/40' : 'bg-stone-50 border-stone-200'}`}>
-                          <span className="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-1 flex justify-between">
+                        <div key={idx} className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col ${esHoy ? 'border-emerald-500 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30' : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800'}`}>
+                          <span className="font-bold text-stone-800 dark:text-stone-200 mb-1 border-b border-stone-200 dark:border-stone-800 pb-1 flex justify-between">
                             <span>{formatCalendarCellDay(dia, lang)}</span>
-                            {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
+                            {esHoy && <span className="text-emerald-700 dark:text-emerald-400 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
                           <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[100px] pr-1">
                             {eventosDia.map(ev => (
                               <div 
                                 key={ev.id} 
                                 onClick={() => abrirEdicionEvento(ev, null, false)}
-                                className="bg-white border border-stone-200 p-1.5 rounded-xl shadow-2xs cursor-pointer hover:border-emerald-400 flex justify-between items-center text-[10px]"
+                                className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-1.5 rounded-xl shadow-2xs cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-600 flex justify-between items-center text-[10px]"
                               >
                                 <div>
-                                  <span className="font-bold text-emerald-900 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
-                                  <span className="text-stone-600 truncate block font-medium">{ev.titulo}</span>
+                                  <span className="font-bold text-emerald-900 dark:text-emerald-300 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
+                                  <span className="text-stone-600 dark:text-stone-400 truncate block font-medium">{ev.titulo}</span>
                                 </div>
-                                <span className="text-emerald-700 font-bold">✎</span>
+                                <span className="text-emerald-700 dark:text-emerald-400 font-bold">✎</span>
                               </div>
                             ))}
                           </div>
@@ -1906,83 +1906,83 @@ export default function AdminDashboard() {
         {activeTab === 'frontones' && (
           <div className="space-y-6">
             {!puebloConfigurado ? (
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 text-center">
-                <p className="text-amber-700 font-bold text-sm">{t.admin.no_frontons}</p>
+              <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 text-center">
+                <p className="text-amber-700 dark:text-amber-400 font-bold text-sm">{t.admin.no_frontons}</p>
               </div>
             ) : (
               <>
                 {/* Listado */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
-                  <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-                    <h2 className="text-base font-bold text-stone-900">{t.admin.frontons_title} ({frontones.length}/5)</h2>
+                <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
+                  <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
+                    <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.admin.frontons_title} ({frontones.length}/5)</h2>
                   </div>
 
                   {frontones.length === 0 ? (
-                    <p className="text-stone-400 italic text-sm py-4 text-center">{t.admin.no_frontons}</p>
+                    <p className="text-stone-400 dark:text-stone-500 italic text-sm py-4 text-center">{t.admin.no_frontons}</p>
                   ) : (
-                    <ul className="divide-y divide-stone-100">
+                    <ul className="divide-y divide-stone-100 dark:divide-stone-800">
                       {frontones.map((f) => {
                         const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                         return (
                           <li key={f.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex items-center gap-4">
                               {f.imagen_url ? (
-                                <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200" />
+                                <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />
                               ) : (
-                                <div className="w-16 h-16 bg-stone-100 rounded-2xl border border-stone-200 flex items-center justify-center text-xs text-stone-400 font-bold">
+                                <div className="w-16 h-16 bg-stone-100 dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 flex items-center justify-center text-xs text-stone-400 dark:text-stone-500 font-bold">
                                   {t.admin.no_photo}
                                 </div>
                               )}
 
                               <div>
                                 <div className="flex items-center gap-2.5 flex-wrap">
-                                  <h3 className="font-bold text-lg text-stone-900">{f.nombre}</h3>
+                                  <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">{f.nombre}</h3>
                                   
                                   {/* BADGE HABILITADO / DESHABILITADO */}
                                   {f.habilitado === false ? (
-                                    <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                    <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                                       {t.admin.disabled_no_booking}
                                     </span>
                                   ) : (
-                                    <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                                       {t.admin.enabled}
                                     </span>
                                   )}
 
                                   {/* CONTADORES DE INCIDENCIAS */}
                                   {pendientes > 0 && (
-                                    <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                    <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                                       ⏳ {pendientes} {t.common.pending}
                                     </span>
                                   )}
                                   {enCurso > 0 && (
-                                    <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                    <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                                       🔧 {enCurso} {t.reservas.status_in_progress_short}
                                     </span>
                                   )}
                                   {pendientes === 0 && enCurso === 0 && (
-                                    <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                                       ✅ {t.reservas.no_incidents_recorded}
                                     </span>
                                   )}
                                 </div>
 
-                                <p className="text-xs text-stone-500 font-medium mt-0.5">
+                                <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
                                   {t.admin.schedule_info}: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | {t.admin.slot}: {f.duracion_slot_minutos || 60}m | {t.admin.max}: {f.dias_antelacion_maxima ?? 7} {t.admin.days}
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   {(f.largura || f.anchura || f.medidas) && (
-                                    <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                    <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
                                       📐 {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.largura ? `${f.largura}m` : f.anchura ? `${f.anchura}m` : f.medidas}
                                     </span>
                                   )}
-                                  {f.cuadros && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.courts}: {f.cuadros}</span>}
-                                  {(f.labur || f.numero_labur) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
-                                  {(f.luze || f.numero_luze) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
-                                  {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
-                                  {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
-                                  {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
-                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">{t.admin.iot_active}</span>}
+                                  {f.cuadros && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.courts}: {f.cuadros}</span>}
+                                  {(f.labur || f.numero_labur) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
+                                  {(f.luze || f.numero_luze) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
+                                  {f.tiene_luz && <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
+                                  {f.tiene_vestuarios && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
+                                  {f.tiene_duchas && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
+                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md">{t.admin.iot_active}</span>}
                                 </div>
                               </div>
                             </div>
@@ -1991,24 +1991,24 @@ export default function AdminDashboard() {
                             {f.tiene_sensor_iot && (
                               <button 
                                 onClick={() => abrirGraficaIoT(f)}
-                                className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                                className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition cursor-pointer"
                               >
                                 {t.admin.iot_telemetry}
                               </button>
                             )}
                             <button 
                               onClick={() => handleToggleHabilitarFronton(f)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center gap-1.5 ${
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center gap-1.5 cursor-pointer ${
                                 f.habilitado === false
                                   ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
-                                  : 'bg-stone-100 text-stone-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border-stone-300'
+                                  : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-300 border-stone-300 dark:border-stone-700'
                               }`}
                             >
                               {f.habilitado === false ? t.admin.btn_enable : t.admin.btn_disable}
                             </button>
                             <button 
                               onClick={() => iniciarEdicion(f)}
-                              className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 transition"
+                              className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer"
                             >
                               {t.common.edit}
                             </button>
@@ -2021,12 +2021,12 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Formulario Añadir/Editar */}
-                <div ref={formularioFrontonRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 scroll-mt-24">
+                <div ref={formularioFrontonRef} className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 scroll-mt-24">
                   {!mostrarFormularioFronton ? (
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-base font-bold text-stone-900">{t.admin.add_new_fronton}</h3>
-                        <p className="text-xs text-stone-500">{t.admin.frontons_limit_desc}</p>
+                        <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.admin.add_new_fronton}</h3>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">{t.admin.frontons_limit_desc}</p>
                       </div>
                       <button 
                         onClick={() => {
@@ -2040,20 +2040,20 @@ export default function AdminDashboard() {
                             }, 100)
                           }
                         }}
-                        className="bg-emerald-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95"
+                        className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-bold transition shadow-sm active:scale-95 cursor-pointer"
                       >
                         +
                       </button>
                     </div>
                   ) : (
                     <div>
-                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
-                        <h3 className="text-lg font-bold text-stone-900">
+                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-stone-100 dark:border-stone-800">
+                        <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
                           {frontonEnEdicion ? `${t.admin.editing_fronton}: ${frontonEnEdicion.nombre}` : t.admin.new_fronton}
                         </h3>
                         <button 
                           onClick={() => { setMostrarFormularioFronton(false); setFrontonEnEdicion(null); resetFormulario(); }}
-                          className="text-stone-400 hover:text-stone-700 text-xs font-bold"
+                          className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xs font-bold cursor-pointer"
                         >
                           {t.common.cancel} ✕
                         </button>
@@ -2061,18 +2061,18 @@ export default function AdminDashboard() {
 
                       <form onSubmit={handleCreateOrUpdateFronton} className="space-y-4">
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.fronton_name}</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.admin.fronton_name}</label>
                           <input 
                             type="text" 
                             value={nuevoFronton.nombre} 
                             onChange={(e) => setNuevoFronton({...nuevoFronton, nombre: e.target.value})} 
                             required 
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                            className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.image_optional}</label>
+                          <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.admin.image_optional}</label>
                           <input 
                             type="file" 
                             accept="image/*"
@@ -2081,14 +2081,14 @@ export default function AdminDashboard() {
                                 setArchivoImagen(e.target.files[0])
                               }
                             }}
-                            className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100"
+                            className="w-full text-xs text-stone-500 dark:text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 dark:file:bg-emerald-950/80 file:text-emerald-800 dark:file:text-emerald-300 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900 cursor-pointer"
                           />
                         </div>
 
                         {/* Fila 1: Anchura y Largura (opcionales) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.width}</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.admin.width}</label>
                             <input 
                               type="number" 
                               step="any"
@@ -2096,11 +2096,11 @@ export default function AdminDashboard() {
                               placeholder="ej. 10"
                               value={nuevoFronton.anchura} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, anchura: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.length}</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.admin.length}</label>
                             <input 
                               type="number" 
                               step="any"
@@ -2108,7 +2108,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 36"
                               value={nuevoFronton.largura} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, largura: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -2116,74 +2116,74 @@ export default function AdminDashboard() {
                         {/* Fila 2: Nº de cuadros, Nº Labur y Nº Luze (opcionales) */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.num_courts}</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.admin.num_courts}</label>
                             <input 
                               type="number" 
                               min="0"
                               placeholder="ej. 7"
                               value={nuevoFronton.cuadros} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, cuadros: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº Labur (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Nº Labur (opcional)</label>
                             <input 
                               type="number" 
                               min="0"
                               placeholder="ej. 4"
                               value={nuevoFronton.labur} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, labur: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº Luze (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">Nº Luze (opcional)</label>
                             <input 
                               type="number" 
                               min="0"
                               placeholder="ej. 7"
                               value={nuevoFronton.luze} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, luze: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                              className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
 
                         {/* Reglas de Horarios */}
-                        <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-4">
-                          <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700">{t.admin.schedule_rules}</h4>
+                        <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-4">
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">{t.admin.schedule_rules}</h4>
                           
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.opening}</label>
+                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.opening}</label>
                               <input 
                                 type="time" 
                                 value={nuevoFronton.hora_apertura} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, hora_apertura: e.target.value})} 
                                 required 
-                                className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
+                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.closing}</label>
+                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.closing}</label>
                               <input 
                                 type="time" 
                                 value={nuevoFronton.hora_cierre} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, hora_cierre: e.target.value})} 
                                 required 
-                                className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
+                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                               />
                             </div>
                           </div>
 
                           <div className="grid grid-cols-3 gap-3">
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.slot_duration}</label>
+                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.slot_duration}</label>
                               <select 
                                 value={nuevoFronton.duracion_slot_minutos} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, duracion_slot_minutos: Number(e.target.value)})}
-                                className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
+                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                               >
                                 <option value="30">30 min</option>
                                 <option value="60">60 min</option>
@@ -2192,11 +2192,11 @@ export default function AdminDashboard() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.max_advance}</label>
+                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.max_advance}</label>
                               <select 
                                 value={nuevoFronton.dias_antelacion_maxima} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, dias_antelacion_maxima: Number(e.target.value)})}
-                                className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
+                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                               >
                                 <option value="0">0 {t.admin.days} ({t.reservas.today})</option>
                                 <option value="1">1 {t.admin.days.slice(0,-1)}</option>
@@ -2209,14 +2209,14 @@ export default function AdminDashboard() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.max_bookings_day}</label>
+                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.max_bookings_day}</label>
                               <input 
                                 type="number" 
                                 min="1" 
                                 max="10"
                                 value={nuevoFronton.max_reservas_activas} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, max_reservas_activas: Number(e.target.value)})}
-                                className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
+                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                               />
                             </div>
                           </div>
@@ -2225,41 +2225,41 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-2 gap-3 pt-2">
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_luz} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_luz: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">{t.admin.light}</span>
+                            <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{t.admin.light}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.luz_pago} onChange={(e) => setNuevoFronton({...nuevoFronton, luz_pago: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">{t.admin.light_paid}</span>
+                            <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{t.admin.light_paid}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_vestuarios} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_vestuarios: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">{t.admin.dressing_rooms}</span>
+                            <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{t.admin.dressing_rooms}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_duchas} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_duchas: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">{t.admin.showers}</span>
+                            <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{t.admin.showers}</span>
                           </label>
                         </div>
 
-                        <div className="pt-3 border-t border-stone-200 space-y-2">
+                        <div className="pt-3 border-t border-stone-200 dark:border-stone-800 space-y-2">
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.habilitado} onChange={(e) => setNuevoFronton({...nuevoFronton, habilitado: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-800">{t.admin.allow_bookings}</span>
+                            <span className="text-xs font-bold text-stone-800 dark:text-stone-200">{t.admin.allow_bookings}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_sensor_iot} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_sensor_iot: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-extrabold text-emerald-900">{t.admin.iot_device_active}</span>
+                            <span className="text-xs font-extrabold text-emerald-900 dark:text-emerald-300">{t.admin.iot_device_active}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.solo_empadronados} onChange={(e) => setNuevoFronton({...nuevoFronton, solo_empadronados: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-medium text-stone-600">{t.admin.only_registered_residents}</span>
+                            <span className="text-xs font-medium text-stone-600 dark:text-stone-400">{t.admin.only_registered_residents}</span>
                           </label>
                         </div>
 
                         <button 
                           type="submit" 
                           disabled={uploadingImage}
-                          className="w-full bg-emerald-700 text-white p-3 rounded-xl hover:bg-emerald-800 disabled:bg-stone-300 font-bold text-xs transition shadow-sm"
+                          className="w-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-3 rounded-xl disabled:bg-stone-300 dark:disabled:bg-stone-800 font-bold text-xs transition shadow-sm cursor-pointer"
                         >
                           {uploadingImage ? 'Subiendo imagen...' : frontonEnEdicion ? t.admin.update_fronton : t.admin.save_fronton}
                         </button>
@@ -2274,35 +2274,35 @@ export default function AdminDashboard() {
 
         {/* PESTAÑA 3: INCIDENCIAS */}
         {activeTab === 'incidencias' && (
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-stone-100 pb-4">
+          <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-stone-100 dark:border-stone-800 pb-4">
               <div>
-                <h2 className="text-base font-bold text-stone-900">{t.admin.incidents_mailbox}</h2>
-                <p className="text-xs text-stone-500">{t.admin.incidents_desc}</p>
+                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.admin.incidents_mailbox}</h2>
+                <p className="text-xs text-stone-500 dark:text-stone-400">{t.admin.incidents_desc}</p>
               </div>
 
               <div className="flex gap-1.5 text-xs font-bold flex-wrap">
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('todas')}
-                  className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'todas' ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-50 text-stone-600 border-stone-200'}`}
+                  className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${filtroEstadoIncidencia === 'todas' ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'}`}
                 >
                   {t.admin.filter_all} ({incidencias.length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('pendiente')}
-                  className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'pendiente' ? 'bg-rose-600 text-white border-rose-600' : 'bg-rose-50 text-rose-700 border-rose-200'}`}
+                  className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${filtroEstadoIncidencia === 'pendiente' ? 'bg-rose-600 text-white border-rose-600' : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'}`}
                 >
                   {t.admin.filter_pending} ({incidencias.filter(i => i.estado === 'pendiente').length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('en_curso')}
-                  className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'en_curso' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200'}`}
+                  className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${filtroEstadoIncidencia === 'en_curso' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'}`}
                 >
                   {t.admin.filter_in_progress} ({incidencias.filter(i => i.estado === 'en_curso').length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('resuelta')}
-                  className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'resuelta' ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}
+                  className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${filtroEstadoIncidencia === 'resuelta' ? 'bg-emerald-700 dark:bg-emerald-600 text-white border-emerald-700 dark:border-emerald-600' : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'}`}
                 >
                   {t.admin.filter_resolved} ({incidencias.filter(i => i.estado === 'resuelta').length})
                 </button>
@@ -2310,7 +2310,7 @@ export default function AdminDashboard() {
             </div>
 
             {incidenciasFiltradas.length === 0 ? (
-              <p className="text-stone-400 italic text-center py-8 text-sm">{t.admin.no_incidents_category}</p>
+              <p className="text-stone-400 dark:text-stone-500 italic text-center py-8 text-sm">{t.admin.no_incidents_category}</p>
             ) : (
               <div className="space-y-3">
                 {incidenciasFiltradas.map((inc) => {
@@ -2320,23 +2320,23 @@ export default function AdminDashboard() {
                   const historial = Array.isArray(inc.historial) ? inc.historial : []
                   const estaHistorialAbierto = incidenciasHistorialAbierto.includes(inc.id)
 
-                  let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                  let badgeClass = 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
                   let badgeTexto = `⏳ ${t.reservas.status_pending_short}`
                   if (inc.estado === 'en_curso') {
-                    badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                    badgeClass = 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                     badgeTexto = `🔧 ${t.reservas.status_in_progress_short}`
                   } else if (inc.estado === 'resuelta') {
-                    badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                    badgeClass = 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                     badgeTexto = `✅ ${t.reservas.status_resolved_short}`
                   }
 
                   return (
-                    <div key={inc.id} className="p-5 border border-stone-200 rounded-3xl bg-stone-50/70 space-y-3 shadow-2xs">
+                    <div key={inc.id} className="p-5 border border-stone-200 dark:border-stone-800 rounded-3xl bg-stone-50/70 dark:bg-stone-950/60 space-y-3 shadow-2xs">
                       <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
                         <div className="space-y-1.5 flex-1 min-w-0">
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="font-bold text-stone-900 text-base">{inc.titulo}</span>
-                            <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200/60">
+                            <span className="font-bold text-stone-900 dark:text-stone-100 text-base">{inc.titulo}</span>
+                            <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60">
                               🏟️ {inc.frontones?.nombre}
                             </span>
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
@@ -2345,33 +2345,33 @@ export default function AdminDashboard() {
                           </div>
                           
                           {inc.descripcion && (
-                            <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{inc.descripcion}</p>
                           )}
 
                           <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
-                            <span className="text-[11px] text-stone-400 font-medium mr-1">
+                            <span className="text-[11px] text-stone-400 dark:text-stone-500 font-medium mr-1">
                               📅 {t.reservas.reported_on} {formatShortDateWithTime(inc.created_at, lang)}
                             </span>
 
                             {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
-                            <span className="font-bold text-stone-700 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs flex items-center gap-1">
+                            <span className="font-bold text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 px-2.5 py-0.5 rounded-lg border border-stone-200 dark:border-stone-800 shadow-2xs flex items-center gap-1">
                               👤 {nombreCompletoUsuario}
                             </span>
                             
                             {inc.profiles?.email && (
-                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              <span className="text-stone-500 dark:text-stone-400 bg-white dark:bg-stone-900 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-800 text-[11px]">
                                 ✉️ {inc.profiles.email}
                               </span>
                             )}
 
                             {inc.profiles?.dni && (
-                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              <span className="text-stone-500 dark:text-stone-400 bg-white dark:bg-stone-900 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-800 text-[11px]">
                                 🪪 {t.auth.dni}: {inc.profiles.dni}
                               </span>
                             )}
 
                             {inc.profiles?.localidad && (
-                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              <span className="text-stone-500 dark:text-stone-400 bg-white dark:bg-stone-900 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-800 text-[11px]">
                                 📍 {inc.profiles.localidad} {inc.profiles.codigo_postal ? `(${inc.profiles.codigo_postal})` : ''}
                               </span>
                             )}
@@ -2382,7 +2382,7 @@ export default function AdminDashboard() {
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full md:w-auto">
                           <button
                             onClick={() => abrirModalCambioEstado(inc)}
-                            className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                            className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
                             title={t.admin.change_status}
                           >
                             <span>📝 {t.admin.change_status}</span>
@@ -2390,7 +2390,7 @@ export default function AdminDashboard() {
 
                           <button
                             onClick={() => handleBorrarIncidencia(inc.id, inc.titulo)}
-                            className="bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                            className="bg-white dark:bg-stone-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:border-rose-300 border border-rose-200 dark:border-rose-800 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
                             title={t.admin.delete_incident}
                           >
                             <span>🗑️ {t.admin.delete_incident}</span>
@@ -2403,30 +2403,30 @@ export default function AdminDashboard() {
                         <div className="pt-1">
                           <button
                             onClick={() => toggleVerHistorialIncidencia(inc.id)}
-                            className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
+                            className="text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
                           >
                             <span>💬 {estaHistorialAbierto ? t.admin.hide_actions_history : `${t.admin.view_actions_history} (${historial.length})`}</span>
                             <span className="text-[10px]">{estaHistorialAbierto ? '▲' : '▼'}</span>
                           </button>
 
                           {estaHistorialAbierto && (
-                            <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2.5 text-xs shadow-2xs">
-                              <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
+                            <div className="mt-2.5 p-3.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2.5 text-xs shadow-2xs">
+                              <h4 className="font-bold text-stone-800 dark:text-stone-200 border-b border-stone-100 dark:border-stone-800 pb-1.5 flex items-center gap-1.5">
                                 <span>📜 {t.admin.chronological_history}</span>
                               </h4>
                               <div className="space-y-2">
                                 {historial.map((h: any, hIdx: number) => (
-                                  <div key={hIdx} className="p-2.5 bg-stone-50 rounded-xl border border-stone-150 space-y-1">
+                                  <div key={hIdx} className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-150 dark:border-stone-800 space-y-1">
                                     <div className="flex justify-between items-center flex-wrap gap-1">
-                                      <span className="font-bold text-stone-800 text-xs">
-                                        Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                      <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">
+                                        Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 dark:text-emerald-300 font-extrabold">{h.estado_nuevo}</span>
                                       </span>
-                                      <span className="text-[10px] text-stone-400 font-medium">
+                                      <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
                                         📅 {formatShortDateWithTime(h.fecha, lang)}
                                       </span>
                                     </div>
-                                    <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
-                                    <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                    <p className="text-stone-700 dark:text-stone-300 italic text-xs">"{h.comentario}"</p>
+                                    <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
                                   </div>
                                 ))}
                               </div>
@@ -2444,19 +2444,19 @@ export default function AdminDashboard() {
 
         {/* PESTAÑA NUEVA: CIUDADANOS (CON BOTÓN DE BORRAR Y ALERTA DE CONFIRMACIÓN) */}
         {activeTab === 'ciudadanos' && (
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-            <div className="border-b border-stone-100 pb-4">
-              <h2 className="text-base font-bold text-stone-900">{t.admin.citizens_title} {nombreMunicipioActual}</h2>
-              <p className="text-xs text-stone-500">{t.admin.citizens_desc}</p>
+          <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+            <div className="border-b border-stone-100 dark:border-stone-800 pb-4">
+              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.admin.citizens_title} {nombreMunicipioActual}</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400">{t.admin.citizens_desc}</p>
             </div>
 
             {ciudadanos.length === 0 ? (
-              <p className="text-stone-400 italic text-center py-8 text-sm">{t.admin.no_citizens}</p>
+              <p className="text-stone-400 dark:text-stone-500 italic text-center py-8 text-sm">{t.admin.no_citizens}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-stone-200 bg-stone-50 text-xs font-bold text-stone-600 uppercase tracking-wider">
+                    <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                       <th className="p-3">{t.admin.name_and_surname}</th>
                       <th className="p-3">{t.auth.dni}</th>
                       <th className="p-3">{t.admin.address_street}</th>
@@ -2465,28 +2465,28 @@ export default function AdminDashboard() {
                       <th className="p-3 text-right">{t.admin.action}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100 text-xs">
+                  <tbody className="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
                     {ciudadanos.map((c) => (
-                      <tr key={c.id} className="hover:bg-stone-50/50 transition">
-                        <td className="p-3 font-bold text-stone-900">
+                      <tr key={c.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-950/50 transition">
+                        <td className="p-3 font-bold text-stone-900 dark:text-stone-100">
                           {c.nombre_completo || '-'} {c.apellidos || ''}
                         </td>
-                        <td className="p-3 font-mono text-stone-700">
+                        <td className="p-3 font-mono text-stone-700 dark:text-stone-300">
                           {c.dni || '-'}
                         </td>
-                        <td className="p-3 text-stone-600">
+                        <td className="p-3 text-stone-600 dark:text-stone-400">
                           {c.calle || '-'}
                         </td>
-                        <td className="p-3 text-stone-600">
+                        <td className="p-3 text-stone-600 dark:text-stone-400">
                           {c.localidad || '-'} ({c.codigo_postal || 'S/C'})
                         </td>
-                        <td className="p-3 text-emerald-800 font-medium">
+                        <td className="p-3 text-emerald-800 dark:text-emerald-300 font-medium">
                           {c.email || '-'}
                         </td>
                         <td className="p-3 text-right">
                           <button
                             onClick={() => handleBorrarCiudadano(c.id, c.nombre_completo)}
-                            className="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl font-bold transition shadow-2xs"
+                            className="bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 px-3 py-1.5 rounded-xl font-bold transition shadow-2xs cursor-pointer"
                           >
                             {t.admin.delete_incident}
                           </button>
@@ -2502,13 +2502,13 @@ export default function AdminDashboard() {
 
         {/* PESTAÑA 4: AJUSTES */}
         {activeTab === 'ajustes' && (
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <h2 className="text-base font-bold text-stone-900">{t.admin.town_settings_title}</h2>
+          <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
+              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.admin.town_settings_title}</h2>
               {puebloConfigurado && !editandoAjustes && (
                 <button 
                   onClick={() => setEditandoAjustes(true)}
-                  className="bg-stone-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                  className="bg-stone-800 dark:bg-stone-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 dark:hover:bg-stone-700 transition cursor-pointer"
                 >
                   {t.admin.edit_config}
                 </button>
@@ -2516,25 +2516,25 @@ export default function AdminDashboard() {
             </div>
 
             {puebloConfigurado && !editandoAjustes ? (
-              <div className="space-y-5 bg-stone-50 p-6 rounded-2xl border border-stone-200">
+              <div className="space-y-5 bg-stone-50 dark:bg-stone-950 p-6 rounded-2xl border border-stone-200 dark:border-stone-800">
                 {/* IMAGEN DEL MUNICIPIO */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 pb-5">
                   <div className="flex items-center gap-4">
                     {imagenMunicipioUrl ? (
                       <img 
                         src={imagenMunicipioUrl} 
                         alt="Imagen/Escudo del municipio" 
-                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white"
+                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xs bg-white dark:bg-stone-900"
                       />
                     ) : (
-                      <div className="w-20 h-20 bg-stone-200 rounded-2xl border border-stone-300 flex flex-col items-center justify-center text-stone-400 text-xs font-bold gap-1">
+                      <div className="w-20 h-20 bg-stone-200 dark:bg-stone-800 rounded-2xl border border-stone-300 dark:border-stone-700 flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 text-xs font-bold gap-1">
                         <span className="text-2xl">🏛️</span>
                         <span>{t.admin.no_photo}</span>
                       </div>
                     )}
                     <div>
                       <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.ajustes.municipality_logo}</span>
-                      <p className="text-xs text-stone-600 font-medium mt-0.5">
+                      <p className="text-xs text-stone-600 dark:text-stone-400 font-medium mt-0.5">
                         {imagenMunicipioUrl ? t.admin.town_logo_desc : t.admin.no_town_logo}
                       </p>
                     </div>
@@ -2543,14 +2543,14 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setEditandoAjustes(true)}
-                      className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                      className="bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                     >
                       {imagenMunicipioUrl ? t.admin.change_image : t.admin.add_image}
                     </button>
                     {imagenMunicipioUrl && (
                       <button 
                         onClick={handleBorrarImagenMunicipio}
-                        className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                        className="bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                       >
                         {t.admin.delete_image}
                       </button>
@@ -2560,19 +2560,19 @@ export default function AdminDashboard() {
 
                 <div>
                   <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.auth.province}</span>
-                  <p className="text-base font-bold text-stone-800 mt-0.5">{nombreProvinciaActual}</p>
+                  <p className="text-base font-bold text-stone-800 dark:text-stone-100 mt-0.5">{nombreProvinciaActual}</p>
                 </div>
 
                 <div>
                   <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.auth.municipality}</span>
-                  <p className="text-base font-bold text-stone-800 mt-0.5">{nombreMunicipioActual}</p>
+                  <p className="text-base font-bold text-stone-800 dark:text-stone-100 mt-0.5">{nombreMunicipioActual}</p>
                 </div>
 
                 <div>
                   <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">{t.ajustes.postal_codes}</span>
                   <div className="flex flex-wrap gap-2">
                     {codigosPostales.map((cp) => (
-                      <span key={cp} className="bg-white border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 shadow-2xs">
+                      <span key={cp} className="bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-300 shadow-2xs">
                         {cp}
                       </span>
                     ))}
@@ -2582,23 +2582,23 @@ export default function AdminDashboard() {
             ) : (
               <form onSubmit={handleSaveAjustes} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1.5">
                     {t.ajustes.municipality_logo}
                   </label>
                   
                   {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800">
                       <img 
                         src={archivoImagenMunicipio ? URL.createObjectURL(archivoImagenMunicipio) : imagenMunicipioUrl} 
                         alt="Escudo/Imagen del municipio" 
-                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white" 
+                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xs bg-white dark:bg-stone-900" 
                       />
                       <div className="space-y-1.5">
-                        <p className="text-xs font-bold text-stone-800">
+                        <p className="text-xs font-bold text-stone-800 dark:text-stone-200">
                           {archivoImagenMunicipio ? `${t.common.save}: ${archivoImagenMunicipio.name}` : t.admin.town_logo_desc}
                         </p>
                         <div className="flex gap-2 flex-wrap">
-                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
+                          <label className="bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
                             {t.admin.change_image}
                             <input 
                               type="file" 
@@ -2617,7 +2617,7 @@ export default function AdminDashboard() {
                               setImagenMunicipioUrl('')
                               setArchivoImagenMunicipio(null)
                             }} 
-                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                            className="bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                           >
                             {t.admin.delete_image}
                           </button>
@@ -2625,10 +2625,10 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
+                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-2xl hover:border-emerald-500 dark:hover:border-emerald-400 bg-stone-50/50 dark:bg-stone-950/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition cursor-pointer group">
                       <span className="text-3xl mb-1 group-hover:scale-110 transition">🏛️</span>
-                      <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">{t.ajustes.upload_logo}</span>
-                      <span className="text-[11px] text-stone-400 mt-0.5">PNG, JPG o WEBP</span>
+                      <span className="text-xs font-bold text-stone-700 dark:text-stone-300 group-hover:text-emerald-800 dark:group-hover:text-emerald-400">{t.ajustes.upload_logo}</span>
+                      <span className="text-[11px] text-stone-400 dark:text-stone-500 mt-0.5">PNG, JPG o WEBP</span>
                       <input 
                         type="file" 
                         accept="image/*"
@@ -2644,12 +2644,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.auth.province}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.auth.province}</label>
                   <select 
                     value={selectedProvinciaId} 
                     onChange={(e) => handleProvinciaChange(e.target.value)}
                     required
-                    className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white"
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                   >
                     <option value="">{t.reservas.all_provinces}...</option>
                     {provincias.map(p => (
@@ -2659,13 +2659,13 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.auth.municipality}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.auth.municipality}</label>
                   <select 
                     value={selectedMunicipioId} 
                     onChange={(e) => handleMunicipioChange(e.target.value)}
                     required
                     disabled={!selectedProvinciaId}
-                    className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white disabled:bg-stone-100"
+                    className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-900"
                   >
                     <option value="">{t.reservas.all_municipalities}...</option>
                     {municipiosDisponibles.map(m => (
@@ -2675,12 +2675,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.ajustes.postal_codes}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase mb-1">{t.ajustes.postal_codes}</label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {codigosPostales.map((cp) => (
-                      <span key={cp} className="bg-stone-100 border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2">
+                      <span key={cp} className="bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-2">
                         {cp}
-                        <button type="button" onClick={() => handleRemoveCp(cp)} className="text-rose-500 font-bold">×</button>
+                        <button type="button" onClick={() => handleRemoveCp(cp)} className="text-rose-500 dark:text-rose-400 font-bold cursor-pointer">×</button>
                       </span>
                     ))}
                   </div>
@@ -2690,23 +2690,23 @@ export default function AdminDashboard() {
                       placeholder={t.ajustes.add_cp_placeholder} 
                       value={nuevoCp}
                       onChange={(e) => setNuevoCp(e.target.value)}
-                      className="p-2 border border-stone-300 rounded-xl flex-1 text-sm bg-white"
+                      className="p-2 border border-stone-300 dark:border-stone-700 rounded-xl flex-1 text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600"
                     />
-                    <button type="button" onClick={handleAddCp} className="bg-stone-200 text-stone-800 px-4 py-2 rounded-xl text-xs font-bold hover:bg-stone-300">
+                    <button type="button" onClick={handleAddCp} className="bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 px-4 py-2 rounded-xl text-xs font-bold hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer">
                       {t.ajustes.add_cp}
                     </button>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <button type="submit" className="flex-1 bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-emerald-800 transition">
+                  <button type="submit" className="flex-1 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
                     {t.admin.save_config}
                   </button>
                   {puebloConfigurado && (
                     <button 
                       type="button" 
                       onClick={() => setEditandoAjustes(false)} 
-                      className="bg-stone-200 text-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-300"
+                      className="bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-200 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer"
                     >
                       {t.common.cancel}
                     </button>
@@ -2720,26 +2720,26 @@ export default function AdminDashboard() {
         {/* MODAL UTILIZACIÓN / IOT */}
         {frontonGraficaModal && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-stone-200">
-              <div className="flex justify-between items-center border-b border-stone-100 pb-3">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div>
-                  <h3 className="font-bold text-lg text-stone-900">Telemetría IoT: {frontonGraficaModal.nombre}</h3>
-                  <p className="text-xs text-stone-500">Presencia detectada en tiempo real por franjas</p>
+                  <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">Telemetría IoT: {frontonGraficaModal.nombre}</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Presencia detectada en tiempo real por franjas</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => setFrontonTokenModal(frontonGraficaModal)}
-                    className="bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                    className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-300 dark:border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
                     title="Ver token de hardware ESP32"
                   >
                     🔑 Token IoT
                   </button>
-                  <button onClick={() => setFrontonGraficaModal(null)} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
+                  <button onClick={() => setFrontonGraficaModal(null)} className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer">✕</button>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <label className="text-xs font-bold text-stone-600">Fecha:</label>
+                <label className="text-xs font-bold text-stone-600 dark:text-stone-400">Fecha:</label>
                 <input 
                   type="date" 
                   value={fechaGraficaIoT}
@@ -2747,11 +2747,11 @@ export default function AdminDashboard() {
                     setFechaGraficaIoT(e.target.value)
                     cargarTelemetriaFronton(frontonGraficaModal.id, e.target.value)
                   }}
-                  className="p-1.5 border border-stone-300 rounded-xl text-xs bg-white"
+                  className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-xl text-xs bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                 />
               </div>
 
-              <div className="border border-stone-200 rounded-2xl p-4 bg-stone-50 space-y-2">
+              <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-2">
                 <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
                   {horasDelDia.map((hora) => {
                     const registro = datosTelemetria.find(t => t.hora_inicio?.slice(0,2) === hora.slice(0,2))
@@ -2759,15 +2759,15 @@ export default function AdminDashboard() {
 
                     return (
                       <div key={hora} className="flex items-center gap-3 text-xs">
-                        <span className="font-mono w-12 text-stone-600 font-bold">{hora}</span>
-                        <div className="flex-1 h-6 bg-stone-200 rounded-lg overflow-hidden relative">
+                        <span className="font-mono w-12 text-stone-600 dark:text-stone-400 font-bold">{hora}</span>
+                        <div className="flex-1 h-6 bg-stone-200 dark:bg-stone-800 rounded-lg overflow-hidden relative">
                           <div 
                             className={`h-full transition-all duration-300 ${
-                              hayPresencia ? 'bg-emerald-600 w-full' : 'bg-stone-200 w-0'
+                              hayPresencia ? 'bg-emerald-600 w-full' : 'bg-stone-200 dark:bg-stone-800 w-0'
                             }`} 
                           />
                           <span className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold ${
-                            hayPresencia ? 'text-white' : 'text-stone-400'
+                            hayPresencia ? 'text-white' : 'text-stone-400 dark:text-stone-500'
                           }`}>
                             {hayPresencia ? 'Presencia Detectada' : 'Sin Actividad'}
                           </span>
@@ -2781,13 +2781,13 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <button 
                   onClick={() => setFrontonTokenModal(frontonGraficaModal)}
-                  className="bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+                  className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-300 dark:border-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   🔑 Token IoT (ESP32)
                 </button>
                 <button 
                   onClick={() => setFrontonGraficaModal(null)}
-                  className="flex-1 bg-stone-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-stone-800 transition"
+                  className="flex-1 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-900 p-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   Cerrar Visualizador
                 </button>
@@ -2799,23 +2799,23 @@ export default function AdminDashboard() {
         {/* MODAL TOKEN IOT */}
         {frontonTokenModal && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl border border-stone-200">
-              <div className="flex justify-between items-center border-b border-stone-100 pb-2">
-                <h3 className="font-bold text-base text-stone-900">Token IoT: {frontonTokenModal.nombre}</h3>
-                <button onClick={() => setFrontonTokenModal(null)} className="text-stone-400 font-bold">✕</button>
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-2">
+                <h3 className="font-bold text-base text-stone-900 dark:text-stone-100">Token IoT: {frontonTokenModal.nombre}</h3>
+                <button onClick={() => setFrontonTokenModal(null)} className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer">✕</button>
               </div>
               <div className="space-y-2">
-                <label className="block text-[11px] font-bold text-stone-500 uppercase">Token de Hardware (ESP32)</label>
+                <label className="block text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Token de Hardware (ESP32)</label>
                 <input 
                   type="text" 
                   readOnly 
                   value={frontonTokenModal.hardware_token || 'No generado'} 
-                  className="w-full p-2.5 bg-stone-100 font-mono text-xs border border-stone-200 rounded-xl"
+                  className="w-full p-2.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-mono text-xs border border-stone-200 dark:border-stone-700 rounded-xl"
                 />
               </div>
               <button 
                 onClick={() => setFrontonTokenModal(null)}
-                className="w-full bg-stone-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-stone-800"
+                className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-900 p-2.5 rounded-xl text-xs font-bold cursor-pointer"
               >
                 Cerrar
               </button>
@@ -2826,22 +2826,22 @@ export default function AdminDashboard() {
         {/* MODAL CAMBIO DE ESTADO Y COMENTARIO OBLIGATORIO DE INCIDENCIA */}
         {incidenciaCambioEstadoModal && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in zoom-in duration-150">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl border border-stone-200">
-              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-start border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shadow-inner">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg font-black shadow-inner border border-emerald-200/60 dark:border-emerald-800/60">
                     📝
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">{t.admin.update_incident_status}</h3>
-                    <p className="text-xs text-stone-500">
+                    <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">{t.admin.update_incident_status}</h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
                       {incidenciaCambioEstadoModal.frontones?.nombre} • {incidenciaCambioEstadoModal.titulo}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIncidenciaCambioEstadoModal(null)}
-                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:text-stone-700 transition"
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -2849,17 +2849,17 @@ export default function AdminDashboard() {
 
               <form onSubmit={handleGuardarCambioEstadoConComentario} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                     {t.admin.new_status}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setNuevoEstadoSeleccionado('pendiente')}
-                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer ${
                         nuevoEstadoSeleccionado === 'pendiente'
-                          ? 'bg-rose-100 border-rose-400 text-rose-900 ring-2 ring-rose-400'
-                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-rose-50/50'
+                          ? 'bg-rose-100 dark:bg-rose-950/80 border-rose-400 dark:border-rose-600 text-rose-900 dark:text-rose-200 ring-2 ring-rose-400 dark:ring-rose-600'
+                          : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30'
                       }`}
                     >
                       <span>⏳</span>
@@ -2869,10 +2869,10 @@ export default function AdminDashboard() {
                     <button
                       type="button"
                       onClick={() => setNuevoEstadoSeleccionado('en_curso')}
-                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer ${
                         nuevoEstadoSeleccionado === 'en_curso'
-                          ? 'bg-amber-100 border-amber-400 text-amber-900 ring-2 ring-amber-400'
-                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-amber-50/50'
+                          ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-400 dark:border-amber-600 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400 dark:ring-amber-600'
+                          : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-amber-50/50 dark:hover:bg-amber-950/30'
                       }`}
                     >
                       <span>🔧</span>
@@ -2882,10 +2882,10 @@ export default function AdminDashboard() {
                     <button
                       type="button"
                       onClick={() => setNuevoEstadoSeleccionado('resuelta')}
-                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer ${
                         nuevoEstadoSeleccionado === 'resuelta'
-                          ? 'bg-emerald-100 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500'
-                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-emerald-50/50'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-500 dark:border-emerald-600 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500 dark:ring-emerald-600'
+                          : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30'
                       }`}
                     >
                       <span>✅</span>
@@ -2895,10 +2895,10 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                     {t.admin.action_comment}
                   </label>
-                  <p className="text-[11px] text-stone-500 mb-2">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mb-2">
                     {t.admin.action_comment_desc}
                   </p>
                   <textarea
@@ -2907,7 +2907,7 @@ export default function AdminDashboard() {
                     placeholder="Describe qué se ha hecho o se va a hacer..."
                     value={comentarioCambioEstado}
                     onChange={(e) => setComentarioCambioEstado(e.target.value)}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
                   />
                 </div>
 
@@ -2915,7 +2915,7 @@ export default function AdminDashboard() {
                   <button
                     type="submit"
                     disabled={guardandoCambioEstado}
-                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
+                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 dark:disabled:bg-stone-800 active:scale-98 cursor-pointer"
                   >
                     {guardandoCambioEstado ? t.admin.saving_in_history : t.admin.save_in_history}
                   </button>
@@ -2923,7 +2923,7 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setIncidenciaCambioEstadoModal(null)}
-                    className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
+                    className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-4 py-3 rounded-2xl text-sm font-bold transition cursor-pointer"
                   >
                     {t.common.cancel}
                   </button>
@@ -2936,24 +2936,24 @@ export default function AdminDashboard() {
         {/* MODAL VER HISTÓRICO DE INCIDENCIA */}
         {incidenciaVerHistoricoModal && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in zoom-in duration-150">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col space-y-5 shadow-2xl border border-stone-200">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800">
               
               {/* CABECERA DEL MODAL */}
-              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+              <div className="flex justify-between items-start border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shadow-inner">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg font-black shadow-inner border border-emerald-200/60 dark:border-emerald-800/60">
                     📜
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.incident_history_modal_title}</h3>
-                    <p className="text-xs text-stone-500">
+                    <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">{t.reservas.incident_history_modal_title}</h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
                       {incidenciaVerHistoricoModal.frontones?.nombre} • {incidenciaVerHistoricoModal.titulo}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
-                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:text-stone-700 transition"
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -2963,27 +2963,27 @@ export default function AdminDashboard() {
               <div className="flex-1 overflow-y-auto space-y-4 pr-1">
                 
                 {/* FICHA RESUMEN DE LA INCIDENCIA */}
-                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 text-xs">
+                <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-2 text-xs">
                   <div className="flex justify-between items-center flex-wrap gap-2">
-                    <span className="font-bold text-sm text-stone-900">{incidenciaVerHistoricoModal.titulo}</span>
+                    <span className="font-bold text-sm text-stone-900 dark:text-stone-100">{incidenciaVerHistoricoModal.titulo}</span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs ${
                       incidenciaVerHistoricoModal.estado === 'en_curso'
-                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                        ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                         : incidenciaVerHistoricoModal.estado === 'resuelta'
-                        ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                        : 'bg-rose-100 text-rose-800 border-rose-200'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                        : 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
                     }`}>
                       {incidenciaVerHistoricoModal.estado === 'en_curso' ? `🔧 ${t.reservas.status_in_progress_short}` : incidenciaVerHistoricoModal.estado === 'resuelta' ? `✅ ${t.reservas.status_resolved_short}` : `⏳ ${t.reservas.status_pending_short}`}
                     </span>
                   </div>
 
                   {incidenciaVerHistoricoModal.descripcion && (
-                    <p className="text-stone-600 leading-relaxed bg-white p-2.5 rounded-xl border border-stone-150">
+                    <p className="text-stone-600 dark:text-stone-400 leading-relaxed bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-150 dark:border-stone-800">
                       "{incidenciaVerHistoricoModal.descripcion}"
                     </p>
                   )}
 
-                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 pt-1">
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 dark:text-stone-400 pt-1">
                     <span>🏟️ Frontón: <strong>{incidenciaVerHistoricoModal.frontones?.nombre}</strong></span>
                     <span>•</span>
                     <span>👤 {t.admin.reported_by}: <strong>{incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Usuario'} {incidenciaVerHistoricoModal.profiles?.apellidos || ''}</strong></span>
@@ -2995,28 +2995,28 @@ export default function AdminDashboard() {
 
                 {/* TIMELINE / LÍNEA TEMPORAL */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span>🕒 {t.reservas.timeline_title}</span>
                   </h4>
 
-                  <div className="relative pl-6 border-l-2 border-stone-200 space-y-6">
+                  <div className="relative pl-6 border-l-2 border-stone-200 dark:border-stone-800 space-y-6">
                     
                     {/* HITO 1: REPORTE INICIAL */}
                     <div className="relative">
-                      <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-xs"></div>
-                      <div className="p-3.5 bg-rose-50/60 border border-rose-200/80 rounded-2xl space-y-1 text-xs">
+                      <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white dark:border-stone-900 shadow-xs"></div>
+                      <div className="p-3.5 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/60 rounded-2xl space-y-1 text-xs">
                         <div className="flex justify-between items-center flex-wrap gap-1">
-                          <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                          <span className="font-bold text-rose-950 dark:text-rose-300 flex items-center gap-1.5">
                             📋 {t.reservas.incident_registered}
                           </span>
-                          <span className="text-[10px] text-rose-700 font-medium">
+                          <span className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
                             {formatLongDateWithTime(incidenciaVerHistoricoModal.created_at, lang)}
                           </span>
                         </div>
-                        <p className="text-stone-600 text-[11px]">
+                        <p className="text-stone-600 dark:text-stone-400 text-[11px]">
                           {t.reservas.incident_initial_status_text}
                         </p>
-                        <span className="text-[10px] text-stone-400 font-semibold block">
+                        <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">
                           {t.reservas.by}: {incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Ciudadano'}
                         </span>
                       </div>
@@ -3028,39 +3028,39 @@ export default function AdminDashboard() {
                       return listaHistorial.length > 0 ? (
                         listaHistorial.map((h: any, idx: number) => {
                           let colorBadge = 'bg-stone-500'
-                          let bgCard = 'bg-stone-50/80 border-stone-200'
+                          let bgCard = 'bg-stone-50/80 dark:bg-stone-950/60 border-stone-200 dark:border-stone-800'
                           if (h.estado_nuevo === 'en_curso') {
                             colorBadge = 'bg-amber-500'
-                            bgCard = 'bg-amber-50/60 border-amber-200/80'
+                            bgCard = 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60'
                           } else if (h.estado_nuevo === 'resuelta') {
                             colorBadge = 'bg-emerald-600'
-                            bgCard = 'bg-emerald-50/60 border-emerald-200/80'
+                            bgCard = 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60'
                           } else if (h.estado_nuevo === 'pendiente') {
                             colorBadge = 'bg-rose-500'
-                            bgCard = 'bg-rose-50/60 border-rose-200/80'
+                            bgCard = 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60'
                           }
 
                           return (
                             <div key={idx} className="relative">
-                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
+                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white dark:border-stone-900 shadow-xs`}></div>
                               <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
                                 <div className="flex justify-between items-center flex-wrap gap-1">
-                                  <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
+                                  <span className="font-bold text-stone-900 dark:text-stone-100 text-xs flex items-center gap-1.5">
                                     <span>{t.reservas.status_change_label}:</span>
-                                    <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
+                                    <span className="capitalize font-semibold text-stone-600 dark:text-stone-400">{h.estado_anterior || 'Inicio'}</span>
                                     <span>➔</span>
-                                    <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
+                                    <span className="capitalize font-black text-emerald-800 dark:text-emerald-300">{h.estado_nuevo}</span>
                                   </span>
-                                  <span className="text-[10px] text-stone-500 font-medium">
+                                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
                                     📅 {formatShortDateWithTime(h.fecha, lang)}
                                   </span>
                                 </div>
 
-                                <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
+                                <div className="bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-150 dark:border-stone-800 text-stone-800 dark:text-stone-200 italic text-xs">
                                   "{h.comentario}"
                                 </div>
 
-                                <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
+                                <div className="flex justify-between items-center text-[10px] text-stone-400 dark:text-stone-500 font-semibold pt-0.5">
                                   <span>🏛️ Gestor: {h.autor || 'Equipo Municipal'}</span>
                                 </div>
                               </div>
@@ -3068,7 +3068,7 @@ export default function AdminDashboard() {
                           )
                         })
                       ) : (
-                        <div className="text-xs text-stone-400 italic py-2 pl-1">
+                        <div className="text-xs text-stone-400 dark:text-stone-500 italic py-2 pl-1">
                           {t.reservas.no_subsequent_actions}
                         </div>
                       )
@@ -3078,7 +3078,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* BOTONES DEL PIE DEL MODAL */}
-              <div className="flex justify-between items-center gap-3 pt-2 border-t border-stone-100">
+              <div className="flex justify-between items-center gap-3 pt-2 border-t border-stone-100 dark:border-stone-800">
                 <button
                   type="button"
                   onClick={() => {
@@ -3086,7 +3086,7 @@ export default function AdminDashboard() {
                     setIncidenciaVerHistoricoModal(null)
                     abrirModalCambioEstado(incActual)
                   }}
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
+                  className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
                 >
                   <span>📝 {t.admin.change_status}</span>
                 </button>
@@ -3094,7 +3094,7 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   {t.common.close}
                 </button>
@@ -3105,7 +3105,7 @@ export default function AdminDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500 transition-colors">
         Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
       </footer>
     </div>

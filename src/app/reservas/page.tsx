@@ -993,36 +993,36 @@ export default function PortalReservas() {
       <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-8 space-y-8">
         
         {/* 1. SECCIÓN: MIS PRÓXIMAS RESERVAS */}
-        <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-            <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
+            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
               {t.reservas.my_upcoming_bookings}
             </h2>
-            <span className="text-xs font-bold text-stone-400 bg-stone-100 px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-stone-400 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-full">
               {misProximasReservas.length} {t.reservas.active_count}
             </span>
           </div>
 
           {misProximasReservas.length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-sm text-stone-400 italic">{t.reservas.no_upcoming_bookings}</p>
+              <p className="text-sm text-stone-400 dark:text-stone-500 italic">{t.reservas.no_upcoming_bookings}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {misProximasReservas.map((res) => (
-                <div key={res.id} className="w-full p-4 bg-emerald-50/50 border border-emerald-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-2xs hover:border-emerald-300 transition">
+                <div key={res.id} className="w-full p-4 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/70 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-700 transition">
                   <div>
-                    <span className="font-bold text-sm text-emerald-950 block">
-                      {res.frontones?.nombre} <span className="font-normal text-stone-500">({res.frontones?.municipios?.nombre})</span>
+                    <span className="font-bold text-sm text-emerald-950 dark:text-emerald-200 block">
+                      {res.frontones?.nombre} <span className="font-normal text-stone-500 dark:text-stone-400">({res.frontones?.municipios?.nombre})</span>
                     </span>
-                    <span className="inline-block mt-1 text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-lg">
+                    <span className="inline-block mt-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg">
                       📅 {formatFullDateWithWeekday(res.fecha, lang)} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
                     </span>
                   </div>
                   <button 
                     onClick={() => handleCancelarReserva(res.id)}
-                    className="bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold px-4 py-2 rounded-xl transition shadow-2xs"
+                    className="bg-white dark:bg-stone-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs font-bold px-4 py-2 rounded-xl transition shadow-2xs cursor-pointer"
                   >
                     {t.reservas.cancel_booking}
                   </button>
@@ -1033,14 +1033,14 @@ export default function PortalReservas() {
         </section>
 
         {/* 2. SECCIÓN: MIS FRONTONES FAVORITOS */}
-        <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
-          <h2 className="text-base font-bold text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
+        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
+          <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 border-b border-stone-100 dark:border-stone-800 pb-3 flex items-center gap-2">
             <span className="text-amber-500 text-lg">★</span>
             {t.reservas.my_favorites}
           </h2>
 
           {misFavoritos.length === 0 ? (
-            <p className="text-sm text-stone-400 italic py-2 text-center">
+            <p className="text-sm text-stone-400 dark:text-stone-500 italic py-2 text-center">
               {t.reservas.no_favorites}
             </p>
           ) : (
@@ -1051,21 +1051,21 @@ export default function PortalReservas() {
                   <div 
                     key={f.id}
                     onClick={() => seleccionarFronton(f)}
-                    className="border border-stone-200 rounded-2xl p-4 bg-stone-50 hover:bg-emerald-50/60 hover:border-emerald-300 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
+                    className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 hover:border-emerald-300 dark:hover:border-emerald-700 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3">
                       {f.imagen_url ? (
-                        <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200" />
+                        <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
                       ) : (
-                        <div className="w-12 h-12 bg-stone-200 rounded-xl flex items-center justify-center text-xs text-stone-500 font-bold">
+                        <div className="w-12 h-12 bg-stone-200 dark:bg-stone-800 rounded-xl flex items-center justify-center text-xs text-stone-500 dark:text-stone-400 font-bold">
                           F
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <span className="font-bold text-sm text-stone-900 group-hover:text-emerald-900 block truncate">
+                        <span className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 block truncate">
                           {f.nombre} {f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}
                         </span>
-                        <span className="text-xs text-stone-500 block truncate">
+                        <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
                           {f.municipios?.nombre}
                         </span>
                       </div>
@@ -1075,33 +1075,33 @@ export default function PortalReservas() {
                     {(pendientes > 0 || enCurso > 0) && (
                       <div className="flex flex-wrap gap-1.5">
                         {pendientes > 0 && (
-                          <span className="bg-rose-50 text-rose-800 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600">{t.common.pending}:</span>
-                            <span className="font-black text-rose-700">{pendientes}</span>
+                          <span className="bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            <span className="text-stone-600 dark:text-stone-400">{t.common.pending}:</span>
+                            <span className="font-black text-rose-700 dark:text-rose-400">{pendientes}</span>
                           </span>
                         )}
                         {enCurso > 0 && (
-                          <span className="bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600">{t.reservas.status_in_progress_short}:</span>
-                            <span className="font-black text-amber-800">{enCurso}</span>
+                          <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            <span className="text-stone-600 dark:text-stone-400">{t.reservas.status_in_progress_short}:</span>
+                            <span className="font-black text-amber-800 dark:text-amber-400">{enCurso}</span>
                           </span>
                         )}
                       </div>
                     )}
 
                     {/* Estado en tiempo real */}
-                    <div className="flex justify-between items-center pt-2 border-t border-stone-200/80">
+                    <div className="flex justify-between items-center pt-2 border-t border-stone-200/80 dark:border-stone-800">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
                         f.en_uso
-                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                          : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${
                           f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
                         }`}></span>
                         {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
                       </span>
-                      <span className="text-xs font-bold text-emerald-700 group-hover:translate-x-0.5 transition">
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition">
                         {t.reservas.view}
                       </span>
                     </div>
@@ -1113,9 +1113,9 @@ export default function PortalReservas() {
         </section>
 
         {/* 3. SECCIÓN: MIS INCIDENCIAS Y MANTENIMIENTO */}
-        <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
+        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <span className="text-rose-500 text-base">⚠️</span>
               {t.reservas.my_incidents}
             </h2>
@@ -1124,7 +1124,7 @@ export default function PortalReservas() {
               {misIncidencias.length > 0 && (
                 <button
                   onClick={() => setMostrarMisIncidencias(!mostrarMisIncidencias)}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
                 >
                   <span>{mostrarMisIncidencias ? t.reservas.hide_my_incidents : `${t.reservas.show_my_incidents} (${misIncidencias.length})`}</span>
                   <span className="text-[10px]">{mostrarMisIncidencias ? '▲' : '▼'}</span>
@@ -1133,7 +1133,7 @@ export default function PortalReservas() {
 
               <button
                 onClick={() => abrirModalIncidencia()}
-                className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95"
+                className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
               >
                 <span>{t.reservas.report_incident_btn}</span>
               </button>
@@ -1142,33 +1142,33 @@ export default function PortalReservas() {
 
           {/* LISTA DE INCIDENCIAS (Sólo cuando se pulsa Mostrar mis incidencias) */}
           {mostrarMisIncidencias && misIncidencias.length > 0 && (
-            <div className="space-y-3 pt-3 border-t border-stone-100">
+            <div className="space-y-3 pt-3 border-t border-stone-100 dark:border-stone-800">
               {misIncidencias.map((inc) => {
-                let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                let badgeClass = 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
                 let estadoTexto = t.reservas.status_pending_review
 
                 if (inc.estado === 'en_curso') {
-                  badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                  badgeClass = 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                   estadoTexto = t.reservas.status_in_progress
                 } else if (inc.estado === 'resuelta') {
-                  badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                  badgeClass = 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                   estadoTexto = t.reservas.status_resolved
                 }
 
                 return (
-                  <div key={inc.id} className="p-5 border border-stone-200 rounded-3xl bg-stone-50/70 space-y-3 shadow-2xs">
+                  <div key={inc.id} className="p-5 border border-stone-200 dark:border-stone-800 rounded-3xl bg-stone-50/70 dark:bg-stone-950/60 space-y-3 shadow-2xs">
                     <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-stone-900 text-base">{inc.titulo}</span>
-                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200/60">
+                          <span className="font-bold text-stone-900 dark:text-stone-100 text-base">{inc.titulo}</span>
+                          <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60">
                             🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
                           </span>
                         </div>
                         {inc.descripcion && (
-                          <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                          <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{inc.descripcion}</p>
                         )}
-                        <span className="text-[10px] text-stone-400 font-medium block">
+                        <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium block">
                           📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
                         </span>
                       </div>
@@ -1187,30 +1187,30 @@ export default function PortalReservas() {
                           onClick={() => setIncidenciasHistorialAbierto(prev => 
                             prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
                           )}
-                          className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
+                          className="text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
                         >
                           <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? `${t.reservas.hide_actions} (${inc.historial.length})` : `${t.reservas.show_actions} (${inc.historial.length})`}</span>
                           <span className="text-[10px]">{incidenciasHistorialAbierto.includes(inc.id) ? '▲' : '▼'}</span>
                         </button>
 
                         {incidenciasHistorialAbierto.includes(inc.id) && (
-                          <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2 text-xs shadow-2xs">
-                            <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
+                          <div className="mt-2.5 p-3.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2 text-xs shadow-2xs">
+                            <h4 className="font-bold text-stone-800 dark:text-stone-200 border-b border-stone-100 dark:border-stone-800 pb-1.5 flex items-center gap-1.5">
                               <span>📜 {t.reservas.actions_timeline}:</span>
                             </h4>
                             <div className="space-y-2">
                               {inc.historial.map((h: any, hIdx: number) => (
-                                <div key={hIdx} className="p-2.5 bg-stone-50 rounded-xl border border-stone-150 space-y-1">
+                                <div key={hIdx} className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-150 dark:border-stone-800 space-y-1">
                                   <div className="flex justify-between items-center flex-wrap gap-1">
-                                    <span className="font-bold text-stone-800 text-xs">
-                                      {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                    <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">
+                                      {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 dark:text-emerald-400 font-extrabold">{h.estado_nuevo}</span>
                                     </span>
-                                    <span className="text-[10px] text-stone-400 font-medium">
+                                    <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
                                       📅 {formatShortDateWithTime(h.fecha, lang)}
                                     </span>
                                   </div>
-                                  <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
-                                  <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                  <p className="text-stone-700 dark:text-stone-300 italic text-xs">"{h.comentario}"</p>
+                                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
                                 </div>
                               ))}
                             </div>
@@ -1226,28 +1226,28 @@ export default function PortalReservas() {
         </section>
 
         {/* 4. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
-        <section className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden transition-all duration-300">
+        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-300">
           <div 
             onClick={() => setBuscadorAbierto(!buscadorAbierto)}
-            className="p-6 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
+            className="p-6 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
           >
             <div>
-              <h2 className="text-base font-bold text-stone-900">{t.reservas.search_and_explore}</h2>
-              <p className="text-xs text-stone-500">{buscadorAbierto ? t.reservas.search_desc_open : t.reservas.search_desc_closed}</p>
+              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.reservas.search_and_explore}</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400">{buscadorAbierto ? t.reservas.search_desc_open : t.reservas.search_desc_closed}</p>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center font-bold text-stone-600 shadow-2xs">
+            <span className="w-8 h-8 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center font-bold text-stone-600 dark:text-stone-300 shadow-2xs">
               {buscadorAbierto ? '−' : '+'}
             </span>
           </div>
 
           {buscadorAbierto && (
-            <div className="p-6 border-t border-stone-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-6 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_province}</label>
+                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_province}</label>
                 <select 
                   value={provinciaSeleccionada}
                   onChange={(e) => handleProvinciaChange(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 >
                   <option value="">{t.reservas.select_province}</option>
                   {provincias.map(p => (
@@ -1257,12 +1257,12 @@ export default function PortalReservas() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_municipality}</label>
+                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_municipality}</label>
                 <select 
                   value={municipioSeleccionado}
                   onChange={(e) => handleMunicipioChange(e.target.value)}
                   disabled={!provinciaSeleccionada}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
                 >
                   <option value="">{t.reservas.select_town}</option>
                   {municipios.map(m => (
@@ -1272,7 +1272,7 @@ export default function PortalReservas() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_fronton}</label>
+                <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5">{t.reservas.step_fronton}</label>
                 <select 
                   value={frontonSeleccionado?.id || ''}
                   onChange={(e) => {
@@ -1281,7 +1281,7 @@ export default function PortalReservas() {
                     else setFrontonSeleccionado(null)
                   }}
                   disabled={!municipioSeleccionado}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
+                  className="w-full p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 dark:disabled:bg-stone-900 disabled:text-stone-400 dark:disabled:text-stone-600 transition"
                 >
                   <option value="">{t.reservas.select_fronton}</option>
                   {frontones.map(f => (
@@ -1298,36 +1298,36 @@ export default function PortalReservas() {
           <div ref={frontonDetalleRef} className="space-y-6 pt-2 scroll-mt-24">
             
             {/* TARJETA DEL FRONTÓN */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 flex flex-col gap-6">
+            <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-4">
                   {frontonSeleccionado.imagen_url ? (
-                    <img src={frontonSeleccionado.imagen_url} alt="" className="w-20 h-20 object-cover rounded-2xl border border-stone-200" />
+                    <img src={frontonSeleccionado.imagen_url} alt="" className="w-20 h-20 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />
                   ) : (
-                    <div className="w-20 h-20 bg-emerald-100 text-emerald-800 font-black text-2xl rounded-2xl flex items-center justify-center">
+                    <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-2xl rounded-2xl flex items-center justify-center">
                       F
                     </div>
                   )}
                   <div className="space-y-1.5">
                     {/* Fila 1: Nombre del frontón y estado de ocupación */}
                     <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
+                      <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">{frontonSeleccionado.nombre}</h3>
                       
                       {frontonSeleccionado.solo_empadronados && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-amber-100 text-amber-900 border border-amber-300">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                           {t.reservas.solo_empadronados_badge}
                         </span>
                       )}
 
                       {frontonSeleccionado.habilitado === false ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 text-rose-800 border border-rose-200">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                           🚫 {t.reservas.fronton_disabled}
                         </span>
                       ) : (
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
                           frontonSeleccionado.en_uso
-                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                            : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                         }`}>
                           <span className={`w-2 h-2 rounded-full ${
                             frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
@@ -1338,13 +1338,12 @@ export default function PortalReservas() {
                     </div>
 
                     {/* Fila 2: Horario y características */}
-                    <p className="text-xs text-stone-500 font-medium">
+                    <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
                       {t.reservas.hours}: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | {frontonSeleccionado.dias_antelacion_maxima ?? 7} {t.common.days}
                       {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
                         <> | {t.reservas.dimensions}: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
                       )}
                       {frontonSeleccionado.cuadros && <> | Cuadros: {frontonSeleccionado.cuadros}</>}
-                      {(frontonSeleccionado.labur || frontonSeleccionado.numero_labur) && <> | Labur: {frontonSeleccionado.labur || frontonSeleccionado.numero_labur}</>}
                       {(frontonSeleccionado.luze || frontonSeleccionado.numero_luze) && <> | Luze: {frontonSeleccionado.luze || frontonSeleccionado.numero_luze}</>}
                     </p>
 
@@ -1355,22 +1354,22 @@ export default function PortalReservas() {
 
                       return (
                         <div className="flex items-center gap-2 flex-wrap text-xs pt-0.5">
-                          <span className="font-bold text-stone-700 text-xs">
+                          <span className="font-bold text-stone-700 dark:text-stone-300 text-xs">
                             {t.common.incidents}
                           </span>
 
                           <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
-                            pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
+                            pendientes > 0 ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
                           }`}>
-                            <span className="text-stone-600 font-semibold text-[11px]">{t.common.pending}:</span>
-                            <span className={`font-black ${pendientes > 0 ? 'text-rose-700' : 'text-stone-800'}`}>{pendientes}</span>
+                            <span className="text-stone-600 dark:text-stone-400 font-semibold text-[11px]">{t.common.pending}:</span>
+                            <span className={`font-black ${pendientes > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-stone-800 dark:text-stone-200'}`}>{pendientes}</span>
                           </span>
 
                           <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
-                            enCurso > 0 ? 'bg-amber-50 text-amber-950 border-amber-300' : 'bg-stone-50 text-stone-600 border-stone-200'
+                            enCurso > 0 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
                           }`}>
-                            <span className="text-stone-600 font-semibold text-[11px]">{t.reservas.status_in_progress_short}:</span>
-                            <span className={`font-black ${enCurso > 0 ? 'text-amber-800' : 'text-stone-800'}`}>{enCurso}</span>
+                            <span className="text-stone-600 dark:text-stone-400 font-semibold text-[11px]">{t.reservas.status_in_progress_short}:</span>
+                            <span className={`font-black ${enCurso > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-stone-800 dark:text-stone-200'}`}>{enCurso}</span>
                           </span>
                         </div>
                       )
@@ -1381,10 +1380,10 @@ export default function PortalReservas() {
                 <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
                   <button 
                     onClick={() => toggleFavorito(frontonSeleccionado.id)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 w-full sm:w-auto justify-center ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 w-full sm:w-auto justify-center cursor-pointer ${
                       esFavoritoActual 
-                        ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100' 
-                        : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-stone-100'
+                        ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/60' 
+                        : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700'
                     }`}
                   >
                     <span>{esFavoritoActual ? t.reservas.in_favorites : t.reservas.mark_favorite}</span>
@@ -1398,7 +1397,7 @@ export default function PortalReservas() {
                     return (
                       <button
                         onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
-                        className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto"
+                        className="bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-300 dark:border-stone-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto cursor-pointer"
                         title={t.reservas.view_incidents}
                       >
                         <span>{t.reservas.view_incidents}</span>
@@ -1410,57 +1409,57 @@ export default function PortalReservas() {
 
               {/* AVISO SI EL FRONTÓN ESTÁ DESHABILITADO */}
               {frontonSeleccionado.habilitado === false && (
-                <div className="bg-rose-50 border border-rose-200 text-rose-900 p-4 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-2xs">
+                <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-300 p-4 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-2xs">
                   <span className="text-lg">🚫</span>
                   <div>
-                    <p className="text-rose-900 font-extrabold text-xs uppercase tracking-wide">Frontón deshabilitado temporalmente</p>
-                    <p className="text-rose-700 font-medium text-xs mt-0.5">El municipio ha deshabilitado este frontón para nuevas reservas.</p>
+                    <p className="text-rose-900 dark:text-rose-300 font-extrabold text-xs uppercase tracking-wide">Frontón deshabilitado temporalmente</p>
+                    <p className="text-rose-700 dark:text-rose-400 font-medium text-xs mt-0.5">El municipio ha deshabilitado este frontón para nuevas reservas.</p>
                   </div>
                 </div>
               )}
 
               {/* AVISO SI EL FRONTÓN ES SOLO PARA EMPADRONADOS Y EL USUARIO NO LO ES */}
               {frontonSeleccionado.solo_empadronados && !esUsuarioEmpadronado(user, frontonSeleccionado) && (
-                <div className="bg-amber-50 border border-amber-300 text-amber-900 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-2xs">
+                <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-2xs">
                   <span className="text-xl">⚠️</span>
                   <div>
-                    <p className="text-amber-900 font-extrabold text-xs uppercase tracking-wide">
+                    <p className="text-amber-900 dark:text-amber-300 font-extrabold text-xs uppercase tracking-wide">
                       {t.reservas.exclusive_residents}
                     </p>
-                    <p className="text-amber-800 font-medium text-xs mt-0.5 leading-relaxed">
-                      {t.reservas.exclusive_residents_desc} <strong className="text-amber-950">{frontonSeleccionado.municipios?.nombre || 'este municipio'}</strong>.
+                    <p className="text-amber-800 dark:text-amber-400 font-medium text-xs mt-0.5 leading-relaxed">
+                      {t.reservas.exclusive_residents_desc} <strong className="text-amber-950 dark:text-amber-200">{frontonSeleccionado.municipios?.nombre || 'este municipio'}</strong>.
                     </p>
                   </div>
                 </div>
               )}
 
               {/* VISTA PREVIA DE 3 DÍAS */}
-              <div className="pt-2 border-t border-stone-100 space-y-3">
+              <div className="pt-2 border-t border-stone-100 dark:border-stone-800 space-y-3">
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">{t.reservas.next_occupations}</h4>
-                    <span className="text-[10px] bg-stone-100 text-stone-500 font-semibold px-2 py-0.5 rounded-md">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">{t.reservas.next_occupations}</h4>
+                    <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 font-semibold px-2 py-0.5 rounded-md">
                       {t.reservas.blocked_days_notice}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-1.5 bg-stone-50 px-2 py-1 rounded-xl border border-stone-200 text-xs">
+                  <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-stone-950 px-2 py-1 rounded-xl border border-stone-200 dark:border-stone-800 text-xs">
                     <button 
                       onClick={() => setOffsetDiasPreview(prev => prev - 1)}
-                      className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2 transition"
+                      className="p-1 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold px-2 transition cursor-pointer"
                       title={t.reservas.prev_day}
                     >
                       ←
                     </button>
                     <button 
                       onClick={() => setOffsetDiasPreview(0)}
-                      className="px-2 py-0.5 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-[11px] transition"
+                      className="px-2 py-0.5 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold text-[11px] transition cursor-pointer"
                     >
                       {t.reservas.today}
                     </button>
                     <button 
                       onClick={() => setOffsetDiasPreview(prev => prev + 1)}
-                      className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2 transition"
+                      className="p-1 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-bold px-2 transition cursor-pointer"
                       title={t.reservas.next_day}
                     >
                       →
@@ -1483,33 +1482,33 @@ export default function PortalReservas() {
                         onClick={() => handleSeleccionarDia(fechaStr)}
                         className={`p-3.5 rounded-2xl border text-xs cursor-pointer transition ${
                           noReservable 
-                            ? 'bg-stone-200/70 border-stone-300 text-stone-500 opacity-80' 
+                            ? 'bg-stone-200/70 dark:bg-stone-800/50 border-stone-300 dark:border-stone-700 text-stone-500 dark:text-stone-400 opacity-80' 
                             : esSeleccionado 
-                              ? 'bg-emerald-50/80 border-emerald-400 ring-2 ring-emerald-600/20' 
+                              ? 'bg-emerald-50/80 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 ring-2 ring-emerald-600/20' 
                               : esHoy 
-                                ? 'bg-emerald-50/30 border-emerald-200 hover:border-emerald-300' 
-                                : 'bg-stone-50 border-stone-200 hover:border-stone-300'
+                                ? 'bg-emerald-50/30 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700' 
+                                : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700'
                         }`}
                       >
                         <div className={`font-bold border-b pb-1 mb-2 flex justify-between ${
-                          noReservable ? 'border-stone-300 text-stone-600' : 'text-stone-800 border-stone-200/80'
+                          noReservable ? 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400' : 'text-stone-800 dark:text-stone-200 border-stone-200/80 dark:border-stone-800'
                         }`}>
                           <span className={`capitalize ${noReservable ? 'line-through' : ''}`}>
                             {formatPreviewDay(dia, lang)}
                           </span>
-                          {esHoy && <span className="text-emerald-700 font-extrabold no-underline">({t.reservas.today})</span>}
+                          {esHoy && <span className="text-emerald-700 dark:text-emerald-400 font-extrabold no-underline">({t.reservas.today})</span>}
                         </div>
 
                         {noReservable && (
                           <div className="mb-2">
-                            <span className="bg-stone-300/90 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider block text-center shadow-2xs">
+                            <span className="bg-stone-300/90 dark:bg-stone-800 text-stone-800 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider block text-center shadow-2xs">
                               {esPasado ? t.reservas.blocked : t.reservas.blocked}
                             </span>
                           </div>
                         )}
                         
                         {eventosDelDia.length === 0 ? (
-                          <p className="text-stone-500 italic text-[11px] py-1">
+                          <p className="text-stone-500 dark:text-stone-400 italic text-[11px] py-1">
                             {noReservable ? t.reservas.no_reservations : t.reservas.free_now}
                           </p>
                         ) : (
@@ -1523,15 +1522,15 @@ export default function PortalReservas() {
                                   key={ev.id} 
                                   className={`border rounded-xl p-1.5 shadow-2xs flex justify-between items-center text-[11px] ${
                                     noReservable
-                                      ? 'bg-stone-100 border-stone-300 text-stone-600'
+                                      ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
                                       : esMia 
-                                        ? 'bg-emerald-100 border-emerald-300 text-emerald-950 font-bold' 
+                                        ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-300 font-bold' 
                                         : esDelMunicipio
-                                          ? 'bg-blue-100/80 border-blue-300 text-blue-950 font-bold'
-                                          : 'bg-white border-stone-200 text-stone-800'
+                                          ? 'bg-blue-100/80 dark:bg-blue-950/80 border-blue-300 dark:border-blue-800 text-blue-950 dark:text-blue-300 font-bold'
+                                          : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200'
                                   }`}
                                 >
-                                  <span className="font-bold text-emerald-900">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
+                                  <span className="font-bold text-emerald-900 dark:text-emerald-300">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
                                   <span className="truncate max-w-[120px] font-medium">
                                     {esDelMunicipio ? `🏛️ ${nombreMostrado}` : nombreMostrado}
                                   </span>
@@ -1548,38 +1547,38 @@ export default function PortalReservas() {
             </div>
 
             {/* CALENDARIO 4 SEMANAS COLAPSABLE */}
-            <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden transition-all duration-300">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-300">
               <div 
                 onClick={() => setCalendarioAbierto(!calendarioAbierto)}
-                className="p-6 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
+                className="p-6 bg-stone-50 dark:bg-stone-950 hover:bg-stone-100/80 dark:hover:bg-stone-900/80 cursor-pointer flex justify-between items-center transition"
               >
                 <div>
-                  <h3 className="text-base font-bold text-stone-900">{t.reservas.select_day_calendar}</h3>
-                  <p className="text-xs text-stone-500">{calendarioAbierto ? t.reservas.calendar_desc_open : t.reservas.calendar_desc_closed}</p>
+                  <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">{t.reservas.select_day_calendar}</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">{calendarioAbierto ? t.reservas.calendar_desc_open : t.reservas.calendar_desc_closed}</p>
                 </div>
-                <span className="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center font-bold text-stone-600 shadow-2xs">
+                <span className="w-8 h-8 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center font-bold text-stone-600 dark:text-stone-300 shadow-2xs">
                   {calendarioAbierto ? '−' : '+'}
                 </span>
               </div>
 
               {calendarioAbierto && (
-                <div className="p-6 border-t border-stone-100 overflow-x-auto space-y-4">
+                <div className="p-6 border-t border-stone-100 dark:border-stone-800 overflow-x-auto space-y-4">
                   <div className="flex justify-between items-center">
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev - 1)}
-                      className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
+                      className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer"
                     >
                       {t.reservas.prev_4_weeks}
                     </button>
                     <div className="text-center">
-                      <h4 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h4>
-                      <p className="text-xs text-stone-500">
+                      <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">{t.reservas.monthly_grid}</h4>
+                      <p className="text-xs text-stone-500 dark:text-stone-400">
                         {diasCalendario[0] && formatShortMonthDay(diasCalendario[0], lang)} — {diasCalendario[27] && formatShortMonthDay(diasCalendario[27], lang, true)}
                       </p>
                     </div>
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev + 1)}
-                      className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
+                      className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer"
                     >
                       {t.reservas.next_4_weeks}
                     </button>
@@ -1595,7 +1594,7 @@ export default function PortalReservas() {
                       t.reservas.days_of_week.sat,
                       t.reservas.days_of_week.sun
                     ].map((diaSemana, idx) => (
-                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 py-1 bg-stone-100/60 rounded-xl">
+                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 py-1 bg-stone-100/60 dark:bg-stone-800/60 rounded-xl">
                         {diaSemana}
                       </div>
                     ))}
@@ -1616,26 +1615,26 @@ export default function PortalReservas() {
                           onClick={() => handleSeleccionarDia(fechaStr)}
                           className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col cursor-pointer transition ${
                             noReservable 
-                              ? 'bg-stone-100/70 border-stone-200 text-stone-400 opacity-60' 
+                              ? 'bg-stone-100/70 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500 opacity-60' 
                               : esSeleccionado 
-                                ? 'border-emerald-700 bg-emerald-50 ring-2 ring-emerald-600/30' 
+                                ? 'border-emerald-700 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 ring-2 ring-emerald-600/30' 
                                 : esHoy 
-                                  ? 'border-emerald-300 bg-emerald-50/30 hover:bg-emerald-50/50' 
-                                  : 'bg-stone-50/80 border-stone-200 hover:bg-stone-100'
+                                  ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/30 dark:bg-emerald-950/30 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/50' 
+                                  : 'bg-stone-50/80 dark:bg-stone-950/60 border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-900'
                           }`}
                         >
                           <span className={`font-bold mb-1 border-b pb-1 flex justify-between ${
-                            noReservable ? 'border-stone-200 text-stone-400' : 'text-stone-800 border-stone-200'
+                            noReservable ? 'border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-800'
                           }`}>
                             <span className={noReservable ? 'line-through' : ''}>
                               {formatCalendarCellDay(dia, lang)}
                             </span>
-                            {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
+                            {esHoy && <span className="text-emerald-700 dark:text-emerald-400 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
 
                           <div className="flex-1 space-y-1 overflow-y-auto max-h-[80px] pr-1">
                             {eventosDia.length === 0 ? (
-                              <span className="text-[10px] text-stone-400 italic block text-center mt-2 font-medium">
+                              <span className="text-[10px] text-stone-400 dark:text-stone-500 italic block text-center mt-2 font-medium">
                                 {noReservable ? t.reservas.blocked : t.reservas.available}
                               </span>
                             ) : (
@@ -1648,15 +1647,15 @@ export default function PortalReservas() {
                                     key={ev.id} 
                                     className={`border p-1 rounded-lg text-[10px] shadow-2xs leading-tight ${
                                       noReservable
-                                        ? 'bg-stone-200/60 border-stone-300 text-stone-500'
+                                        ? 'bg-stone-200/60 dark:bg-stone-800/60 border-stone-300 dark:border-stone-700 text-stone-500 dark:text-stone-400'
                                         : esMia 
-                                          ? 'bg-emerald-100 border-emerald-300 text-emerald-950 font-bold' 
+                                          ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-300 font-bold' 
                                           : esDelMunicipio
-                                            ? 'bg-blue-100 border-blue-300 text-blue-950 font-bold'
-                                            : 'bg-white border-stone-200 text-stone-700'
+                                            ? 'bg-blue-100 dark:bg-blue-950/80 border-blue-300 dark:border-blue-800 text-blue-950 dark:text-blue-300 font-bold'
+                                            : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300'
                                     }`}
                                   >
-                                    <span className="font-bold text-emerald-900 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
+                                    <span className="font-bold text-emerald-900 dark:text-emerald-300 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
                                     <span className="truncate block">
                                       {esDelMunicipio ? `🏛️ ${nombreMostrado}` : nombreMostrado}
                                     </span>
@@ -1667,7 +1666,7 @@ export default function PortalReservas() {
                           </div>
 
                           <span className={`text-[10px] mt-auto text-center font-bold ${
-                            noReservable ? 'text-stone-400' : 'text-stone-500'
+                            noReservable ? 'text-stone-400 dark:text-stone-500' : 'text-stone-500 dark:text-stone-400'
                           }`}>
                             {esSeleccionado ? '✓' : noReservable ? t.reservas.not_available : t.reservas.book_slot}
                           </span>
@@ -1680,10 +1679,10 @@ export default function PortalReservas() {
             </div>
 
             {/* LISTA LINEAL DE FRANJAS */}
-            <div ref={franjasHorariasRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
-              <div className="border-b border-stone-100 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <h3 className="font-bold text-lg text-stone-900">
-                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{formatWeekdayAndDayMonth(fechaSeleccionada, lang)}</span>
+            <div ref={franjasHorariasRef} className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4 scroll-mt-24">
+              <div className="border-b border-stone-100 dark:border-stone-800 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">
+                  {t.reservas.schedules_for} <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">{formatWeekdayAndDayMonth(fechaSeleccionada, lang)}</span>
                 </h3>
               </div>
 
@@ -1716,36 +1715,36 @@ export default function PortalReservas() {
 
                   return (
                     <div 
-                      key={idx}
+                      key={idx} 
                       className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition ${
                         slot.ocupado 
                           ? slot.esMunicipal
-                            ? 'bg-blue-50/70 border-blue-200'
-                            : 'bg-rose-50/60 border-rose-200' 
+                            ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
+                            : 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800' 
                           : estaBloqueado
-                            ? 'bg-stone-100/70 border-stone-200 opacity-60'
-                            : 'bg-emerald-50/60 border-emerald-200 hover:border-emerald-300'
+                            ? 'bg-stone-100/70 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 opacity-60'
+                            : 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80 hover:border-emerald-300 dark:hover:border-emerald-700'
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className="font-mono font-bold text-base text-stone-800 w-28 bg-white px-2.5 py-1 rounded-xl border border-stone-200 text-center shadow-2xs">
+                        <span className="font-mono font-bold text-base text-stone-800 dark:text-stone-200 w-28 bg-white dark:bg-stone-950 px-2.5 py-1 rounded-xl border border-stone-200 dark:border-stone-800 text-center shadow-2xs">
                           {slot.inicio} - {slot.fin}
                         </span>
                         <div>
                           <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
                             slot.ocupado 
                               ? slot.esMunicipal
-                                ? 'bg-blue-200 text-blue-950'
-                                : 'bg-rose-200 text-rose-900' 
+                                ? 'bg-blue-200 dark:bg-blue-900 text-blue-950 dark:text-blue-200'
+                                : 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200' 
                               : noEsEmpadronado
-                                ? 'bg-amber-200 text-amber-950'
+                                ? 'bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-200'
                                 : estaBloqueado
-                                  ? 'bg-stone-200 text-stone-600'
-                                  : 'bg-emerald-200 text-emerald-900'
+                                  ? 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400'
+                                  : 'bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200'
                           }`}>
                             {badgeTexto}
                           </span>
-                          <p className="text-xs text-stone-600 mt-1 font-medium">
+                          <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 font-medium">
                             {descripcionTexto}
                           </p>
                         </div>
@@ -1755,14 +1754,14 @@ export default function PortalReservas() {
                         frontonSeleccionado.habilitado === false ? (
                           <button 
                             disabled
-                            className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
+                            className="bg-stone-300 dark:bg-stone-800 text-stone-500 dark:text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
                             {t.reservas.fronton_disabled}
                           </button>
                         ) : noEsEmpadronado ? (
                           <button 
                             disabled
-                            className="bg-amber-100 text-amber-800 border border-amber-300 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
+                            className="bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                             title={t.reservas.solo_empadronados_warning}
                           >
                             {t.reservas.solo_empadronados_btn}
@@ -1770,14 +1769,14 @@ export default function PortalReservas() {
                         ) : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
                           <button 
                             disabled
-                            className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
+                            className="bg-stone-300 dark:bg-stone-800 text-stone-500 dark:text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
                             {t.reservas.not_available}
                           </button>
                         ) : (
                           <button 
                             onClick={() => handleReservarSlot(slot.inicio, slot.fin)}
-                            className="bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95"
+                            className="bg-emerald-700 dark:bg-emerald-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm active:scale-95 cursor-pointer"
                           >
                             {t.reservas.book_slot_btn}
                           </button>
@@ -1785,12 +1784,12 @@ export default function PortalReservas() {
                       ) : slot.esMia ? (
                         <button 
                           onClick={() => handleCancelarReserva(slot.idEvento)}
-                          className="bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition shadow-sm active:scale-95"
+                          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer"
                         >
                           {t.reservas.cancel_my_booking}
                         </button>
                       ) : (
-                        <span className="text-xs font-bold text-stone-500 uppercase tracking-wider pr-2">{t.reservas.not_available}</span>
+                        <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider pr-2">{t.reservas.not_available}</span>
                       )}
                     </div>
                   )
@@ -1802,20 +1801,20 @@ export default function PortalReservas() {
         {/* MODAL CREAR INCIDENCIA */}
         {mostrarModalIncidencia && (
           <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-stone-200 space-y-5 animate-in fade-in zoom-in duration-150">
-              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-stone-200 dark:border-stone-800 space-y-5 animate-in fade-in zoom-in duration-150">
+              <div className="flex justify-between items-start border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-black">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 flex items-center justify-center text-lg font-black">
                     ⚠️
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.communicate_incident}</h3>
-                    <p className="text-xs text-stone-500">{t.reservas.communicate_incident_desc}</p>
+                    <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">{t.reservas.communicate_incident}</h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{t.reservas.communicate_incident_desc}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setMostrarModalIncidencia(false)}
-                  className="text-stone-400 hover:text-stone-700 text-xl font-bold w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center transition"
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xl font-bold w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -1823,14 +1822,14 @@ export default function PortalReservas() {
 
               <form onSubmit={handleCrearIncidencia} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                     {t.reservas.affected_fronton}
                   </label>
                   <select
                     value={incidenciaFrontonId}
                     onChange={(e) => setIncidenciaFrontonId(e.target.value)}
                     required
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                   >
                     <option value="">{t.reservas.select_fronton}</option>
                     {todosLosFrontones.map((f) => (
@@ -1842,7 +1841,7 @@ export default function PortalReservas() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                     {t.reservas.incident_title}
                   </label>
                   <input
@@ -1850,19 +1849,19 @@ export default function PortalReservas() {
                     required
                     value={incidenciaTitulo}
                     onChange={(e) => setIncidenciaTitulo(e.target.value)}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                     {t.reservas.incident_description}
                   </label>
                   <textarea
                     rows={4}
                     value={incidenciaDescripcion}
                     onChange={(e) => setIncidenciaDescripcion(e.target.value)}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none font-medium"
                   />
                 </div>
 
@@ -1870,14 +1869,14 @@ export default function PortalReservas() {
                   <button
                     type="submit"
                     disabled={enviandoIncidencia}
-                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
+                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 dark:disabled:bg-stone-800 active:scale-98 cursor-pointer"
                   >
                     {enviandoIncidencia ? t.reservas.sending_incident : t.reservas.send_incident}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMostrarModalIncidencia(false)}
-                    className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
+                    className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-4 py-3 rounded-2xl text-sm font-bold transition cursor-pointer"
                   >
                     {t.common.cancel}
                   </button>
@@ -1890,24 +1889,24 @@ export default function PortalReservas() {
         {/* MODAL VER HISTÓRICO DE INCIDENCIA */}
         {incidenciaVerHistoricoModal && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in zoom-in duration-150">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col space-y-5 shadow-2xl border border-stone-200">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800">
               
               {/* CABECERA DEL MODAL */}
-              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+              <div className="flex justify-between items-start border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shadow-inner">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg font-black shadow-inner">
                     📜
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.incident_history}</h3>
-                    <p className="text-xs text-stone-500">
+                    <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100">{t.reservas.incident_history}</h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
                       {incidenciaVerHistoricoModal.frontones?.nombre || 'Frontón'} • {incidenciaVerHistoricoModal.titulo}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
-                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:text-stone-700 transition"
+                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center hover:text-stone-700 dark:hover:text-stone-200 transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -1917,27 +1916,27 @@ export default function PortalReservas() {
               <div className="flex-1 overflow-y-auto space-y-4 pr-1">
                 
                 {/* FICHA RESUMEN DE LA INCIDENCIA */}
-                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 text-xs">
+                <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-2 text-xs">
                   <div className="flex justify-between items-center flex-wrap gap-2">
-                    <span className="font-bold text-sm text-stone-900">{incidenciaVerHistoricoModal.titulo}</span>
+                    <span className="font-bold text-sm text-stone-900 dark:text-stone-100">{incidenciaVerHistoricoModal.titulo}</span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs ${
                       incidenciaVerHistoricoModal.estado === 'en_curso'
-                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                        ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                         : incidenciaVerHistoricoModal.estado === 'resuelta'
-                        ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                        : 'bg-rose-100 text-rose-800 border-rose-200'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                        : 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
                     }`}>
                       {incidenciaVerHistoricoModal.estado === 'en_curso' ? t.reservas.status_in_progress_short : incidenciaVerHistoricoModal.estado === 'resuelta' ? t.reservas.status_resolved_short : t.reservas.status_pending_short}
                     </span>
                   </div>
 
                   {incidenciaVerHistoricoModal.descripcion && (
-                    <p className="text-stone-600 leading-relaxed bg-white p-2.5 rounded-xl border border-stone-150">
+                    <p className="text-stone-600 dark:text-stone-400 leading-relaxed bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-150 dark:border-stone-800">
                       "{incidenciaVerHistoricoModal.descripcion}"
                     </p>
                   )}
 
-                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 pt-1">
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 dark:text-stone-400 pt-1">
                     <span>🏟️ {t.reservas.step_fronton.replace('3. ', '')}: <strong>{incidenciaVerHistoricoModal.frontones?.nombre || 'Frontón'}</strong></span>
                     {incidenciaVerHistoricoModal.frontones?.municipios?.nombre && (
                       <span>({incidenciaVerHistoricoModal.frontones.municipios.nombre})</span>
@@ -1947,21 +1946,21 @@ export default function PortalReservas() {
 
                 {/* TIMELINE / LÍNEA TEMPORAL */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span>🕒 {t.reservas.actions_timeline}</span>
                   </h4>
 
-                  <div className="relative pl-6 border-l-2 border-stone-200 space-y-6">
+                  <div className="relative pl-6 border-l-2 border-stone-200 dark:border-stone-800 space-y-6">
                     
                     {/* HITO 1: REPORTE INICIAL */}
                     <div className="relative">
-                      <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-xs"></div>
-                      <div className="p-3.5 bg-rose-50/60 border border-rose-200/80 rounded-2xl space-y-1 text-xs">
+                      <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white dark:border-stone-900 shadow-xs"></div>
+                      <div className="p-3.5 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/80 rounded-2xl space-y-1 text-xs">
                         <div className="flex justify-between items-center flex-wrap gap-1">
-                          <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                          <span className="font-bold text-rose-950 dark:text-rose-200 flex items-center gap-1.5">
                             📋 {t.reservas.incident_registered}
                           </span>
-                          <span className="text-[10px] text-rose-700 font-medium">
+                          <span className="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
                             {formatLongDateWithTime(incidenciaVerHistoricoModal.created_at, lang)}
                           </span>
                         </div>
@@ -1974,38 +1973,38 @@ export default function PortalReservas() {
                       return listaHistorial.length > 0 ? (
                         listaHistorial.map((h: any, idx: number) => {
                           let colorBadge = 'bg-stone-500'
-                          let bgCard = 'bg-stone-50/80 border-stone-200'
+                          let bgCard = 'bg-stone-50/80 dark:bg-stone-950/60 border-stone-200 dark:border-stone-800'
                           if (h.estado_nuevo === 'en_curso') {
                             colorBadge = 'bg-amber-500'
-                            bgCard = 'bg-amber-50/60 border-amber-200/80'
+                            bgCard = 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/80'
                           } else if (h.estado_nuevo === 'resuelta') {
                             colorBadge = 'bg-emerald-600'
-                            bgCard = 'bg-emerald-50/60 border-emerald-200/80'
+                            bgCard = 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/80'
                           } else if (h.estado_nuevo === 'pendiente') {
                             colorBadge = 'bg-rose-500'
-                            bgCard = 'bg-rose-50/60 border-rose-200/80'
+                            bgCard = 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/80'
                           }
 
                           return (
                             <div key={idx} className="relative">
-                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
+                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white dark:border-stone-900 shadow-xs`}></div>
                               <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
                                 <div className="flex justify-between items-center flex-wrap gap-1">
-                                  <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                                    <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
+                                  <span className="font-bold text-stone-900 dark:text-stone-100 text-xs flex items-center gap-1.5">
+                                    <span className="capitalize font-semibold text-stone-600 dark:text-stone-400">{h.estado_anterior || 'Inicio'}</span>
                                     <span>➔</span>
-                                    <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
+                                    <span className="capitalize font-black text-emerald-800 dark:text-emerald-400">{h.estado_nuevo}</span>
                                   </span>
-                                  <span className="text-[10px] text-stone-500 font-medium">
+                                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
                                     📅 {formatShortDateWithTime(h.fecha, lang)}
                                   </span>
                                 </div>
 
-                                <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
+                                <div className="bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-150 dark:border-stone-800 text-stone-800 dark:text-stone-200 italic text-xs">
                                   "{h.comentario}"
                                 </div>
 
-                                <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
+                                <div className="flex justify-between items-center text-[10px] text-stone-400 dark:text-stone-500 font-semibold pt-0.5">
                                   <span>🏛️ ({h.autor || 'Gestor Municipal'})</span>
                                 </div>
                               </div>
@@ -2019,11 +2018,11 @@ export default function PortalReservas() {
               </div>
 
               {/* BOTONES DEL PIE DEL MODAL */}
-              <div className="flex justify-end items-center gap-3 pt-2 border-t border-stone-100">
+              <div className="flex justify-end items-center gap-3 pt-2 border-t border-stone-100 dark:border-stone-800">
                 <button
                   type="button"
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   {t.common.close}
                 </button>
@@ -2035,17 +2034,17 @@ export default function PortalReservas() {
         {/* MODAL: VER INCIDENCIAS DEL FRONTÓN SELECCIONADO */}
         {modalFrontonIncidencias && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl p-6 max-w-2xl w-full space-y-5 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150 my-8 max-h-[90vh] flex flex-col">
-              <div className="flex justify-between items-start border-b border-stone-100 pb-3 flex-shrink-0">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-2xl w-full space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800 animate-in fade-in zoom-in-95 duration-150 my-8 max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-start border-b border-stone-100 dark:border-stone-800 pb-3 flex-shrink-0">
                 <div>
-                  <h3 className="text-xl font-bold text-stone-900 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <span className="text-amber-500">⚠️</span>
                     {t.common.incidents}: {modalFrontonIncidencias.nombre}
                   </h3>
                 </div>
                 <button 
                   onClick={() => setModalFrontonIncidencias(null)}
-                  className="text-stone-400 hover:text-stone-700 text-xl font-bold p-1 leading-none transition"
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xl font-bold p-1 leading-none transition cursor-pointer"
                 >
                   ✕
                 </button>
@@ -2053,25 +2052,25 @@ export default function PortalReservas() {
 
               <div className="overflow-y-auto flex-1 pr-1 space-y-3">
                 {cargandoIncidenciasFronton ? (
-                  <div className="py-12 text-center text-xs text-stone-400 font-bold">
+                  <div className="py-12 text-center text-xs text-stone-400 dark:text-stone-500 font-bold">
                     {t.common.loading}
                   </div>
                 ) : incidenciasDelFronton.length === 0 ? (
                   <div className="py-12 text-center space-y-2">
                     <div className="text-3xl">✅</div>
-                    <p className="text-sm font-bold text-stone-700">{t.reservas.no_incidents_recorded}</p>
-                    <p className="text-xs text-stone-400">{t.reservas.no_incidents_desc}</p>
+                    <p className="text-sm font-bold text-stone-700 dark:text-stone-300">{t.reservas.no_incidents_recorded}</p>
+                    <p className="text-xs text-stone-400 dark:text-stone-500">{t.reservas.no_incidents_desc}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {incidenciasDelFronton.map((inc) => {
-                      let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                      let badgeClass = 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
                       let estadoTexto = t.reservas.status_pending_short
                       if (inc.estado === 'en_curso') {
-                        badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                        badgeClass = 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                         estadoTexto = t.reservas.status_in_progress_short
                       } else if (inc.estado === 'resuelta') {
-                        badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                        badgeClass = 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
                         estadoTexto = t.reservas.status_resolved_short
                       }
 
@@ -2079,14 +2078,14 @@ export default function PortalReservas() {
                       const estaAbierto = incidenciasHistorialAbierto.includes(inc.id)
 
                       return (
-                        <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 space-y-2 shadow-2xs">
+                        <div key={inc.id} className="p-4 border border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50/70 dark:bg-stone-950/60 space-y-2 shadow-2xs">
                           <div className="flex justify-between items-start gap-3">
                             <div className="space-y-1">
-                              <span className="font-bold text-stone-900 text-sm block">{inc.titulo}</span>
+                              <span className="font-bold text-stone-900 dark:text-stone-100 text-sm block">{inc.titulo}</span>
                               {inc.descripcion && (
-                                <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                                <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{inc.descripcion}</p>
                               )}
-                              <span className="text-[10px] text-stone-400 font-medium block">
+                              <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium block">
                                 📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
                               </span>
                             </div>
@@ -2098,31 +2097,31 @@ export default function PortalReservas() {
 
                           {/* HISTÓRICO DE ACTUACIONES */}
                           {historial.length > 0 && (
-                            <div className="pt-1 border-t border-stone-200/60">
+                            <div className="pt-1 border-t border-stone-200/60 dark:border-stone-800">
                               <button
                                 onClick={() => setIncidenciasHistorialAbierto(prev => 
-                                  prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
+                                   prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
                                 )}
-                                className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 transition"
+                                className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 flex items-center gap-1 transition cursor-pointer"
                               >
                                 <span>💬 {estaAbierto ? `${t.reservas.hide_actions} (${historial.length})` : `${t.reservas.show_actions} (${historial.length})`}</span>
                                 <span className="text-[9px]">{estaAbierto ? '▲' : '▼'}</span>
                               </button>
 
                               {estaAbierto && (
-                                <div className="mt-2 p-3 bg-white border border-stone-200 rounded-xl space-y-2 text-xs">
+                                <div className="mt-2 p-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-2 text-xs">
                                   {historial.map((h: any, hIdx: number) => (
-                                    <div key={hIdx} className="p-2 bg-stone-50 rounded-lg border border-stone-150 space-y-1 text-xs">
+                                    <div key={hIdx} className="p-2 bg-stone-50 dark:bg-stone-950 rounded-lg border border-stone-150 dark:border-stone-800 space-y-1 text-xs">
                                       <div className="flex justify-between items-center flex-wrap gap-1">
-                                        <span className="font-bold text-stone-800 text-[11px]">
-                                          <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                        <span className="font-bold text-stone-800 dark:text-stone-200 text-[11px]">
+                                          <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 dark:text-emerald-400 font-extrabold">{h.estado_nuevo}</span>
                                         </span>
-                                        <span className="text-[10px] text-stone-400">
+                                        <span className="text-[10px] text-stone-400 dark:text-stone-500">
                                           {formatShortDateWithTime(h.fecha, lang)}
                                         </span>
                                       </div>
-                                      <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
-                                      <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                      <p className="text-stone-700 dark:text-stone-300 italic text-xs">"{h.comentario}"</p>
+                                      <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -2137,11 +2136,11 @@ export default function PortalReservas() {
               </div>
 
               {/* BOTONES DEL PIE */}
-              <div className="flex justify-end items-center gap-3 pt-2 border-t border-stone-100 flex-shrink-0">
+              <div className="flex justify-end items-center gap-3 pt-2 border-t border-stone-100 dark:border-stone-800 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setModalFrontonIncidencias(null)}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   {t.common.close}
                 </button>
@@ -2152,7 +2151,7 @@ export default function PortalReservas() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
         {t.home.footer}
       </footer>
     </div>

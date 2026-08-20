@@ -446,22 +446,22 @@ export default function AjustesUsuarioPage() {
         
         {/* TARJETA 1: DATOS DE PERFIL (GESTOR O CIUDADANO) */}
         {userRole === 'gestor_municipio' ? (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-4 flex-wrap gap-2">
+          <div className="bg-white dark:bg-stone-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-4 flex-wrap gap-2">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
+                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
                   🏛️
                 </div>
                 <div>
-                  <h1 className="text-xl font-black text-stone-900">{t.ajustes.title_gestor}</h1>
-                  <p className="text-xs text-stone-500 font-medium">{t.ajustes.subtitle_gestor}</p>
+                  <h1 className="text-xl font-black text-stone-900 dark:text-stone-100">{t.ajustes.title_gestor}</h1>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">{t.ajustes.subtitle_gestor}</p>
                 </div>
               </div>
 
               {!editandoPerfil && (
                 <button 
                   onClick={() => setEditandoPerfil(true)}
-                  className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs"
+                  className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                 >
                   {t.ajustes.edit_data}
                 </button>
@@ -471,7 +471,7 @@ export default function AjustesUsuarioPage() {
             <form onSubmit={handleGuardarPerfil} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                     {t.ajustes.manager_name} *
                   </label>
                   <input 
@@ -480,11 +480,11 @@ export default function AjustesUsuarioPage() {
                     value={nombre} 
                     onChange={(e) => setNombre(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                     {t.ajustes.manager_last_name}
                   </label>
                   <input 
@@ -492,29 +492,29 @@ export default function AjustesUsuarioPage() {
                     value={apellidos} 
                     onChange={(e) => setApellidos(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1.5">
                   {t.ajustes.municipality_logo}
                 </label>
                 {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 dark:bg-stone-950/60 rounded-2xl border border-stone-200 dark:border-stone-800">
                     <img 
                       src={archivoImagenMunicipio ? URL.createObjectURL(archivoImagenMunicipio) : imagenMunicipioUrl} 
                       alt="Escudo/Imagen del municipio" 
-                      className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white" 
+                      className="w-16 h-16 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xs bg-white dark:bg-stone-900" 
                     />
                     <div className="space-y-1.5">
-                      <p className="text-xs font-bold text-stone-800">
+                      <p className="text-xs font-bold text-stone-800 dark:text-stone-200">
                         {archivoImagenMunicipio ? `Nueva imagen: ${archivoImagenMunicipio.name}` : 'Imagen guardada'}
                       </p>
                       {editandoPerfil && (
                         <div className="flex gap-2 flex-wrap">
-                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
+                          <label className="bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-300 dark:border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
                             {t.common.edit}
                             <input 
                               type="file" 
@@ -533,7 +533,7 @@ export default function AjustesUsuarioPage() {
                               setImagenMunicipioUrl('')
                               setArchivoImagenMunicipio(null)
                             }} 
-                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                            className="bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                           >
                             {t.common.delete}
                           </button>
@@ -542,10 +542,10 @@ export default function AjustesUsuarioPage() {
                     </div>
                   </div>
                 ) : editandoPerfil ? (
-                  <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
+                  <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-2xl hover:border-emerald-500 bg-stone-50/50 dark:bg-stone-950/40 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition cursor-pointer group">
                     <span className="text-2xl mb-1 group-hover:scale-110 transition">🏛️</span>
-                    <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">{t.ajustes.upload_logo}</span>
-                    <span className="text-[10px] text-stone-400 mt-0.5">PNG, JPG, WEBP</span>
+                    <span className="text-xs font-bold text-stone-700 dark:text-stone-300 group-hover:text-emerald-800 dark:group-hover:text-emerald-400">{t.ajustes.upload_logo}</span>
+                    <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-0.5">PNG, JPG, WEBP</span>
                     <input 
                       type="file" 
                       accept="image/*"
@@ -558,21 +558,21 @@ export default function AjustesUsuarioPage() {
                     />
                   </label>
                 ) : (
-                  <p className="text-xs text-stone-400 italic">Sin imagen configurada</p>
+                  <p className="text-xs text-stone-400 dark:text-stone-500 italic">Sin imagen configurada</p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                     {t.auth.province} *
                   </label>
                   {editandoPerfil ? (
                     <select 
                       value={selectedProvinciaId} 
-                      onChange={(e) => handleProvinciaChange(e.target.value)}
+                      onChange={(e) => handleProvinciaChange(e.target.value)} 
                       required
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                     >
                       <option value="">{t.reservas.select_province}</option>
                       {provincias.map(p => (
@@ -584,22 +584,22 @@ export default function AjustesUsuarioPage() {
                       type="text" 
                       value={nombreProvinciaActual || 'Sin provincia'} 
                       disabled
-                      className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-800 font-medium"
+                      className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm bg-stone-100 dark:bg-stone-800/60 text-stone-800 dark:text-stone-300 font-medium"
                     />
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                     {t.auth.municipality} *
                   </label>
                   {editandoPerfil ? (
                     <select 
                       value={selectedMunicipioId} 
-                      onChange={(e) => handleMunicipioChange(e.target.value)}
+                      onChange={(e) => handleMunicipioChange(e.target.value)} 
                       required
                       disabled={!selectedProvinciaId}
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                      className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-stone-50 dark:bg-stone-950 disabled:bg-stone-100 dark:disabled:bg-stone-900 focus:bg-white dark:focus:bg-stone-950 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                     >
                       <option value="">{t.reservas.select_town}</option>
                       {municipiosDisponibles.map(m => (
@@ -611,14 +611,14 @@ export default function AjustesUsuarioPage() {
                       type="text" 
                       value={nombreMunicipioActual || 'Sin municipio'} 
                       disabled
-                      className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-800 font-medium"
+                      className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm bg-stone-100 dark:bg-stone-800/60 text-stone-800 dark:text-stone-300 font-medium"
                     />
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                   {t.ajustes.postal_codes}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2 min-h-[36px] items-center">
@@ -626,14 +626,14 @@ export default function AjustesUsuarioPage() {
                     codigosPostales.map((cp) => (
                       <span 
                         key={cp} 
-                        className="bg-white border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 shadow-2xs flex items-center gap-1.5"
+                        className="bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 shadow-2xs flex items-center gap-1.5"
                       >
                         <span>{cp}</span>
                         {editandoPerfil && (
                           <button 
                             type="button" 
                             onClick={() => handleRemoveCp(cp)} 
-                            className="text-rose-500 hover:text-rose-700 font-black ml-1 text-sm leading-none"
+                            className="text-rose-500 hover:text-rose-700 font-black ml-1 text-sm leading-none cursor-pointer"
                             title="Eliminar código postal"
                           >
                             ×
@@ -642,7 +642,7 @@ export default function AjustesUsuarioPage() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-stone-400 italic">No hay códigos postales configurados</span>
+                    <span className="text-xs text-stone-400 dark:text-stone-500 italic">No hay códigos postales configurados</span>
                   )}
                 </div>
 
@@ -659,12 +659,12 @@ export default function AjustesUsuarioPage() {
                           handleAddCp()
                         }
                       }}
-                      className="p-2.5 border border-stone-300 rounded-xl flex-1 text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                      className="p-2.5 border border-stone-300 dark:border-stone-700 rounded-xl flex-1 text-sm bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                     />
                     <button 
                       type="button" 
                       onClick={handleAddCp} 
-                      className="bg-stone-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
+                      className="bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                     >
                       {t.ajustes.add_cp}
                     </button>
@@ -673,23 +673,23 @@ export default function AjustesUsuarioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                   {t.auth.email}
                 </label>
                 <input 
                   type="email" 
                   value={email} 
                   disabled 
-                  className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-600 cursor-not-allowed font-medium truncate"
+                  className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm bg-stone-100 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 cursor-not-allowed font-medium truncate"
                 />
               </div>
 
               {editandoPerfil && (
-                <div className="flex gap-3 pt-3 border-t border-stone-100">
+                <div className="flex gap-3 pt-3 border-t border-stone-100 dark:border-stone-800">
                   <button 
                     type="submit" 
                     disabled={guardando}
-                    className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm disabled:bg-stone-300"
+                    className="flex-1 bg-emerald-700 dark:bg-emerald-600 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                   >
                     {guardando ? t.ajustes.saving : t.ajustes.save_changes}
                   </button>
@@ -699,7 +699,7 @@ export default function AjustesUsuarioPage() {
                       setEditandoPerfil(false)
                       cargarDatosUsuario()
                     }}
-                    className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
+                    className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition cursor-pointer"
                   >
                     {t.common.cancel}
                   </button>
@@ -708,22 +708,22 @@ export default function AjustesUsuarioPage() {
             </form>
           </div>
         ) : (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-4 flex-wrap gap-2">
+          <div className="bg-white dark:bg-stone-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-4 flex-wrap gap-2">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
+                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
                   👤
                 </div>
                 <div>
-                  <h1 className="text-xl font-black text-stone-900">{t.ajustes.title_user}</h1>
-                  <p className="text-xs text-stone-500 font-medium">{t.ajustes.subtitle_user}</p>
+                  <h1 className="text-xl font-black text-stone-900 dark:text-stone-100">{t.ajustes.title_user}</h1>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">{t.ajustes.subtitle_user}</p>
                 </div>
               </div>
 
               {!editandoPerfil && (
                 <button 
                   onClick={() => setEditandoPerfil(true)}
-                  className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs"
+                  className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
                 >
                   {t.ajustes.edit_data}
                 </button>
@@ -733,104 +733,104 @@ export default function AjustesUsuarioPage() {
             <form onSubmit={handleGuardarPerfil} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.name} *</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.name} *</label>
                   <input 
                     type="text" 
                     required
                     value={nombre} 
                     onChange={(e) => setNombre(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.last_name}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.last_name}</label>
                   <input 
                     type="text" 
                     value={apellidos} 
                     onChange={(e) => setApellidos(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.dni}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.dni}</label>
                   <input 
                     type="text" 
                     value={dni} 
                     onChange={(e) => setDni(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.birth_date}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.birth_date}</label>
                   <input 
                     type="date" 
                     value={fechaNacimiento} 
                     onChange={(e) => setFechaNacimiento(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.address}</label>
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.address}</label>
                 <input 
                   type="text" 
                   value={calle} 
                   onChange={(e) => setCalle(e.target.value)} 
                   disabled={!editandoPerfil}
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.city}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.city}</label>
                   <input 
                     type="text" 
                     value={localidad} 
                     onChange={(e) => setLocalidad(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.postal_code}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.postal_code}</label>
                   <input 
                     type="text" 
                     value={codigoPostal} 
                     onChange={(e) => setCodigoPostal(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 disabled:bg-stone-100 dark:disabled:bg-stone-800/60 disabled:text-stone-700 dark:disabled:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.email}</label>
+                  <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.auth.email}</label>
                   <input 
                     type="email" 
                     value={email} 
                     disabled 
-                    className="w-full p-3 border border-stone-200 rounded-2xl text-sm bg-stone-100 text-stone-600 cursor-not-allowed font-medium truncate"
+                    className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm bg-stone-100 dark:bg-stone-800/60 text-stone-600 dark:text-stone-400 cursor-not-allowed font-medium truncate"
                   />
                 </div>
               </div>
 
               {editandoPerfil && (
-                <div className="flex gap-3 pt-3 border-t border-stone-100">
+                <div className="flex gap-3 pt-3 border-t border-stone-100 dark:border-stone-800">
                   <button 
                     type="submit" 
                     disabled={guardando}
-                    className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm disabled:bg-stone-300"
+                    className="flex-1 bg-emerald-700 dark:bg-emerald-600 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 dark:hover:bg-emerald-700 transition shadow-sm disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                   >
                     {guardando ? t.ajustes.saving : t.ajustes.save_changes}
                   </button>
@@ -840,7 +840,7 @@ export default function AjustesUsuarioPage() {
                       setEditandoPerfil(false)
                       cargarDatosUsuario()
                     }}
-                    className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
+                    className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition cursor-pointer"
                   >
                     {t.common.cancel}
                   </button>
@@ -851,14 +851,14 @@ export default function AjustesUsuarioPage() {
         )}
 
         {/* TARJETA 2: SEGURIDAD / CONTRASEÑA */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-          <div className="flex items-center gap-4 border-b border-stone-100 pb-4">
-            <div className="w-12 h-12 bg-stone-100 text-stone-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
+        <div className="bg-white dark:bg-stone-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-6">
+          <div className="flex items-center gap-4 border-b border-stone-100 dark:border-stone-800 pb-4">
+            <div className="w-12 h-12 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
               🔒
             </div>
             <div>
-              <h2 className="text-xl font-black text-stone-900">{t.ajustes.security}</h2>
-              <p className="text-xs text-stone-500 font-medium">{t.ajustes.change_password}</p>
+              <h2 className="text-xl font-black text-stone-900 dark:text-stone-100">{t.ajustes.security}</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">{t.ajustes.change_password}</p>
             </div>
           </div>
 
@@ -866,7 +866,7 @@ export default function AjustesUsuarioPage() {
             <div className="text-center py-2">
               <button 
                 onClick={() => setModoCambioPass(true)}
-                className="bg-stone-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm"
+                className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-6 py-3 rounded-2xl text-sm font-bold transition shadow-sm cursor-pointer"
               >
                 {t.ajustes.change_password}
               </button>
@@ -874,50 +874,50 @@ export default function AjustesUsuarioPage() {
           ) : (
             <form onSubmit={handleCambiarPassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.current_password}</label>
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.ajustes.current_password}</label>
                 <input 
                   type="password" 
                   value={passwordActual} 
                   onChange={(e) => setPasswordActual(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-stone-800 dark:focus:ring-stone-400 focus:outline-none transition font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.new_password}</label>
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.ajustes.new_password}</label>
                 <input 
                   type="password" 
                   value={nuevaPassword} 
                   onChange={(e) => setNuevaPassword(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-stone-800 dark:focus:ring-stone-400 focus:outline-none transition font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.confirm_new_password}</label>
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">{t.ajustes.confirm_new_password}</label>
                 <input 
                   type="password" 
                   value={confirmarPassword} 
                   onChange={(e) => setConfirmarPassword(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
+                  className="w-full p-3 border border-stone-300 dark:border-stone-700 rounded-2xl text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:ring-2 focus:ring-stone-800 dark:focus:ring-stone-400 focus:outline-none transition font-medium"
                 />
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-stone-100">
+              <div className="flex gap-3 pt-3 border-t border-stone-100 dark:border-stone-800">
                 <button 
                   type="submit" 
                   disabled={cambiandoPass}
-                  className="flex-1 bg-stone-900 text-white p-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm disabled:bg-stone-300"
+                  className="flex-1 bg-stone-900 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 dark:disabled:bg-stone-800 cursor-pointer"
                 >
                   {cambiandoPass ? t.ajustes.saving : t.common.confirm}
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setModoCambioPass(false)}
-                  className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition cursor-pointer"
                 >
                   {t.common.cancel}
                 </button>
@@ -928,7 +928,7 @@ export default function AjustesUsuarioPage() {
 
       </main>
 
-      <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
         {t.home.footer}
       </footer>
     </div>
