@@ -50,6 +50,7 @@ export default function AdminDashboard() {
   // Eventos edición
   const [eventoEnEdicion, setEventoEnEdicion] = useState<any | null>(null)
   const [aplicarATodaLaSerie, setAplicarATodaLaSerie] = useState(true)
+  const [edicionDesdeResumen, setEdicionDesdeResumen] = useState(false)
   const [mostrarFormSuelto, setMostrarFormSuelto] = useState(false)
   const [mostrarFormRepetitivo, setMostrarFormRepetitivo] = useState(false)
   
@@ -395,6 +396,13 @@ export default function AdminDashboard() {
     }
   }
 
+  const cargarTodosLosEventos = async () => {
+    const { data: allEvents } = await supabase
+      .from('eventos_fronton')
+      .select('*')
+    setTodosLosEventos(allEvents || [])
+  }
+
   const cargarEventosFronton = async (frontonId: string) => {
     const { data, error } = await supabase
       .from('eventos_fronton')
@@ -403,8 +411,8 @@ export default function AdminDashboard() {
 
     if (!error && data) {
       setEventosFronton([...data])
-      setTodosLosEventos([...data])
     }
+    await cargarTodosLosEventos()
   }
 
   const handleProvinciaChange = async (provId: string) => {
@@ -659,9 +667,25 @@ export default function AdminDashboard() {
       alert('Aviso: La base de datos no aplicó el cambio.')
     } else {
       alert('Evento(s) actualizado(s) correctamente.')
-      const idFrontonActual = frontonSeleccionadoCalendario.id
+      const idFrontonActual = frontonSeleccionadoCalendario?.id
       setEventoEnEdicion(null)
-      await cargarEventosFronton(idFrontonActual)
+      await cargarTodosLosEventos()
+      if (idFrontonActual) {
+        await cargarEventosFronton(idFrontonActual)
+      }
+
+      if (edicionDesdeResumen) {
+        setFrontonSeleccionadoCalendario(null)
+        setEdicionDesdeResumen(false)
+        if (idFrontonActual) {
+          setTimeout(() => {
+            const el = document.getElementById(`fronton-card-${idFrontonActual}`)
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+          }, 100)
+        }
+      }
     }
   }
 
@@ -742,13 +766,49 @@ export default function AdminDashboard() {
     if (error) {
       alert('Error al borrar: ' + error.message)
     } else {
-      const idFrontonActual = frontonSeleccionadoCalendario.id
+      const idFrontonActual = frontonSeleccionadoCalendario?.id
       setEventoEnEdicion(null)
-      await cargarEventosFronton(idFrontonActual)
+      await cargarTodosLosEventos()
+      if (idFrontonActual) {
+        await cargarEventosFronton(idFrontonActual)
+      }
+
+      if (edicionDesdeResumen) {
+        setFrontonSeleccionadoCalendario(null)
+        setEdicionDesdeResumen(false)
+        if (idFrontonActual) {
+          setTimeout(() => {
+            const el = document.getElementById(`fronton-card-${idFrontonActual}`)
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+          }, 100)
+        }
+      }
     }
   }
 
-  const abrirEdicionEvento = (ev: any, frontonAsociado?: any) => {
+  const handleCerrarEdicion = () => {
+    if (edicionDesdeResumen) {
+      const idFrontonActual = frontonSeleccionadoCalendario?.id
+      setEventoEnEdicion(null)
+      setFrontonSeleccionadoCalendario(null)
+      setEdicionDesdeResumen(false)
+      if (idFrontonActual) {
+        setTimeout(() => {
+          const el = document.getElementById(`fronton-card-${idFrontonActual}`)
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 100)
+      }
+    } else {
+      setEventoEnEdicion(null)
+    }
+  }
+
+  const abrirEdicionEvento = (ev: any, frontonAsociado?: any, desdeResumen: boolean = false) => {
+    setEdicionDesdeResumen(desdeResumen)
     if (frontonAsociado) {
       setOffsetSemanas(0)
       setFrontonSeleccionadoCalendario(frontonAsociado)
@@ -915,7 +975,7 @@ export default function AdminDashboard() {
                   const diasPreviewFronton = generarDiasPreviewParaFronton(f.id)
                   const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                   return (
-                    <div key={f.id} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
+                    <div key={f.id} id={`fronton-card-${f.id}`} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-100 pb-4">
                         <div className="flex items-center gap-2.5 flex-wrap">
                           <h3 className="font-bold text-xl text-stone-900">{f.nombre}</h3>
@@ -1011,7 +1071,7 @@ export default function AdminDashboard() {
                                     {eventosDelDia.map(ev => (
                                       <div 
                                         key={ev.id} 
-                                        onClick={() => abrirEdicionEvento(ev, f)}
+                                        onClick={() => abrirEdicionEvento(ev, f, true)}
                                         className="bg-white border border-stone-200 rounded-xl p-2 shadow-2xs flex justify-between items-center text-[11px] cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/40 transition group"
                                       >
                                         <div className="min-w-0 pr-1.5">
@@ -1260,7 +1320,7 @@ export default function AdminDashboard() {
                       <h3 className="text-sm font-bold text-amber-900">
                         Editar Bloqueo {eventoEnEdicion.grupo_repeticion_id ? '(Serie Semanal)' : ''}
                       </h3>
-                      <button onClick={() => setEventoEnEdicion(null)} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
+                      <button onClick={handleCerrarEdicion} className="text-stone-400 font-bold hover:text-stone-700">✕</button>
                     </div>
 
                     <form onSubmit={handleActualizarEvento} className="space-y-4">
@@ -1381,7 +1441,7 @@ export default function AdminDashboard() {
                             {eventosDia.map(ev => (
                               <div 
                                 key={ev.id} 
-                                onClick={() => abrirEdicionEvento(ev)}
+                                onClick={() => abrirEdicionEvento(ev, null, false)}
                                 className="bg-white border border-stone-200 p-1.5 rounded-xl shadow-2xs cursor-pointer hover:border-emerald-400 flex justify-between items-center text-[10px]"
                               >
                                 <div>
