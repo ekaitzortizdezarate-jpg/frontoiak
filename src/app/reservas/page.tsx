@@ -37,6 +37,9 @@ export default function PortalReservas() {
   const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
   const [mostrarModalIncidencia, setMostrarModalIncidencia] = useState(false)
   const [incidenciaVerHistoricoModal, setIncidenciaVerHistoricoModal] = useState<any | null>(null)
+  const [modalFrontonIncidencias, setModalFrontonIncidencias] = useState<any | null>(null)
+  const [incidenciasDelFronton, setIncidenciasDelFronton] = useState<any[]>([])
+  const [cargandoIncidenciasFronton, setCargandoIncidenciasFronton] = useState(false)
   const [incidenciaFrontonId, setIncidenciaFrontonId] = useState('')
   const [incidenciaTitulo, setIncidenciaTitulo] = useState('')
   const [incidenciaDescripcion, setIncidenciaDescripcion] = useState('')
@@ -296,6 +299,29 @@ export default function PortalReservas() {
     setIncidenciaTitulo('')
     setIncidenciaDescripcion('')
     setMostrarModalIncidencia(true)
+  }
+
+  const abrirModalIncidenciasFronton = async (fronton: any) => {
+    setModalFrontonIncidencias(fronton)
+    setCargandoIncidenciasFronton(true)
+    try {
+      const { data, error } = await supabase
+        .from('incidencias_fronton')
+        .select('*')
+        .eq('fronton_id', fronton.id)
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        setIncidenciasDelFronton(data.map(normalizarIncidencia))
+      } else {
+        setIncidenciasDelFronton([])
+      }
+    } catch (err) {
+      console.error('Error al cargar incidencias del frontón:', err)
+      setIncidenciasDelFronton([])
+    } finally {
+      setCargandoIncidenciasFronton(false)
+    }
   }
 
   const handleCrearIncidencia = async (e: React.FormEvent) => {
@@ -1203,10 +1229,38 @@ export default function PortalReservas() {
                       </span>
                     </div>
 
-                    {/* Fila 3: Horario y características */}
+                    {/* Fila 2: Horario y características */}
                     <p className="text-xs text-stone-500 font-medium">
                       Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Mínimo: {frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) antelación
                     </p>
+
+                    {/* Fila 3: 'Incidencias', 'Pendientes: X' y 'En curso: Y' todo seguido en la misma fila */}
+                    {(() => {
+                      const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
+                      if (pendientes === 0 && enCurso === 0) return null
+
+                      return (
+                        <div className="flex items-center gap-2 flex-wrap text-xs pt-0.5">
+                          <span className="font-bold text-stone-700 text-xs">
+                            Incidencias
+                          </span>
+
+                          <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
+                            pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
+                          }`}>
+                            <span className="text-stone-600 font-semibold text-[11px]">Pendientes:</span>
+                            <span className={`font-black ${pendientes > 0 ? 'text-rose-700' : 'text-stone-800'}`}>{pendientes}</span>
+                          </span>
+
+                          <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
+                            enCurso > 0 ? 'bg-amber-50 text-amber-950 border-amber-300' : 'bg-stone-50 text-stone-600 border-stone-200'
+                          }`}>
+                            <span className="text-stone-600 font-semibold text-[11px]">En curso:</span>
+                            <span className={`font-black ${enCurso > 0 ? 'text-amber-800' : 'text-stone-800'}`}>{enCurso}</span>
+                          </span>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
 
@@ -1222,33 +1276,13 @@ export default function PortalReservas() {
                     <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
                   </button>
 
-                  {/* CONTADORES DE INCIDENCIAS DEBAJO DEL BOTÓN DE FAVORITOS */}
-                  {(() => {
-                    const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
-                    if (pendientes === 0 && enCurso === 0) return null
-
-                    return (
-                      <div className="flex flex-col items-start sm:items-end gap-1 text-xs w-full pt-1">
-                        <span className="text-[11px] font-bold text-stone-500 tracking-wider">
-                          Incidencias
-                        </span>
-
-                        <div className={`px-2.5 py-0.5 rounded-lg border flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs shadow-2xs ${
-                          pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
-                        }`}>
-                          <span className="font-semibold text-stone-600 text-[11px]">Pendientes:</span>
-                          <span className={`font-black ${pendientes > 0 ? 'text-rose-700' : 'text-stone-800'}`}>{pendientes}</span>
-                        </div>
-
-                        <div className={`px-2.5 py-0.5 rounded-lg border flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs shadow-2xs ${
-                          enCurso > 0 ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-stone-50 text-stone-600 border-stone-200'
-                        }`}>
-                          <span className="font-semibold text-stone-600 text-[11px]">En curso:</span>
-                          <span className={`font-black ${enCurso > 0 ? 'text-amber-800' : 'text-stone-800'}`}>{enCurso}</span>
-                        </div>
-                      </div>
-                    )
-                  })()}
+                  <button
+                    onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
+                    className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto"
+                    title="Ver todas las incidencias registradas en este frontón"
+                  >
+                    <span>⚠️ Ver Incidencias</span>
+                  </button>
                 </div>
               </div>
 
@@ -1815,6 +1849,127 @@ export default function PortalReservas() {
                 <button
                   type="button"
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
+                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: VER INCIDENCIAS DEL FRONTÓN SELECCIONADO */}
+        {modalFrontonIncidencias && (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-3xl p-6 max-w-2xl w-full space-y-5 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150 my-8 max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-start border-b border-stone-100 pb-3 flex-shrink-0">
+                <div>
+                  <h3 className="text-xl font-bold text-stone-900 flex items-center gap-2">
+                    <span className="text-amber-500">⚠️</span>
+                    Incidencias: {modalFrontonIncidencias.nombre}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Avisos y estado de reparaciones registradas en este frontón
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setModalFrontonIncidencias(null)}
+                  className="text-stone-400 hover:text-stone-700 text-xl font-bold p-1 leading-none transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 pr-1 space-y-3">
+                {cargandoIncidenciasFronton ? (
+                  <div className="py-12 text-center text-xs text-stone-400 font-bold">
+                    Cargando incidencias del frontón...
+                  </div>
+                ) : incidenciasDelFronton.length === 0 ? (
+                  <div className="py-12 text-center space-y-2">
+                    <div className="text-3xl">✅</div>
+                    <p className="text-sm font-bold text-stone-700">Sin incidencias registradas</p>
+                    <p className="text-xs text-stone-400">Este frontón no tiene desperfectos ni avisos pendientes.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {incidenciasDelFronton.map((inc) => {
+                      let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                      let estadoTexto = '⏳ Pendiente'
+                      if (inc.estado === 'en_curso') {
+                        badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                        estadoTexto = '🔧 En curso'
+                      } else if (inc.estado === 'resuelta') {
+                        badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                        estadoTexto = '✅ Resuelta'
+                      }
+
+                      const historial = Array.isArray(inc.historial) ? inc.historial : []
+                      const estaAbierto = incidenciasHistorialAbierto.includes(inc.id)
+
+                      return (
+                        <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 space-y-2 shadow-2xs">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="space-y-1">
+                              <span className="font-bold text-stone-900 text-sm block">{inc.titulo}</span>
+                              {inc.descripcion && (
+                                <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                              )}
+                              <span className="text-[10px] text-stone-400 font-medium block">
+                                📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs flex-shrink-0 ${badgeClass}`}>
+                              {estadoTexto}
+                            </span>
+                          </div>
+
+                          {/* HISTÓRICO DE ACTUACIONES */}
+                          {historial.length > 0 && (
+                            <div className="pt-1 border-t border-stone-200/60">
+                              <button
+                                onClick={() => setIncidenciasHistorialAbierto(prev => 
+                                  prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
+                                )}
+                                className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 transition"
+                              >
+                                <span>💬 {estaAbierto ? 'Ocultar actuaciones' : `Ver actuaciones (${historial.length})`}</span>
+                                <span className="text-[9px]">{estaAbierto ? '▲' : '▼'}</span>
+                              </button>
+
+                              {estaAbierto && (
+                                <div className="mt-2 p-3 bg-white border border-stone-200 rounded-xl space-y-2 text-xs">
+                                  {historial.map((h: any, hIdx: number) => (
+                                    <div key={hIdx} className="p-2 bg-stone-50 rounded-lg border border-stone-150 space-y-1 text-xs">
+                                      <div className="flex justify-between items-center flex-wrap gap-1">
+                                        <span className="font-bold text-stone-800 text-[11px]">
+                                          <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                        </span>
+                                        <span className="text-[10px] text-stone-400">
+                                          {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                      </div>
+                                      <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
+                                      <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* BOTONES DEL PIE */}
+              <div className="flex justify-end items-center gap-3 pt-2 border-t border-stone-100 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setModalFrontonIncidencias(null)}
                   className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
                 >
                   Cerrar
