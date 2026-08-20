@@ -167,19 +167,19 @@ export default function SuperAdminDashboard() {
       .order('nombre', { ascending: true })
     setMunicipios(muns || [])
 
-    // 3. Gestores
+    // 3. Gestores (tanto los que tienen role='gestor_municipio' como los que tienen estado_aprobacion='pendiente')
     let profsData: any[] = []
     const { data: profs, error: profsError } = await supabase
       .from('profiles')
       .select('*, municipios(id, nombre, provincia_id, provincias(nombre))')
-      .eq('role', 'gestor_municipio')
+      .or('role.eq.gestor_municipio,estado_aprobacion.eq.pendiente')
 
     if (profsError) {
       console.warn('Aviso al cargar gestores con relación:', profsError)
       const { data: fallbackProfs } = await supabase
         .from('profiles')
         .select('*')
-        .eq('role', 'gestor_municipio')
+        .or('role.eq.gestor_municipio,estado_aprobacion.eq.pendiente')
       profsData = fallbackProfs || []
     } else {
       profsData = profs || []
