@@ -1023,16 +1023,6 @@ export default function PortalReservas() {
                       </div>
                     </div>
 
-                    {/* COMENTARIO MUNICIPAL */}
-                    {inc.respuesta_municipio && (
-                      <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl text-xs text-emerald-950 space-y-1">
-                        <span className="font-bold flex items-center gap-1 text-emerald-900">
-                          🏛️ Respuesta del Ayuntamiento:
-                        </span>
-                        <p className="text-stone-700 italic font-medium">"{inc.respuesta_municipio}"</p>
-                      </div>
-                    )}
-
                     {/* HISTÓRICO DE ACTUACIONES */}
                     {Array.isArray(inc.historial) && inc.historial.length > 0 && (
                       <div className="pt-1">
