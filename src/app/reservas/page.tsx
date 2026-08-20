@@ -1276,13 +1276,21 @@ export default function PortalReservas() {
                     <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
                   </button>
 
-                  <button
-                    onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
-                    className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto"
-                    title="Ver todas las incidencias registradas en este frontón"
-                  >
-                    <span>⚠️ Ver Incidencias</span>
-                  </button>
+                  {/* BOTÓN VER INCIDENCIAS (Sólo visible si hay incidencias pendientes o en curso) */}
+                  {(() => {
+                    const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
+                    if (pendientes === 0 && enCurso === 0) return null
+
+                    return (
+                      <button
+                        onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
+                        className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto"
+                        title="Ver incidencias activas en este frontón"
+                      >
+                        <span>⚠️ Ver Incidencias</span>
+                      </button>
+                    )
+                  })()}
                 </div>
               </div>
 
