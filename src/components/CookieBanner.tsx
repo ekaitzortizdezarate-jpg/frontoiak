@@ -7,15 +7,13 @@ import { useLanguage } from '@/context/LanguageContext'
 export default function CookieBanner() {
   const { t } = useLanguage()
   const [visible, setVisible] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     try {
       const consent = localStorage.getItem('frontoiak_cookies_consent')
       if (!consent) {
         // Mostrar con un leve retardo para suavidad
-        const timer = setTimeout(() => setVisible(true), 600)
+        const timer = setTimeout(() => setVisible(true), 500)
         return () => clearTimeout(timer)
       }
     } catch {
@@ -28,10 +26,8 @@ export default function CookieBanner() {
       setVisible(true)
     }
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('open-cookie-settings', handleOpen)
-      return () => window.removeEventListener('open-cookie-settings', handleOpen)
-    }
+    window.addEventListener('open-cookie-settings', handleOpen)
+    return () => window.removeEventListener('open-cookie-settings', handleOpen)
   }, [])
 
   const handleAcceptAll = () => {
@@ -48,7 +44,7 @@ export default function CookieBanner() {
     setVisible(false)
   }
 
-  if (!mounted || !visible) return null
+  if (!visible) return null
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-black/40 backdrop-blur-xs animate-in slide-in-from-bottom-5 duration-300">

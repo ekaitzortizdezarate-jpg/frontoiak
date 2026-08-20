@@ -27,30 +27,23 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Language>('eu')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('frontoiak_lang') as Language
-      if (saved && (saved === 'eu' || saved === 'es' || saved === 'en')) {
-        setLangState(saved)
-      } else {
-        // Detectar si el navegador está en euskera o español
-        const browserLang = navigator.language.toLowerCase()
-        if (browserLang.startsWith('eu')) {
-          setLangState('eu')
-        } else if (browserLang.startsWith('es')) {
-          setLangState('es')
-        } else if (browserLang.startsWith('en')) {
-          setLangState('en')
+  const [lang, setLangState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('frontoiak_lang') as Language
+        if (saved && (saved === 'eu' || saved === 'es' || saved === 'en')) {
+          return saved
         }
+        const browserLang = navigator.language.toLowerCase()
+        if (browserLang.startsWith('eu')) return 'eu'
+        if (browserLang.startsWith('es')) return 'es'
+        if (browserLang.startsWith('en')) return 'en'
+      } catch {
+        // Ignorar errores de localStorage
       }
-    } catch {
-      // Ignorar errores de localStorage
     }
-    setMounted(true)
-  }, [])
+    return 'eu'
+  })
 
   const setLang = (newLang: Language) => {
     setLangState(newLang)

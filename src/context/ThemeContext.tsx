@@ -19,25 +19,36 @@ const ThemeContext = createContext<ThemeContextType>({
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system')
-  const [isDark, setIsDark] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('frontoiak_theme') as Theme
-      if (saved && (saved === 'light' || saved === 'dark' || saved === 'system')) {
-        setThemeState(saved)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('frontoiak_theme') as Theme
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          return saved
+        }
+      } catch {
+        // Ignorar errores de localStorage
       }
-    } catch {
-      // Ignorar errores de localStorage
     }
-    setMounted(true)
-  }, [])
+    return 'system'
+  })
+
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      try {
+        const saved = localStorage.getItem('frontoiak_theme') as Theme
+        if (saved === 'dark') return true
+        if (saved === 'light') return false
+        return mediaQuery.matches
+      } catch {
+        return mediaQuery.matches
+      }
+    }
+    return false
+  })
 
   useEffect(() => {
-    if (!mounted) return
-
     const root = document.documentElement
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
@@ -61,7 +72,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [theme, mounted])
+  }, [theme])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)
