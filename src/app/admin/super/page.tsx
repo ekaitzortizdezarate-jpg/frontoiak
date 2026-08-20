@@ -46,6 +46,10 @@ export default function SuperAdminDashboard() {
   const [filtroMunicipioIot, setFiltroMunicipioIot] = useState('')
   const [filtroSoloConSensor, setFiltroSoloConSensor] = useState(true)
 
+  // Estado para modal informativo de frontones y foco en gestor
+  const [modalVerFrontonesMunicipio, setModalVerFrontonesMunicipio] = useState<any | null>(null)
+  const [gestorDestacadoId, setGestorDestacadoId] = useState<string | null>(null)
+
   // Modales y formularios
   const [mostrarFormMunicipio, setMostrarFormMunicipio] = useState(false)
   const [municipioEnEdicion, setMunicipioEnEdicion] = useState<any | null>(null)
@@ -860,6 +864,26 @@ export default function SuperAdminDashboard() {
       alert('Error al enviar correo de recuperación: ' + error.message)
     } else {
       alert(`Correo de recuperación enviado a ${email}.`)
+    }
+  }
+
+  const handleNavegarAGestor = (gestor: any | null, mun: any) => {
+    setActiveTab('gestores')
+    setFiltroMunicipioGestor(mun.id)
+    setFiltroEstadoAprobacionGestor('todos')
+    setBusquedaGestor('')
+
+    if (gestor) {
+      setGestorDestacadoId(gestor.id)
+      setTimeout(() => {
+        const el = document.getElementById(`gestor-${gestor.id}`)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 250)
+      setTimeout(() => {
+        setGestorDestacadoId(null)
+      }, 4000)
     }
   }
 
@@ -1795,15 +1819,34 @@ export default function SuperAdminDashboard() {
                     </div>
 
                     {/* CENTRO: MÉTRICAS RÁPIDAS (FRONTONES Y GESTORES) */}
-                    <div className="flex items-center gap-3 flex-wrap text-xs self-stretch sm:self-auto justify-start sm:justify-center">
-                      <div className="bg-stone-950 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2">
-                        <span className="text-stone-400 font-bold">🎾 Frontones:</span>
-                        <span className="font-extrabold text-white">{frontonesDelMun.length}</span>
-                      </div>
-                      <div className="bg-stone-950 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2">
-                        <span className="text-stone-400 font-bold">👤 Gestores:</span>
-                        <span className="font-extrabold text-white">{gestoresDelMun.length}</span>
-                      </div>
+                    <div className="flex items-center gap-2.5 flex-wrap text-xs self-stretch sm:self-auto justify-start sm:justify-center">
+                      {/* BOTÓN VER FRONTONES (MODAL SOLO CERRAR) */}
+                      <button
+                        type="button"
+                        onClick={() => setModalVerFrontonesMunicipio(mun)}
+                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-emerald-500/70 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn"
+                        title="Pulsar para ver la información de los frontones de este municipio"
+                      >
+                        <span className="text-stone-400 group-hover/btn:text-emerald-400 font-bold transition">🎾 Frontones:</span>
+                        <span className="font-extrabold text-white bg-stone-900 group-hover/btn:bg-emerald-950/90 group-hover/btn:text-emerald-300 px-2 py-0.5 rounded-lg border border-stone-800 transition">
+                          {frontonesDelMun.length}
+                        </span>
+                        <span className="text-[11px] text-stone-500 group-hover/btn:text-emerald-400 transition">👁️</span>
+                      </button>
+
+                      {/* BOTÓN IR A GESTORES */}
+                      <button
+                        type="button"
+                        onClick={() => handleNavegarAGestor(gestoresDelMun[0] || null, mun)}
+                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-teal-500/70 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn"
+                        title={gestoresDelMun.length > 0 ? `Pulsar para ver la información de los gestores de ${mun.nombre} en la pestaña de gestores` : `Pulsar para ir a gestores y asignar uno a ${mun.nombre}`}
+                      >
+                        <span className="text-stone-400 group-hover/btn:text-teal-400 font-bold transition">👤 Gestores:</span>
+                        <span className="font-extrabold text-white bg-stone-900 group-hover/btn:bg-teal-950/90 group-hover/btn:text-teal-300 px-2 py-0.5 rounded-lg border border-stone-800 transition">
+                          {gestoresDelMun.length}
+                        </span>
+                        <span className="text-[11px] text-stone-500 group-hover/btn:text-teal-400 transition">→</span>
+                      </button>
                     </div>
 
                     {/* DERECHA: ESTADO + BOTONES DE ACCIÓN */}
@@ -2074,9 +2117,18 @@ export default function SuperAdminDashboard() {
                         const munObj = g.municipios || municipios.find(m => m.id === g.municipio_id)
                         const tieneMunicipio = !!munObj
                         const estadoAprobacion = g.estado_aprobacion || 'aprobado'
+                        const esDestacado = gestorDestacadoId === g.id
 
                         return (
-                          <tr key={g.id} className="hover:bg-stone-800/40 transition">
+                          <tr 
+                            key={g.id} 
+                            id={`gestor-${g.id}`}
+                            className={`transition duration-500 ${
+                              esDestacado 
+                                ? 'bg-teal-950/80 ring-2 ring-teal-400 border-teal-500 shadow-lg' 
+                                : 'hover:bg-stone-800/40'
+                            }`}
+                          >
                             <td className="p-4">
                               <div className="flex items-center gap-3">
                                 <div className={`w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-xs ${
@@ -2458,6 +2510,154 @@ export default function SuperAdminDashboard() {
               >
                 Cerrar Visualizador
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL INFORMATIVO DE FRONTONES DEL MUNICIPIO (SOLO CERRAR) */}
+        {modalVerFrontonesMunicipio && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+              
+              {/* CABECERA */}
+              <div className="p-6 border-b border-stone-800 flex items-center justify-between gap-4 bg-stone-950/60">
+                <div className="flex items-center gap-3">
+                  {modalVerFrontonesMunicipio.imagen_url ? (
+                    <img src={modalVerFrontonesMunicipio.imagen_url} alt="" className="w-11 h-11 object-cover rounded-xl border border-stone-800 bg-stone-900" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-xl">
+                      🏛️
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-white">
+                      Frontones de {modalVerFrontonesMunicipio.nombre}
+                    </h3>
+                    <p className="text-xs text-stone-400">
+                      {modalVerFrontonesMunicipio.provincias?.nombre || 'Municipio'} • {frontones.filter(f => f.municipio_id === modalVerFrontonesMunicipio.id).length} frontón(es) registrado(s)
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setModalVerFrontonesMunicipio(null)}
+                  className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center font-bold text-sm transition"
+                  title="Cerrar ventana"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* CONTENIDO SCROLLABLE */}
+              <div className="p-6 overflow-y-auto space-y-4 flex-1">
+                {(() => {
+                  const frontonesList = frontones.filter(f => f.municipio_id === modalVerFrontonesMunicipio.id)
+                  if (frontonesList.length === 0) {
+                    return (
+                      <div className="p-8 text-center bg-stone-950/50 rounded-2xl border border-stone-800/80 space-y-2">
+                        <span className="text-3xl block">🎾</span>
+                        <p className="text-stone-300 font-bold text-sm">Este municipio no tiene frontones registrados</p>
+                        <p className="text-stone-500 text-xs">Puedes añadir o editar frontones pulsando en "Editar" sobre la tarjeta del municipio.</p>
+                      </div>
+                    )
+                  }
+
+                  return frontonesList.map((f) => (
+                    <div 
+                      key={f.id}
+                      className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-3.5 hover:border-stone-700 transition"
+                    >
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3.5">
+                          {f.imagen_url ? (
+                            <img src={f.imagen_url} alt="" className="w-14 h-14 object-cover rounded-2xl border border-stone-800 bg-stone-900 flex-shrink-0" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0">
+                              🎾
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-bold text-base text-white">{f.nombre}</h4>
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                f.habilitado !== false 
+                                  ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80' 
+                                  : 'bg-rose-950/80 text-rose-300 border border-rose-800/80'
+                              }`}>
+                                {f.habilitado !== false ? '🟢 Habilitado' : '🔴 Deshabilitado'}
+                              </span>
+                              {f.solo_empadronados && (
+                                <span className="text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 px-2 py-0.5 rounded-full">
+                                  👥 Solo Empadronados
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-stone-400 mt-0.5">
+                              Horario: <strong className="text-stone-200">{f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)}</strong> | Slots: <strong className="text-stone-200">{f.duracion_slot_minutos || 60}m</strong>
+                            </p>
+                          </div>
+                        </div>
+
+                        {f.tiene_sensor_iot && (
+                          <div className="bg-teal-950/40 border border-teal-800/60 px-3 py-1.5 rounded-xl text-[11px] font-bold text-teal-300 flex items-center gap-1.5 self-start sm:self-center">
+                            <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-amber-400 animate-pulse' : 'bg-teal-400'}`}></span>
+                            <span>IoT: {f.en_uso ? 'En uso' : 'Libre'}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* DETALLES TÉCNICOS Y CARACTERÍSTICAS */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800/80 text-xs">
+                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Medidas / Dimensiones</span>
+                          <span className="font-bold text-stone-200">
+                            {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.medidas || 'Estándar'}
+                          </span>
+                        </div>
+                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Cuadros / Líneas</span>
+                          <span className="font-bold text-stone-200">
+                            {f.cuadros ? `${f.cuadros} cuadros` : 'No especificado'}
+                            {f.labur || f.luze ? ` (Pasa: ${f.labur || '-'} / Falta: ${f.luze || '-'})` : ''}
+                          </span>
+                        </div>
+                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Iluminación</span>
+                          <span className="font-bold text-stone-200">
+                            {f.tiene_luz ? (f.luz_pago ? '💡 Con luz (De pago)' : '💡 Con luz (Gratuita)') : 'Sin iluminación'}
+                          </span>
+                        </div>
+                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Antelación / Reservas</span>
+                          <span className="font-bold text-stone-200">
+                            Máx. {f.dias_antelacion_maxima ?? 7}d • {f.max_reservas_activas ?? 1} res/día
+                          </span>
+                        </div>
+                      </div>
+
+                      {(f.tiene_vestuarios || f.tiene_duchas) && (
+                        <div className="flex items-center gap-3 text-xs text-stone-400 pt-1">
+                          {f.tiene_vestuarios && <span>🚿 Vestuarios disponibles</span>}
+                          {f.tiene_duchas && <span>🚿 Duchas habilitadas</span>}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                })()}
+              </div>
+
+              {/* PIE CON SOLO BOTÓN CERRAR */}
+              <div className="p-4 bg-stone-950 border-t border-stone-800 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setModalVerFrontonesMunicipio(null)}
+                  className="bg-stone-800 hover:bg-stone-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-xs"
+                >
+                  Cerrar
+                </button>
+              </div>
+
             </div>
           </div>
         )}
