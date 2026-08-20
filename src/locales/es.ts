@@ -221,6 +221,7 @@ export const es = {
     dni: 'DNI',
     birth_date: 'Fecha de Nacimiento',
     address: 'Calle / Dirección',
+    address_ayuntamiento: 'Calle / Dirección del Ayuntamiento',
     city: 'Localidad',
     postal_code: 'Código Postal',
     province: 'Provincia',

@@ -30,10 +30,11 @@ export default function RegisterPage() {
 
   // Campos específicos de Ciudadano
   const [dni, setDni] = useState('')
-  const [calle, setCalle] = useState('')
   const [fechaNacimiento, setFechaNacimiento] = useState('')
+  const [calle, setCalle] = useState('')
 
   // Campos específicos de Gestor Municipal
+  const [calleAyuntamiento, setCalleAyuntamiento] = useState('')
   const [nuevoCp, setNuevoCp] = useState('')
 
   const router = useRouter()
@@ -123,6 +124,8 @@ export default function RegisterPage() {
             nombre: nombre.trim(),
             apellidos: apellidos ? apellidos.trim() : '',
             municipio_id: selectedMunicipioId,
+            provincia_id: selectedProvinciaId,
+            calle: calleAyuntamiento.trim(),
             role: 'gestor_municipio',
             estado_aprobacion: 'pendiente'
           }
@@ -144,6 +147,7 @@ export default function RegisterPage() {
             apellidos: apellidos ? apellidos.trim() : '',
             nombre_completo: nombreCompleto,
             municipio_id: selectedMunicipioId,
+            calle: calleAyuntamiento.trim(),
             role: 'gestor_municipio',
             estado_aprobacion: 'pendiente'
           })
@@ -192,12 +196,12 @@ export default function RegisterPage() {
           nombre: nombre.trim(),
           apellidos: apellidos ? apellidos.trim() : '',
           dni: dni.trim(),
-          calle: calle.trim(),
           fecha_nacimiento: fechaNacimiento || null,
           provincia_id: selectedProvinciaId,
           municipio_id: selectedMunicipioId,
           localidad: nombreMunicipio,
           codigo_postal: codigoPostal.trim(),
+          calle: calle.trim(),
           role: 'usuario'
         }
       }
@@ -218,11 +222,11 @@ export default function RegisterPage() {
           nombre_completo: nombreCompleto,
           apellidos: apellidos ? apellidos.trim() : '',
           dni: dni.trim(),
-          calle: calle.trim(),
           fecha_nacimiento: fechaNacimiento || null,
           municipio_id: selectedMunicipioId,
           localidad: nombreMunicipio,
           codigo_postal: codigoPostal.trim(),
+          calle: calle.trim(),
           role: 'usuario'
         })
       }
@@ -322,7 +326,8 @@ export default function RegisterPage() {
 
             <form onSubmit={handleRegister} className="space-y-4">
               {tipoCuenta === 'gestor_municipio' ? (
-                /* FORMULARIO GESTOR MUNICIPAL */
+                /* FORMULARIO GESTOR MUNICIPAL:
+                   1. Nombre, 2. Apellidos, 3. Provincia, 4. Municipio, 5. Códigos Postales, 6. Calle del Ayuntamiento, 7. Correo, 8. Contraseña */
                 <>
                   <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
                     <span className="font-bold flex items-center gap-1.5">{t.auth.gestor_notice_title}</span>
@@ -331,6 +336,7 @@ export default function RegisterPage() {
                     </p>
                   </div>
 
+                  {/* 1 & 2: Nombre & Apellidos */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -359,6 +365,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* 3 & 4: Provincia & Municipio */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -396,6 +403,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* 5: Códigos Postales del Municipio */}
                   <div>
                     <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
                       Códigos Postales del Municipio
@@ -447,8 +455,23 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* 6: Calle del Ayuntamiento */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      {t.auth.address_ayuntamiento}
+                    </label>
+                    <input
+                      type="text"
+                      value={calleAyuntamiento}
+                      onChange={(e) => setCalleAyuntamiento(e.target.value)}
+                      placeholder="ej. Plaza Mayor, 1 / Herriko Plaza, 1"
+                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    />
+                  </div>
+
                   <hr className="border-stone-100 my-2" />
 
+                  {/* 7 & 8: Correo & Contraseña */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -490,8 +513,10 @@ export default function RegisterPage() {
                   </div>
                 </>
               ) : (
-                /* FORMULARIO CIUDADANO / PELOTARI */
+                /* FORMULARIO CIUDADANO / PELOTARI:
+                   1. Nombre, 2. Apellidos, 3. DNI, 4. Fecha, 5. Provincia, 6. Municipio, 7. Código Postal, 8. Calle, 9. Correo, 10. Contraseña */
                 <>
+                  {/* 1 & 2: Nombre & Apellidos */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -522,6 +547,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* 3 & 4: DNI & Fecha */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -550,21 +576,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                      {t.auth.address} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={calle}
-                      onChange={(e) => setCalle(e.target.value)}
-                      placeholder="ej. Kale Nagusia, 12, 1º A"
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
-                    />
-                  </div>
-
-                  {/* PROVINCIA, POBLACIÓN / MUNICIPIO, CÓDIGO POSTAL (ORDEN Y DESPLEGABLES IGUAL QUE GESTOR) */}
+                  {/* 5, 6 & 7: Provincia, Municipio & Código Postal */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
@@ -632,8 +644,24 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* 8: Calle */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      {t.auth.address} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={calle}
+                      onChange={(e) => setCalle(e.target.value)}
+                      placeholder="ej. Kale Nagusia, 12, 1º A"
+                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                    />
+                  </div>
+
                   <hr className="border-stone-100 my-2" />
 
+                  {/* 9 & 10: Correo & Contraseña */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">

@@ -221,6 +221,7 @@ export const eu = {
     dni: 'NAN / DNI',
     birth_date: 'Jaiotze-data',
     address: 'Kalea / Helbidea',
+    address_ayuntamiento: 'Udaletxearen kalea / Helbidea',
     city: 'Herria / Udalerria',
     postal_code: 'Posta Kodea',
     province: 'Probintzia',
