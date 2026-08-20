@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
 import ThemeToggle from '@/components/ThemeToggle'
+import Footer from '@/components/Footer'
 
 export default function AjustesUsuarioPage() {
   const [user, setUser] = useState<any>(null)
@@ -928,9 +929,7 @@ export default function AjustesUsuarioPage() {
 
       </main>
 
-      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
-        {t.home.footer}
-      </footer>
+      <Footer />
     </div>
   )
 }

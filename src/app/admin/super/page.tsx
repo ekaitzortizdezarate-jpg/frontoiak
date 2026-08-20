@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import Footer from '@/components/Footer'
 
 // Cliente aislado de Supabase sin persistencia de sesión para crear nuevos usuarios sin alterar la sesión del Superadmin
 const authSignUpClient = createClient(
@@ -2680,9 +2681,7 @@ export default function SuperAdminDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-stone-900 border-t border-stone-800 py-6 text-center text-xs text-stone-500">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
-      </footer>
+      <Footer superadmin />
     </div>
   )
 }

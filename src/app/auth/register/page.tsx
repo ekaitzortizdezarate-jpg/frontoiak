@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
 import ThemeToggle from '@/components/ThemeToggle'
+import Footer from '@/components/Footer'
 
 export default function RegisterPage() {
   const [tipoCuenta, setTipoCuenta] = useState<'usuario' | 'gestor_municipio'>('usuario')
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [nombre, setNombre] = useState('')
   const [apellidos, setApellidos] = useState('')
+  const [aceptaTerminos, setAceptaTerminos] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -105,6 +107,12 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
+
+    if (!aceptaTerminos) {
+      setErrorMsg(t.legal?.terms_required_error || 'Debes aceptar los Términos de Uso y la Política de Privacidad para continuar.')
+      setLoading(false)
+      return
+    }
 
     if (tipoCuenta === 'gestor_municipio') {
       if (!selectedProvinciaId || !selectedMunicipioId) {
@@ -513,7 +521,29 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4">
+                  {/* Aceptación de Términos y Privacidad (Gestor) */}
+                  <div className="flex items-start gap-2.5 pt-1">
+                    <input
+                      type="checkbox"
+                      id="acepta-terminos-gestor"
+                      required
+                      checked={aceptaTerminos}
+                      onChange={(e) => setAceptaTerminos(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-0 cursor-pointer"
+                    />
+                    <label htmlFor="acepta-terminos-gestor" className="text-xs text-stone-600 dark:text-stone-400 cursor-pointer select-none leading-relaxed">
+                      {t.legal?.accept_terms_prefix || 'He leído y acepto los '}
+                      <Link href="/legal?tab=terminos" target="_blank" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
+                        {t.legal?.terms_of_service || 'Términos de Uso'}
+                      </Link>
+                      {t.legal?.and || ' y la '}
+                      <Link href="/legal?tab=privacidad" target="_blank" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
+                        {t.legal?.privacy_policy || 'Política de Privacidad'}
+                      </Link> *
+                    </label>
+                  </div>
+
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={loading}
@@ -704,7 +734,29 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4">
+                  {/* Aceptación de Términos y Privacidad (Ciudadano) */}
+                  <div className="flex items-start gap-2.5 pt-1">
+                    <input
+                      type="checkbox"
+                      id="acepta-terminos-ciudadano"
+                      required
+                      checked={aceptaTerminos}
+                      onChange={(e) => setAceptaTerminos(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-0 cursor-pointer"
+                    />
+                    <label htmlFor="acepta-terminos-ciudadano" className="text-xs text-stone-600 dark:text-stone-400 cursor-pointer select-none leading-relaxed">
+                      {t.legal?.accept_terms_prefix || 'He leído y acepto los '}
+                      <Link href="/legal?tab=terminos" target="_blank" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
+                        {t.legal?.terms_of_service || 'Términos de Uso'}
+                      </Link>
+                      {t.legal?.and || ' y la '}
+                      <Link href="/legal?tab=privacidad" target="_blank" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
+                        {t.legal?.privacy_policy || 'Política de Privacidad'}
+                      </Link> *
+                    </label>
+                  </div>
+
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={loading}
@@ -727,9 +779,7 @@ export default function RegisterPage() {
         </div>
       </main>
 
-      <footer className="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-6 text-center text-xs text-stone-400 dark:text-stone-500">
-        {t.home.footer}
-      </footer>
+      <Footer />
     </div>
   )
 }
