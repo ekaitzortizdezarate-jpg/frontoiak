@@ -748,12 +748,17 @@ export default function AdminDashboard() {
     }
   }
 
-  const abrirEdicionEvento = (ev: any) => {
+  const abrirEdicionEvento = (ev: any, frontonAsociado?: any) => {
+    if (frontonAsociado) {
+      setOffsetSemanas(0)
+      setFrontonSeleccionadoCalendario(frontonAsociado)
+      cargarEventosFronton(frontonAsociado.id)
+    }
     setEventoEnEdicion(ev)
     setAplicarATodaLaSerie(true)
     setTimeout(() => {
       edicionEventoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
+    }, 150)
   }
 
   if (loading) {
@@ -1004,9 +1009,18 @@ export default function AdminDashboard() {
                                 ) : (
                                   <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
                                     {eventosDelDia.map(ev => (
-                                      <div key={ev.id} className="bg-white border border-stone-200 rounded-xl p-2 shadow-2xs flex justify-between items-center text-[11px]">
-                                        <span className="font-bold text-emerald-900">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
-                                        <span className="text-stone-600 truncate max-w-[120px] font-medium">{ev.titulo}</span>
+                                      <div 
+                                        key={ev.id} 
+                                        onClick={() => abrirEdicionEvento(ev, f)}
+                                        className="bg-white border border-stone-200 rounded-xl p-2 shadow-2xs flex justify-between items-center text-[11px] cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/40 transition group"
+                                      >
+                                        <div className="min-w-0 pr-1.5">
+                                          <span className="font-bold text-emerald-900 block">{ev.hora_inicio.slice(0,5)} - {ev.hora_fin.slice(0,5)}</span>
+                                          <span className="text-stone-600 truncate max-w-[120px] font-medium block">{ev.titulo}</span>
+                                        </div>
+                                        <span className="text-emerald-700 font-bold px-1.5 py-0.5 rounded-lg bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200/60 transition text-[11px] flex-shrink-0">
+                                          ✎
+                                        </span>
                                       </div>
                                     ))}
                                   </div>
