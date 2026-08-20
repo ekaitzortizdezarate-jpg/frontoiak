@@ -182,13 +182,49 @@ export default function AdminDashboard() {
   }
 
   const cargarIncidencias = async (municipioId: string) => {
-    const { data } = await supabase
-      .from('incidencias_fronton')
-      .select('*, frontones!inner(*), profiles(nombre_completo, email)')
-      .eq('frontones.municipio_id', municipioId)
-      .order('created_at', { ascending: false })
+    try {
+      const { data, error } = await supabase
+        .from('incidencias_fronton')
+        .select('*, frontones!inner(*), profiles(id, nombre, nombre_completo, apellidos, email, dni, localidad, codigo_postal)')
+        .eq('frontones.municipio_id', municipioId)
+        .order('created_at', { ascending: false })
 
-    setIncidencias(data || [])
+      if (!error && data) {
+        setIncidencias(data)
+        return
+      }
+
+      // Respaldo por si el join de profiles necesita fallback
+      const { data: incData } = await supabase
+        .from('incidencias_fronton')
+        .select('*, frontones!inner(*)')
+        .eq('frontones.municipio_id', municipioId)
+        .order('created_at', { ascending: false })
+
+      if (incData) {
+        const userIds = Array.from(new Set(incData.map((i: any) => i.user_id).filter(Boolean)))
+        if (userIds.length > 0) {
+          const { data: profs } = await supabase
+            .from('profiles')
+            .select('id, nombre, nombre_completo, apellidos, email, dni, localidad, codigo_postal')
+            .in('id', userIds)
+
+          const profsMap = (profs || []).reduce((acc: any, p: any) => {
+            acc[p.id] = p
+            return acc
+          }, {})
+
+          setIncidencias(incData.map((i: any) => ({
+            ...i,
+            profiles: profsMap[i.user_id] || null
+          })))
+        } else {
+          setIncidencias(incData)
+        }
+      }
+    } catch (err) {
+      console.error('Error al cargar incidencias en dashboard:', err)
+    }
   }
 
   const cargarCiudadanos = async (nombreMunicipio: string, codigosPostalesMunicipio: string[]) => {
@@ -1479,33 +1515,70 @@ export default function AdminDashboard() {
               <p className="text-stone-400 italic text-center py-8 text-sm">No hay incidencias en esta categoría.</p>
             ) : (
               <div className="space-y-3">
-                {incidenciasFiltradas.map((inc) => (
-                  <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-stone-900 text-sm">{inc.titulo}</span>
-                        <span className="text-xs text-stone-500 font-medium">• {inc.frontones?.nombre}</span>
-                      </div>
-                      <p className="text-xs text-stone-600 mb-1.5">{inc.descripcion}</p>
-                      <span className="text-[10px] text-stone-400 font-medium">
-                        Reportado: {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
+                {incidenciasFiltradas.map((inc) => {
+                  const nombreUsuario = inc.profiles?.nombre_completo || inc.profiles?.nombre || 'Usuario'
+                  const apellidosUsuario = inc.profiles?.apellidos || ''
+                  const nombreCompletoUsuario = `${nombreUsuario} ${apellidosUsuario}`.trim()
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-stone-500">Estado:</span>
-                      <select 
-                        value={inc.estado}
-                        onChange={(e) => handleCambiarEstadoIncidencia(inc.id, e.target.value as any)}
-                        className="text-xs font-bold rounded-xl p-2 border border-stone-300 bg-white cursor-pointer"
-                      >
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_curso">En curso</option>
-                        <option value="resuelta">Resuelta</option>
-                      </select>
+                  return (
+                    <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center shadow-2xs">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-stone-900 text-sm">{inc.titulo}</span>
+                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
+                            🏟️ {inc.frontones?.nombre}
+                          </span>
+                        </div>
+                        
+                        {inc.descripcion && (
+                          <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                        )}
+
+                        <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+                          <span className="text-[11px] text-stone-400 font-medium mr-1">
+                            📅 {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+
+                          {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
+                          <span className="font-bold text-stone-700 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs flex items-center gap-1">
+                            👤 {nombreCompletoUsuario}
+                          </span>
+                          
+                          {inc.profiles?.email && (
+                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              ✉️ {inc.profiles.email}
+                            </span>
+                          )}
+
+                          {inc.profiles?.dni && (
+                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              🪪 DNI: {inc.profiles.dni}
+                            </span>
+                          )}
+
+                          {inc.profiles?.localidad && (
+                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                              📍 {inc.profiles.localidad} {inc.profiles.codigo_postal ? `(${inc.profiles.codigo_postal})` : ''}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-shrink-0 bg-white p-2 rounded-xl border border-stone-200 shadow-2xs">
+                        <span className="text-xs font-bold text-stone-500">Estado:</span>
+                        <select 
+                          value={inc.estado}
+                          onChange={(e) => handleCambiarEstadoIncidencia(inc.id, e.target.value as any)}
+                          className="text-xs font-bold rounded-lg p-1.5 border border-stone-300 bg-stone-50 cursor-pointer focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                        >
+                          <option value="pendiente">⏳ Pendiente</option>
+                          <option value="en_curso">🔧 En curso</option>
+                          <option value="resuelta">✅ Resuelta</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
