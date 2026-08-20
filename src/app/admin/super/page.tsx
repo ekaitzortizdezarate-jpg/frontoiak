@@ -20,6 +20,8 @@ export default function SuperAdminDashboard() {
   const [busquedaMunicipio, setBusquedaMunicipio] = useState('')
   const [filtroProvinciaMun, setFiltroProvinciaMun] = useState('')
   const [filtroEstadoMun, setFiltroEstadoMun] = useState<'todos' | 'activo' | 'en_pruebas' | 'inactivo'>('todos')
+  const [municipiosSeleccionados, setMunicipiosSeleccionados] = useState<string[]>([])
+  const [ejecutandoAccionLote, setEjecutandoAccionLote] = useState(false)
 
   const [busquedaGestor, setBusquedaGestor] = useState('')
   const [filtroMunicipioGestor, setFiltroMunicipioGestor] = useState('')
@@ -318,6 +320,66 @@ export default function SuperAdminDashboard() {
       alert('Municipio eliminado correctamente.')
       await cargarDatosGlobales()
     }
+  }
+
+  // ACCIONES EN LOTE PARA MUNICIPIOS
+  const handleToggleSeleccionarMunicipio = (id: string) => {
+    setMunicipiosSeleccionados(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    )
+  }
+
+  const handleToggleSeleccionarTodos = () => {
+    const todosFiltradosIds = municipiosFiltrados.map(m => m.id)
+    const todosSeleccionados = todosFiltradosIds.length > 0 && todosFiltradosIds.every(id => municipiosSeleccionados.includes(id))
+
+    if (todosSeleccionados) {
+      setMunicipiosSeleccionados(prev => prev.filter(id => !todosFiltradosIds.includes(id)))
+    } else {
+      setMunicipiosSeleccionados(prev => Array.from(new Set([...prev, ...todosFiltradosIds])))
+    }
+  }
+
+  const handleCambiarEstadoLote = async (nuevoEstado: 'activo' | 'en_pruebas' | 'inactivo') => {
+    if (municipiosSeleccionados.length === 0) return
+
+    setEjecutandoAccionLote(true)
+    const { error } = await supabase
+      .from('municipios')
+      .update({ estado: nuevoEstado })
+      .in('id', municipiosSeleccionados)
+
+    if (error) {
+      alert('Error al actualizar municipios en lote: ' + error.message)
+    } else {
+      alert(`Se han actualizado ${municipiosSeleccionados.length} municipio(s) a "${nuevoEstado}".`)
+      setMunicipiosSeleccionados([])
+      await cargarDatosGlobales()
+    }
+    setEjecutandoAccionLote(false)
+  }
+
+  const handleEliminarLote = async () => {
+    if (municipiosSeleccionados.length === 0) return
+
+    if (!confirm(`¿Estás seguro de que deseas eliminar los ${municipiosSeleccionados.length} municipios seleccionados?\n\n⚠️ Esta acción eliminará los municipios y no se puede deshacer.`)) {
+      return
+    }
+
+    setEjecutandoAccionLote(true)
+    const { error } = await supabase
+      .from('municipios')
+      .delete()
+      .in('id', municipiosSeleccionados)
+
+    if (error) {
+      alert('Error al eliminar municipios seleccionados: ' + error.message)
+    } else {
+      alert(`Se han eliminado ${municipiosSeleccionados.length} municipio(s) correctamente.`)
+      setMunicipiosSeleccionados([])
+      await cargarDatosGlobales()
+    }
+    setEjecutandoAccionLote(false)
   }
 
   // ==========================================
@@ -867,20 +929,94 @@ export default function SuperAdminDashboard() {
               </div>
             )}
 
+            {/* BARRA DE SELECCIÓN Y ACCIONES EN LOTE */}
+            <div className="flex items-center justify-between bg-stone-900 border border-stone-800 p-3 px-4 rounded-2xl gap-3 flex-wrap shadow-sm">
+              <label className="flex items-center gap-2.5 text-xs font-bold text-stone-300 cursor-pointer select-none">
+                <input 
+                  type="checkbox"
+                  checked={municipiosFiltrados.length > 0 && municipiosFiltrados.every(m => municipiosSeleccionados.includes(m.id))}
+                  onChange={handleToggleSeleccionarTodos}
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-0 cursor-pointer"
+                />
+                <span>
+                  Seleccionar todos los filtrados ({municipiosFiltrados.length})
+                </span>
+              </label>
+
+              {municipiosSeleccionados.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap animate-in fade-in">
+                  <span className="text-xs font-black text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-3 py-1 rounded-xl">
+                    {municipiosSeleccionados.length} seleccionados
+                  </span>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      onClick={() => handleCambiarEstadoLote('activo')}
+                      disabled={ejecutandoAccionLote}
+                      className="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                    >
+                      🟢 Pasar a Activo
+                    </button>
+                    <button
+                      onClick={() => handleCambiarEstadoLote('en_pruebas')}
+                      disabled={ejecutandoAccionLote}
+                      className="bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-800 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                    >
+                      🟡 Pasar a En pruebas
+                    </button>
+                    <button
+                      onClick={() => handleCambiarEstadoLote('inactivo')}
+                      disabled={ejecutandoAccionLote}
+                      className="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                    >
+                      🔴 Pasar a Inactivo
+                    </button>
+                    <button
+                      onClick={handleEliminarLote}
+                      disabled={ejecutandoAccionLote}
+                      className="bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/50 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                      title="Eliminar municipios seleccionados"
+                    >
+                      🗑️ Borrar ({municipiosSeleccionados.length})
+                    </button>
+                    <button
+                      onClick={() => setMunicipiosSeleccionados([])}
+                      className="bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white px-2.5 py-1 rounded-xl text-xs font-bold transition"
+                      title="Deseleccionar todos"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* LISTADO DE MUNICIPIOS (ANCHO COMPLETO) */}
             <div className="space-y-3 w-full">
               {municipiosFiltrados.map((mun) => {
                 const estado = mun.estado || 'activo'
                 const frontonesDelMun = frontones.filter(f => f.municipio_id === mun.id)
                 const gestoresDelMun = gestores.filter(g => g.municipio_id === mun.id)
+                const estaSeleccionado = municipiosSeleccionados.includes(mun.id)
 
                 return (
                   <div 
                     key={mun.id} 
-                    className="bg-stone-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-stone-800/80 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 hover:border-stone-700 transition w-full group"
+                    className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition w-full group ${
+                      estaSeleccionado 
+                        ? 'bg-stone-900/95 border-emerald-500/60 ring-1 ring-emerald-500/30' 
+                        : 'bg-stone-900 border-stone-800/80 hover:border-stone-700'
+                    }`}
                   >
-                    {/* IZQUIERDA: ESCUDO + DATOS PRINCIPALES */}
+                    {/* IZQUIERDA: CASILLA + ESCUDO + DATOS PRINCIPALES */}
                     <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                      <input 
+                        type="checkbox"
+                        checked={estaSeleccionado}
+                        onChange={() => handleToggleSeleccionarMunicipio(mun.id)}
+                        className="w-4 h-4 mt-1 sm:mt-0 rounded text-emerald-600 focus:ring-0 cursor-pointer flex-shrink-0"
+                      />
+
                       {mun.imagen_url ? (
                         <img src={mun.imagen_url} alt="" className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-2xl border border-stone-800 bg-stone-950 flex-shrink-0" />
                       ) : (
