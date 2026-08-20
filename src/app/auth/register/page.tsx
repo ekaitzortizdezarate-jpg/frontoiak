@@ -108,7 +108,8 @@ export default function RegisterPage() {
             nombre: nombre.trim(),
             apellidos: apellidos ? apellidos.trim() : '',
             municipio_id: selectedMunicipioId,
-            role: 'gestor_municipio'
+            role: 'gestor_municipio',
+            estado_aprobacion: 'pendiente'
           }
         }
       })
@@ -128,7 +129,8 @@ export default function RegisterPage() {
             apellidos: apellidos ? apellidos.trim() : '',
             nombre_completo: nombreCompleto,
             municipio_id: selectedMunicipioId,
-            role: 'gestor_municipio'
+            role: 'gestor_municipio',
+            estado_aprobacion: 'pendiente'
           })
 
           if (codigosPostales.length > 0) {
@@ -136,7 +138,7 @@ export default function RegisterPage() {
           }
         }
 
-        alert('¡Registro de gestor completado con éxito! Revisa tu correo para confirmar la cuenta.')
+        alert('¡Solicitud de Gestor Municipal registrada con éxito! Tu cuenta está pendiente de validación por el Administrador de la plataforma. Recibirás acceso una vez sea aprobada.')
         router.push('/admin/dashboard')
       }
 
@@ -278,6 +280,13 @@ export default function RegisterPage() {
               {tipoCuenta === 'gestor_municipio' ? (
                 /* FORMULARIO GESTOR MUNICIPAL */
                 <>
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
+                    <span className="font-bold flex items-center gap-1.5">ℹ️ Registro sujeto a validación</span>
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      Al registrarte como Gestor Municipal, tu solicitud será revisada y validada por el Administrador de la plataforma antes de otorgar acceso al panel de gestión del municipio.
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">

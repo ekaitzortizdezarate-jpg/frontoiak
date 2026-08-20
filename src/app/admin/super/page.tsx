@@ -40,6 +40,7 @@ export default function SuperAdminDashboard() {
 
   const [busquedaGestor, setBusquedaGestor] = useState('')
   const [filtroMunicipioGestor, setFiltroMunicipioGestor] = useState('')
+  const [filtroEstadoAprobacionGestor, setFiltroEstadoAprobacionGestor] = useState<'todos' | 'aprobado' | 'pendiente' | 'rechazado'>('todos')
 
   const [busquedaFrontonIot, setBusquedaFrontonIot] = useState('')
   const [filtroMunicipioIot, setFiltroMunicipioIot] = useState('')
@@ -726,7 +727,8 @@ export default function SuperAdminDashboard() {
         apellidos: nuevoGestor.apellidos.trim(),
         nombre_completo: nombreCompleto,
         role: 'gestor_municipio',
-        municipio_id: nuevoGestor.municipio_id || null
+        municipio_id: nuevoGestor.municipio_id || null,
+        estado_aprobacion: 'aprobado'
       })
 
       if (profileError) {
@@ -739,7 +741,8 @@ export default function SuperAdminDashboard() {
             municipio_id: nuevoGestor.municipio_id || null,
             nombre: nuevoGestor.nombre.trim(),
             apellidos: nuevoGestor.apellidos.trim(),
-            nombre_completo: nombreCompleto
+            nombre_completo: nombreCompleto,
+            estado_aprobacion: 'aprobado'
           })
           .eq('email', nuevoGestor.email.trim())
       }
@@ -752,12 +755,13 @@ export default function SuperAdminDashboard() {
           municipio_id: nuevoGestor.municipio_id || null,
           nombre: nuevoGestor.nombre.trim(),
           apellidos: nuevoGestor.apellidos.trim(),
-          nombre_completo: nombreCompleto
+          nombre_completo: nombreCompleto,
+          estado_aprobacion: 'aprobado'
         })
         .eq('email', nuevoGestor.email.trim())
     }
 
-    alert(`¡Gestor "${nombreCompleto}" dado de alta con éxito!`)
+    alert(`¡Gestor "${nombreCompleto}" dado de alta y activado con éxito!`)
     setGuardandoGestor(false)
     setMostrarFormGestor(false)
     setNuevoGestor({
@@ -768,6 +772,42 @@ export default function SuperAdminDashboard() {
       municipio_id: ''
     })
     await cargarDatosGlobales()
+  }
+
+  const handleAprobarGestor = async (gestor: any) => {
+    if (!confirm(`¿Aprobar y activar la solicitud de "${gestor.nombre_completo || gestor.email}" como Gestor Municipal?`)) {
+      return
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ estado_aprobacion: 'aprobado', role: 'gestor_municipio' })
+      .eq('id', gestor.id)
+
+    if (error) {
+      alert('Error al aprobar gestor: ' + error.message)
+    } else {
+      alert(`Gestor "${gestor.nombre_completo || gestor.email}" aprobado y activado correctamente.`)
+      await cargarDatosGlobales()
+    }
+  }
+
+  const handleRechazarGestor = async (gestor: any) => {
+    if (!confirm(`¿Rechazar / pausar la solicitud de "${gestor.nombre_completo || gestor.email}"? No tendrá acceso al panel.`)) {
+      return
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ estado_aprobacion: 'rechazado' })
+      .eq('id', gestor.id)
+
+    if (error) {
+      alert('Error al rechazar gestor: ' + error.message)
+    } else {
+      alert(`Solicitud rechazada correctamente.`)
+      await cargarDatosGlobales()
+    }
   }
 
   const handleReasignarMunicipioGestor = async () => {
@@ -797,7 +837,7 @@ export default function SuperAdminDashboard() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ role: nuevoRol })
+      .update({ role: nuevoRol, estado_aprobacion: nuevoRol === 'gestor_municipio' ? 'aprobado' : undefined })
       .eq('id', gestor.id)
 
     if (error) {
@@ -937,7 +977,9 @@ export default function SuperAdminDashboard() {
     const texto = `${g.nombre || ''} ${g.apellidos || ''} ${g.email || ''}`.toLowerCase()
     const coincideTexto = texto.includes(busquedaGestor.toLowerCase())
     const coincideMun = !filtroMunicipioGestor || g.municipio_id === filtroMunicipioGestor
-    return coincideTexto && coincideMun
+    const estadoAprobacion = g.estado_aprobacion || 'aprobado'
+    const coincideEstado = filtroEstadoAprobacionGestor === 'todos' || estadoAprobacion === filtroEstadoAprobacionGestor
+    return coincideTexto && coincideMun && coincideEstado
   })
 
   const frontonesIotFiltrados = frontones.filter(f => {
@@ -1824,6 +1866,16 @@ export default function SuperAdminDashboard() {
                     <option key={m.id} value={m.id}>{m.nombre}</option>
                   ))}
                 </select>
+                <select 
+                  value={filtroEstadoAprobacionGestor} 
+                  onChange={(e) => setFiltroEstadoAprobacionGestor(e.target.value as any)}
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-300 focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="todos">Todos los estados</option>
+                  <option value="pendiente">🟡 Pendientes de Aprobación</option>
+                  <option value="aprobado">🟢 Aprobados / Activos</option>
+                  <option value="rechazado">🔴 Rechazados</option>
+                </select>
               </div>
 
               <button 
@@ -1834,11 +1886,34 @@ export default function SuperAdminDashboard() {
               </button>
             </div>
 
+            {/* BANNER DE SOLICITUDES PENDIENTES */}
+            {gestores.filter(g => g.estado_aprobacion === 'pendiente').length > 0 && (
+              <div className="bg-amber-950/40 border border-amber-800/60 p-4 rounded-2xl flex items-center justify-between gap-4 animate-in fade-in">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">⏳</span>
+                  <div>
+                    <h4 className="font-bold text-xs text-amber-200 uppercase tracking-wider">
+                      Solicitudes de Gestores Pendientes
+                    </h4>
+                    <p className="text-xs text-stone-300">
+                      Hay <strong className="text-amber-400">{gestores.filter(g => g.estado_aprobacion === 'pendiente').length}</strong> solicitud(es) de registro esperando validación.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setFiltroEstadoAprobacionGestor('pendiente')}
+                  className="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-xs whitespace-nowrap"
+                >
+                  Ver Pendientes
+                </button>
+              </div>
+            )}
+
             {/* FORMULARIO DAR DE ALTA GESTOR */}
             {mostrarFormGestor && (
               <div className="bg-stone-900 p-6 rounded-3xl border border-stone-800 space-y-4 shadow-xl animate-in fade-in duration-150">
                 <div className="flex justify-between items-center border-b border-stone-800 pb-3">
-                  <h3 className="font-bold text-base text-white">Alta de Nuevo Gestor Municipal</h3>
+                  <h3 className="font-bold text-base text-white">Alta de Nuevo Gestor Municipal (Directa)</h3>
                   <button onClick={() => setMostrarFormGestor(false)} className="text-stone-400 hover:text-white font-bold">✕</button>
                 </div>
 
@@ -1913,7 +1988,7 @@ export default function SuperAdminDashboard() {
                       disabled={guardandoGestor}
                       className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl text-xs font-bold transition disabled:bg-stone-800"
                     >
-                      {guardandoGestor ? 'Creando cuenta...' : 'Dar de Alta Gestor'}
+                      {guardandoGestor ? 'Creando cuenta...' : 'Dar de Alta y Activar'}
                     </button>
                     <button 
                       type="button" 
@@ -1977,7 +2052,7 @@ export default function SuperAdminDashboard() {
                     <tr>
                       <th className="p-4">Gestor / Responsable</th>
                       <th className="p-4">Municipio Asignado</th>
-                      <th className="p-4">Rol / Permisos</th>
+                      <th className="p-4">Estado / Validación</th>
                       <th className="p-4 text-right">Acciones</th>
                     </tr>
                   </thead>
@@ -1985,19 +2060,26 @@ export default function SuperAdminDashboard() {
                     {gestoresFiltrados.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="p-8 text-center text-stone-500 italic">
-                          No se encontraron gestores municipales registrados.
+                          No se encontraron gestores municipales registrados con los filtros seleccionados.
                         </td>
                       </tr>
                     ) : (
                       gestoresFiltrados.map((g) => {
                         const munObj = g.municipios || municipios.find(m => m.id === g.municipio_id)
                         const tieneMunicipio = !!munObj
+                        const estadoAprobacion = g.estado_aprobacion || 'aprobado'
 
                         return (
                           <tr key={g.id} className="hover:bg-stone-800/40 transition">
                             <td className="p-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-teal-950/60 border border-teal-800/60 text-teal-300 flex items-center justify-center font-bold text-xs">
+                                <div className={`w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-xs ${
+                                  estadoAprobacion === 'pendiente'
+                                    ? 'bg-amber-950/60 border-amber-800/60 text-amber-300'
+                                    : estadoAprobacion === 'rechazado'
+                                      ? 'bg-rose-950/60 border-rose-800/60 text-rose-300'
+                                      : 'bg-teal-950/60 border-teal-800/60 text-teal-300'
+                                }`}>
                                   {g.nombre ? g.nombre.slice(0, 1).toUpperCase() : 'G'}
                                 </div>
                                 <div>
@@ -2022,13 +2104,52 @@ export default function SuperAdminDashboard() {
                             </td>
 
                             <td className="p-4">
-                              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black px-2.5 py-0.5 rounded-full">
-                                Gestor Municipal
-                              </span>
+                              {estadoAprobacion === 'pendiente' ? (
+                                <span className="bg-amber-950/70 text-amber-300 border border-amber-700/60 text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 animate-pulse">
+                                  🟡 Pendiente de Aprobación
+                                </span>
+                              ) : estadoAprobacion === 'rechazado' ? (
+                                <span className="bg-rose-950/70 text-rose-300 border border-rose-700/60 text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
+                                  🔴 Rechazado / Inactivo
+                                </span>
+                              ) : (
+                                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
+                                  🟢 Aprobado / Activo
+                                </span>
+                              )}
                             </td>
 
                             <td className="p-4 text-right">
                               <div className="flex items-center justify-end gap-2">
+                                {estadoAprobacion === 'pendiente' && (
+                                  <>
+                                    <button 
+                                      onClick={() => handleAprobarGestor(g)}
+                                      className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1"
+                                      title="Aprobar solicitud y activar acceso"
+                                    >
+                                      ✅ Aprobar
+                                    </button>
+                                    <button 
+                                      onClick={() => handleRechazarGestor(g)}
+                                      className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                                      title="Rechazar solicitud"
+                                    >
+                                      ❌ Rechazar
+                                    </button>
+                                  </>
+                                )}
+
+                                {estadoAprobacion === 'rechazado' && (
+                                  <button 
+                                    onClick={() => handleAprobarGestor(g)}
+                                    className="bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/80 px-3 py-1.5 rounded-xl text-xs font-bold transition"
+                                    title="Reactivar y aprobar gestor"
+                                  >
+                                    ✅ Reactivar
+                                  </button>
+                                )}
+
                                 <button 
                                   onClick={() => {
                                     setGestorParaReasignar(g)
@@ -2036,22 +2157,24 @@ export default function SuperAdminDashboard() {
                                   }}
                                   className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition"
                                 >
-                                  Reasignar Pueblo
+                                  Reasignar
                                 </button>
                                 <button 
                                   onClick={() => handleResetPasswordEmail(g.email)}
                                   className="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
                                   title="Enviar email de reseteo de contraseña"
                                 >
-                                  🔑 Reset Pass
+                                  🔑
                                 </button>
-                                <button 
-                                  onClick={() => handleRevocarAccesoGestor(g)}
-                                  className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
-                                  title="Revocar permisos de gestor"
-                                >
-                                  Revocar
-                                </button>
+                                {estadoAprobacion === 'aprobado' && (
+                                  <button 
+                                    onClick={() => handleRechazarGestor(g)}
+                                    className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                                    title="Pausar o deshabilitar gestor"
+                                  >
+                                    Pausar
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>

@@ -159,6 +159,12 @@ export default function AdminDashboard() {
 
     setUserProfile(profile)
 
+    // Si el gestor está pendiente de validación o rechazado, no cargamos los datos del panel
+    if (profile.role === 'gestor_municipio' && (profile.estado_aprobacion === 'pendiente' || profile.estado_aprobacion === 'rechazado')) {
+      setLoading(false)
+      return
+    }
+
     const { data: provData } = await supabase.from('provincias').select('*')
     setProvincias(provData || [])
 
@@ -1043,6 +1049,135 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 text-emerald-800 font-medium">
         Cargando panel de gestión...
+      </div>
+    )
+  }
+
+  // PANTALLA PARA GESTOR PENDIENTE DE APROBACIÓN
+  if (userProfile?.role === 'gestor_municipio' && userProfile?.estado_aprobacion === 'pendiente') {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900">
+        <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+                F
+              </div>
+              <span className="text-2xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="text-stone-500 hover:text-stone-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 transition"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 max-w-xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-20 h-20 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-amber-200">
+            ⏳
+          </div>
+          <div className="space-y-2">
+            <span className="inline-block bg-amber-100 text-amber-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-200">
+              Solicitud de Gestor Municipal
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+              Cuenta pendiente de validación
+            </h2>
+            <p className="text-stone-600 text-sm max-w-md leading-relaxed">
+              Hola <span className="font-bold text-stone-900">{userProfile.nombre_completo || userProfile.nombre || userProfile.email}</span>. Tu solicitud como Gestor Municipal ha sido registrada y está en espera de validación por el Administrador de la plataforma.
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm w-full space-y-2.5 text-xs text-stone-500 text-left">
+            <div className="flex justify-between items-center py-1.5 border-b border-stone-100">
+              <span className="font-bold text-stone-700">Municipio Solicitado:</span>
+              <span className="font-bold text-emerald-800">🏛️ {userProfile.municipios?.nombre || 'Pendiente de asignar'}</span>
+            </div>
+            <div className="flex justify-between items-center py-1.5 border-b border-stone-100">
+              <span className="font-bold text-stone-700">Correo Electrónico:</span>
+              <span className="font-mono text-stone-800">{userProfile.email}</span>
+            </div>
+            <div className="flex justify-between items-center py-1.5">
+              <span className="font-bold text-stone-700">Estado:</span>
+              <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full border border-amber-200">
+                🟡 Pendiente de Aprobación
+              </span>
+            </div>
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto pt-2">
+            <button
+              onClick={() => router.push('/reservas')}
+              className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm"
+            >
+              Explorar Reservas →
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="bg-stone-200 hover:bg-stone-300 text-stone-700 px-5 py-3 rounded-2xl text-xs font-bold transition"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // PANTALLA PARA GESTOR RECHAZADO
+  if (userProfile?.role === 'gestor_municipio' && userProfile?.estado_aprobacion === 'rechazado') {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-rose-100 selection:text-rose-900">
+        <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+                F
+              </div>
+              <span className="text-2xl font-black text-stone-900 tracking-tight">Frontoiak</span>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="text-stone-500 hover:text-stone-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 transition"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 max-w-xl mx-auto w-full px-6 py-16 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-20 h-20 bg-rose-100 text-rose-700 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-rose-200">
+            🚫
+          </div>
+          <div className="space-y-2">
+            <span className="inline-block bg-rose-100 text-rose-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-rose-200">
+              Acceso Denegado
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+              Solicitud no aprobada
+            </h2>
+            <p className="text-stone-600 text-sm max-w-md leading-relaxed">
+              La solicitud como Gestor Municipal para la cuenta <span className="font-bold text-stone-900">{userProfile.email}</span> no ha sido autorizada por el Administrador. Si crees que se trata de un error, contacta con el soporte de Frontoiak.
+            </p>
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto pt-2">
+            <button
+              onClick={() => router.push('/reservas')}
+              className="flex-1 sm:flex-none bg-stone-900 hover:bg-stone-800 text-white px-5 py-3 rounded-2xl text-xs font-bold transition shadow-sm"
+            >
+              Ir a Reservas →
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="bg-stone-200 hover:bg-stone-300 text-stone-700 px-5 py-3 rounded-2xl text-xs font-bold transition"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </main>
       </div>
     )
   }
