@@ -794,21 +794,15 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 sm:gap-4 min-w-0 justify-end">
             {userProfile ? (
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
-                {/* ICONO / FIGURITA DE ACCESO A AJUSTES DE GESTOR */}
-                <button
+                {/* BOTÓN DE ACCESO A AJUSTES DE GESTOR EN EL NOMBRE */}
+                <button 
                   onClick={() => router.push('/auth/ajustes')}
-                  title="Ir a Ajustes del Gestor"
-                  className="w-8 h-8 sm:w-9 sm:h-9 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-700 text-stone-700 border border-stone-200 rounded-full flex items-center justify-center text-sm sm:text-base transition shadow-2xs flex-shrink-0"
-                >
-                  👤
-                </button>
-
-                <span 
-                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[110px] xs:max-w-[150px] sm:max-w-[200px] md:max-w-xs"
-                  title={`${userProfile.nombre_completo || userProfile.email} (Gestor)`}
+                  title={`Ir a Ajustes del Gestor (${userProfile.nombre_completo || userProfile.email})`}
+                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
                 >
                   {userProfile.nombre_completo || userProfile.email} (Gestor)
-                </span>
+                </button>
+
                 <button 
                   onClick={handleSignOut}
                   className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
