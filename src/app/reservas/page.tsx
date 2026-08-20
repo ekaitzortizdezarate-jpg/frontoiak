@@ -524,8 +524,7 @@ export default function PortalReservas() {
     provId = busquedaLibresProvincia,
     fecha = busquedaLibresFecha,
     horaIni = busquedaLibresHoraInicio,
-    horaFin = busquedaLibresHoraFin,
-    soloFavs = busquedaLibresSoloFavoritos
+    horaFin = busquedaLibresHoraFin
   ) => {
     if (horaFin <= horaIni) {
       alert(t.reservas.time_range_error || 'La hora final debe ser posterior a la hora inicial.')
@@ -548,11 +547,10 @@ export default function PortalReservas() {
         return
       }
 
-      // 2. Filtrar candidatos según favoritos, provincia, horarios del frontón y antelación
+      // 2. Filtrar candidatos según provincia, horarios del frontón y antelación
       const frontonesCandidatos = todosFronts.filter(f => {
         if (f.habilitado === false) return false
         if (f.municipios?.estado === 'inactivo') return false
-        if (soloFavs && !idsFavoritos.includes(f.id)) return false
         if (provId) {
           const pId = f.municipios?.provincia_id || f.municipios?.provincias?.id
           if (pId !== provId) return false
@@ -1400,24 +1398,9 @@ export default function PortalReservas() {
               e.preventDefault()
               ejecutarBusquedaFrontonesLibres()
             }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
           >
-            {/* 1. Ámbito: Todos vs Favoritos */}
-            <div>
-              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
-                {t.reservas.filter_favorites || 'Favoritos'}
-              </label>
-              <select
-                value={busquedaLibresSoloFavoritos ? 'favoritos' : 'todos'}
-                onChange={(e) => setBusquedaLibresSoloFavoritos(e.target.value === 'favoritos')}
-                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
-              >
-                <option value="todos">{t.reservas.search_scope_all || 'Todos los frontones'}</option>
-                <option value="favoritos">{t.reservas.search_scope_favorites || 'Mis favoritos ⭐'}</option>
-              </select>
-            </div>
-
-            {/* 2. Provincia */}
+            {/* 1. Provincia */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.all_provinces ? t.reservas.all_provinces.replace('Todas las ', '') : 'Provincia'}
@@ -1434,7 +1417,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 3. Día / Fecha */}
+            {/* 2. Día / Fecha */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_date || 'Día / Fecha'}
@@ -1448,7 +1431,7 @@ export default function PortalReservas() {
               />
             </div>
 
-            {/* 4. Hora Inicial */}
+            {/* 3. Hora Inicial */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_start_time || 'Hora inicial'}
@@ -1464,7 +1447,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 5. Hora Final */}
+            {/* 4. Hora Final */}
             <div>
               <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
                 {t.reservas.filter_end_time || 'Hora final'}
@@ -1480,7 +1463,7 @@ export default function PortalReservas() {
               </select>
             </div>
 
-            {/* 6. Botón de Búsqueda */}
+            {/* 5. Botón de Búsqueda */}
             <div>
               <button
                 type="submit"
@@ -1494,24 +1477,66 @@ export default function PortalReservas() {
           </form>
 
           {/* RESULTADOS DE LA BÚSQUEDA */}
-          {busquedaLibresRealizada && (
-            <div className="space-y-4 pt-1">
-              <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-                <span className="font-bold text-stone-700 dark:text-stone-300">
-                  {frontonesLibresResultados.length} {t.reservas.free_frontons_found || 'frontón(es) libre(s) encontrado(s)'} (📅 {formatFullDateWithWeekday(busquedaLibresFecha, lang)} • ⏰ {busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
-                </span>
-              </div>
+          {busquedaLibresRealizada && (() => {
+            const frontonesAMostrar = busquedaLibresSoloFavoritos
+              ? frontonesLibresResultados.filter((f) => idsFavoritos.includes(f.id))
+              : frontonesLibresResultados
 
-              {frontonesLibresResultados.length === 0 ? (
-                <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200 dark:border-stone-800 text-center space-y-1">
-                  <span className="text-2xl">🏟️</span>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                    {t.reservas.no_free_frontons_found || 'No se han encontrado frontones activos y libres para la fecha, horario y provincia seleccionados.'}
-                  </p>
+            return (
+              <div className="space-y-4 pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <span className="font-bold text-stone-700 dark:text-stone-300">
+                    {frontonesAMostrar.length} {t.reservas.free_frontons_found || 'frontón(es) libre(s) encontrado(s)'} (📅 {formatFullDateWithWeekday(busquedaLibresFecha, lang)} • ⏰ {busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
+                  </span>
+
+                  {/* TOGGLE MIS FAVORITOS */}
+                  <button
+                    type="button"
+                    onClick={() => setBusquedaLibresSoloFavoritos(!busquedaLibresSoloFavoritos)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer select-none self-start sm:self-auto ${
+                      busquedaLibresSoloFavoritos
+                        ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-2xs'
+                        : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    <span className={busquedaLibresSoloFavoritos ? 'text-amber-500 text-sm' : 'text-stone-400 text-sm'}>★</span>
+                    <span>{t.reservas.filter_favorites || 'Mis favoritos'}</span>
+                    {/* Switch visual */}
+                    <div
+                      className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors duration-200 ${
+                        busquedaLibresSoloFavoritos ? 'bg-amber-500' : 'bg-stone-300 dark:bg-stone-600'
+                      }`}
+                    >
+                      <div
+                        className={`w-3 h-3 rounded-full bg-white shadow-xs transform transition-transform duration-200 ${
+                          busquedaLibresSoloFavoritos ? 'translate-x-3' : 'translate-x-0'
+                        }`}
+                      />
+                    </div>
+                  </button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {frontonesLibresResultados.map((f) => {
+
+                {frontonesAMostrar.length === 0 ? (
+                  <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200 dark:border-stone-800 text-center space-y-1">
+                    <span className="text-2xl">{busquedaLibresSoloFavoritos ? '⭐' : '🏟️'}</span>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                      {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0
+                        ? 'Ninguno de tus frontones favoritos está libre en esta fecha y horario.'
+                        : (t.reservas.no_free_frontons_found || 'No se han encontrado frontones activos y libres para la fecha, horario y provincia seleccionados.')}
+                    </p>
+                    {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setBusquedaLibresSoloFavoritos(false)}
+                        className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
+                      >
+                        Ver todos los {frontonesLibresResultados.length} frontones libres disponibles
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {frontonesAMostrar.map((f) => {
                     const esEmpadronado = esUsuarioEmpadronado(user, f)
                     const puedeReservar = !f.solo_empadronados || esEmpadronado
 
@@ -1613,10 +1638,11 @@ export default function PortalReservas() {
                       </div>
                     )
                   })}
-                </div>
-              )}
-            </div>
-          )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
         </section>
 
         {/* 3. SECCIÓN: MIS INCIDENCIAS Y MANTENIMIENTO */}
