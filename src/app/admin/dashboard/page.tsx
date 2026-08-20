@@ -206,6 +206,12 @@ export default function AdminDashboard() {
     }
   }
 
+  const getContadorIncidenciasFronton = (frontonId: string) => {
+    const pendientes = incidencias.filter(i => i.fronton_id === frontonId && i.estado === 'pendiente').length
+    const enCurso = incidencias.filter(i => i.fronton_id === frontonId && i.estado === 'en_curso').length
+    return { pendientes, enCurso, total: pendientes + enCurso }
+  }
+
   const cargarIncidencias = async (municipioId: string) => {
     try {
       const { data, error } = await supabase
@@ -883,14 +889,32 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 {frontones.map((f) => {
                   const diasPreviewFronton = generarDiasPreviewParaFronton(f.id)
+                  const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                   return (
                     <div key={f.id} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-100 pb-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2.5 flex-wrap">
                           <h3 className="font-bold text-xl text-stone-900">{f.nombre}</h3>
                           <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
                             {f.en_uso ? 'En uso (IoT)' : 'Libre'}
                           </span>
+
+                          {/* CONTADORES DE INCIDENCIAS */}
+                          {pendientes > 0 && (
+                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                              ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                            </span>
+                          )}
+                          {enCurso > 0 && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                              🔧 {enCurso} en curso
+                            </span>
+                          )}
+                          {pendientes === 0 && enCurso === 0 && (
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              ✅ Sin incidencias
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           {f.tiene_sensor_iot && (
@@ -977,10 +1001,32 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-6">
                 <div className="flex justify-between items-center bg-white p-5 rounded-3xl border border-stone-200 shadow-sm">
-                  <div>
-                    <h2 className="text-xl font-bold text-stone-900">Calendario: {frontonSeleccionadoCalendario.nombre}</h2>
-                    <p className="text-xs text-stone-500">Bloqueo de horarios, escuelas y eventos</p>
-                  </div>
+                  {(() => {
+                    const { pendientes: pendCal, enCurso: enCursoCal } = getContadorIncidenciasFronton(frontonSeleccionadoCalendario.id)
+                    return (
+                      <div>
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h2 className="text-xl font-bold text-stone-900">Calendario: {frontonSeleccionadoCalendario.nombre}</h2>
+                          {pendCal > 0 && (
+                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                              ⏳ {pendCal} {pendCal === 1 ? 'pendiente' : 'pendientes'}
+                            </span>
+                          )}
+                          {enCursoCal > 0 && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                              🔧 {enCursoCal} en curso
+                            </span>
+                          )}
+                          {pendCal === 0 && enCursoCal === 0 && (
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              ✅ Sin incidencias
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-stone-500 mt-0.5">Bloqueo de horarios, escuelas y eventos</p>
+                      </div>
+                    )
+                  })()}
                   <button 
                     onClick={() => setFrontonSeleccionadoCalendario(null)}
                     className="bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl text-xs font-bold transition"
@@ -1323,30 +1369,52 @@ export default function AdminDashboard() {
                     <p className="text-stone-400 italic text-sm py-4 text-center">No hay frontones dados de alta todavía.</p>
                   ) : (
                     <ul className="divide-y divide-stone-100">
-                      {frontones.map((f) => (
-                        <li key={f.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                          <div className="flex items-center gap-4">
-                            {f.imagen_url ? (
-                              <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200" />
-                            ) : (
-                              <div className="w-16 h-16 bg-stone-100 rounded-2xl border border-stone-200 flex items-center justify-center text-xs text-stone-400 font-bold">
-                                Sin foto
-                              </div>
-                            )}
+                      {frontones.map((f) => {
+                        const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
+                        return (
+                          <li key={f.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div className="flex items-center gap-4">
+                              {f.imagen_url ? (
+                                <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200" />
+                              ) : (
+                                <div className="w-16 h-16 bg-stone-100 rounded-2xl border border-stone-200 flex items-center justify-center text-xs text-stone-400 font-bold">
+                                  Sin foto
+                                </div>
+                              )}
 
-                            <div>
-                              <h3 className="font-bold text-lg text-stone-900">{f.nombre}</h3>
-                              <p className="text-xs text-stone-500 font-medium">
-                                Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Mínimo: {f.dias_antelacion_maxima ?? 7}d
-                              </p>
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">Luz {f.luz_pago ? '(Pago)' : ''}</span>}
-                                {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Vestuarios</span>}
-                                {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Duchas</span>}
-                                {f.tiene_sensor_iot && <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Sensor IoT Activo</span>}
+                              <div>
+                                <div className="flex items-center gap-2.5 flex-wrap">
+                                  <h3 className="font-bold text-lg text-stone-900">{f.nombre}</h3>
+                                  
+                                  {/* CONTADORES DE INCIDENCIAS */}
+                                  {pendientes > 0 && (
+                                    <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                      ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                                    </span>
+                                  )}
+                                  {enCurso > 0 && (
+                                    <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                      🔧 {enCurso} en curso
+                                    </span>
+                                  )}
+                                  {pendientes === 0 && enCurso === 0 && (
+                                    <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                      ✅ Sin incidencias
+                                    </span>
+                                  )}
+                                </div>
+
+                                <p className="text-xs text-stone-500 font-medium mt-0.5">
+                                  Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Mínimo: {f.dias_antelacion_maxima ?? 7}d
+                                </p>
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                  {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">Luz {f.luz_pago ? '(Pago)' : ''}</span>}
+                                  {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Vestuarios</span>}
+                                  {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Duchas</span>}
+                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Sensor IoT Activo</span>}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
                           <div className="flex gap-2">
                             {f.tiene_sensor_iot && (
@@ -1373,7 +1441,8 @@ export default function AdminDashboard() {
                             </button>
                           </div>
                         </li>
-                      ))}
+                      )
+                    })}
                     </ul>
                   )}
                 </div>

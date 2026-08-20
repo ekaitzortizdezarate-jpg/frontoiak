@@ -31,8 +31,9 @@ export default function PortalReservas() {
   const [misFavoritos, setMisFavoritos] = useState<any[]>([])
   const [idsFavoritos, setIdsFavoritos] = useState<string[]>([])
 
-  // Incidencias del usuario
+  // Incidencias del usuario y globales activas
   const [misIncidencias, setMisIncidencias] = useState<any[]>([])
+  const [todasIncidenciasActivas, setTodasIncidenciasActivas] = useState<any[]>([])
   const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
   const [mostrarModalIncidencia, setMostrarModalIncidencia] = useState(false)
   const [incidenciaVerHistoricoModal, setIncidenciaVerHistoricoModal] = useState<any | null>(null)
@@ -107,6 +108,7 @@ export default function PortalReservas() {
     await cargarMisReservas(user.id)
     await cargarMisFavoritos(user.id)
     await cargarMisIncidencias(user.id)
+    await cargarIncidenciasActivas()
     await cargarTodosLosFrontones()
 
     setLoading(false)
@@ -198,6 +200,27 @@ export default function PortalReservas() {
     return {
       ...inc,
       historial: parseHistorial(inc.historial)
+    }
+  }
+
+  const getContadorIncidenciasFronton = (frontonId: string) => {
+    const pendientes = todasIncidenciasActivas.filter(i => i.fronton_id === frontonId && i.estado === 'pendiente').length
+    const enCurso = todasIncidenciasActivas.filter(i => i.fronton_id === frontonId && i.estado === 'en_curso').length
+    return { pendientes, enCurso, total: pendientes + enCurso }
+  }
+
+  const cargarIncidenciasActivas = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('incidencias_fronton')
+        .select('id, fronton_id, estado')
+        .in('estado', ['pendiente', 'en_curso'])
+
+      if (!error && data) {
+        setTodasIncidenciasActivas(data)
+      }
+    } catch (err) {
+      console.error('Error al cargar incidencias activas:', err)
     }
   }
 
@@ -323,6 +346,7 @@ export default function PortalReservas() {
       setIncidenciaDescripcion('')
       setMostrarModalIncidencia(false)
       await cargarMisIncidencias(user.id)
+      await cargarIncidenciasActivas()
     }
 
     setEnviandoIncidencia(false)
@@ -863,48 +887,67 @@ export default function PortalReservas() {
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {misFavoritos.map((f) => (
-                <div 
-                  key={f.id}
-                  onClick={() => seleccionarFronton(f)}
-                  className="border border-stone-200 rounded-2xl p-4 bg-stone-50 hover:bg-emerald-50/60 hover:border-emerald-300 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    {f.imagen_url ? (
-                      <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200" />
-                    ) : (
-                      <div className="w-12 h-12 bg-stone-200 rounded-xl flex items-center justify-center text-xs text-stone-500 font-bold">
-                        F
+              {misFavoritos.map((f) => {
+                const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
+                return (
+                  <div 
+                    key={f.id}
+                    onClick={() => seleccionarFronton(f)}
+                    className="border border-stone-200 rounded-2xl p-4 bg-stone-50 hover:bg-emerald-50/60 hover:border-emerald-300 cursor-pointer transition flex flex-col justify-between gap-3 group shadow-2xs hover:shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      {f.imagen_url ? (
+                        <img src={f.imagen_url} alt="" className="w-12 h-12 object-cover rounded-xl border border-stone-200" />
+                      ) : (
+                        <div className="w-12 h-12 bg-stone-200 rounded-xl flex items-center justify-center text-xs text-stone-500 font-bold">
+                          F
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-sm text-stone-900 group-hover:text-emerald-900 block truncate">
+                          {f.nombre}
+                        </span>
+                        <span className="text-xs text-stone-500 block truncate">
+                          {f.municipios?.nombre}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* CONTADORES DE INCIDENCIAS EN FAVORITOS */}
+                    {(pendientes > 0 || enCurso > 0) && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {pendientes > 0 && (
+                          <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                          </span>
+                        )}
+                        {enCurso > 0 && (
+                          <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            🔧 {enCurso} en curso
+                          </span>
+                        )}
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <span className="font-bold text-sm text-stone-900 group-hover:text-emerald-900 block truncate">
-                        {f.nombre}
+
+                    {/* Estado en tiempo real */}
+                    <div className="flex justify-between items-center pt-2 border-t border-stone-200/80">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                        f.en_uso
+                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                        }`}></span>
+                        {f.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
                       </span>
-                      <span className="text-xs text-stone-500 block truncate">
-                        {f.municipios?.nombre}
+                      <span className="text-xs font-bold text-emerald-700 group-hover:translate-x-0.5 transition">
+                        Ver →
                       </span>
                     </div>
                   </div>
-
-                  {/* Estado en tiempo real */}
-                  <div className="flex justify-between items-center pt-2 border-t border-stone-200/80">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                      f.en_uso
-                        ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                        : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                      }`}></span>
-                      {f.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
-                    </span>
-                    <span className="text-xs font-bold text-emerald-700 group-hover:translate-x-0.5 transition">
-                      Ver →
-                    </span>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </section>
@@ -1142,20 +1185,42 @@ export default function PortalReservas() {
                     </div>
                   )}
                   <div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
-                      
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
-                        frontonSeleccionado.en_uso
-                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full ${
-                          frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                        }`}></span>
-                        {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
-                      </span>
-                    </div>
+                    {(() => {
+                      const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
+                      return (
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
+                          
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
+                            frontonSeleccionado.en_uso
+                              ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          }`}>
+                            <span className={`w-2 h-2 rounded-full ${
+                              frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                            }`}></span>
+                            {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
+                          </span>
+
+                          {/* CONTADORES DE INCIDENCIAS */}
+                          {pendientes > 0 && (
+                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                              ⏳ {pendientes} {pendientes === 1 ? 'incidencia pendiente' : 'incidencias pendientes'}
+                            </span>
+                          )}
+                          {enCurso > 0 && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                              🔧 {enCurso} en curso
+                            </span>
+                          )}
+                          {pendientes === 0 && enCurso === 0 && (
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                              ✅ Sin incidencias activas
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })()}
 
                     <p className="text-xs text-stone-500 mt-1.5 font-medium">
                       Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Mínimo: {frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) antelación
