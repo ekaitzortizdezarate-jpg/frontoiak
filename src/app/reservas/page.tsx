@@ -109,34 +109,99 @@ export default function PortalReservas() {
   }
 
   const cargarMisFavoritos = async (userId: string) => {
-    const { data } = await supabase
-      .from('frontones_favoritos')
-      .select('*, frontones(*, municipios(*))')
-      .eq('user_id', userId)
+    try {
+      // 1. Intentamos cargar con join de frontones y municipios
+      const { data, error } = await supabase
+        .from('frontones_favoritos')
+        .select('*, frontones(*, municipios(*))')
+        .eq('user_id', userId)
 
-    if (data) {
-      setMisFavoritos(data.map(item => item.frontones).filter(Boolean))
-      setIdsFavoritos(data.map(item => item.fronton_id))
+      if (!error && data) {
+        setMisFavoritos(data.map(item => item.frontones).filter(Boolean))
+        setIdsFavoritos(data.map(item => item.fronton_id).filter(Boolean))
+        return
+      }
+
+      // 2. Respaldo: si el join relacional da error, consultamos los IDs y luego los frontones por separado
+      const { data: favsData, error: favsError } = await supabase
+        .from('frontones_favoritos')
+        .select('fronton_id')
+        .eq('user_id', userId)
+
+      if (!favsError && favsData) {
+        const ids = favsData.map(item => item.fronton_id).filter(Boolean)
+        setIdsFavoritos(ids)
+
+        if (ids.length > 0) {
+          const { data: frontsData } = await supabase
+            .from('frontones')
+            .select('*, municipios(*)')
+            .in('id', ids)
+
+          if (frontsData) {
+            setMisFavoritos(frontsData)
+          }
+        } else {
+          setMisFavoritos([])
+        }
+      }
+    } catch (err) {
+      console.error('Error al cargar favoritos:', err)
     }
   }
 
   const toggleFavorito = async (frontonId: string) => {
-    if (!user) return
-    const yaEsFavorito = idsFavoritos.includes(frontonId)
-
-    if (yaEsFavorito) {
-      await supabase
-        .from('frontones_favoritos')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('fronton_id', frontonId)
-    } else {
-      await supabase
-        .from('frontones_favoritos')
-        .insert([{ user_id: user.id, fronton_id: frontonId }])
+    let currentUserId = user?.id
+    if (!currentUserId) {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser) {
+        alert('Debes iniciar sesión para guardar frontones favoritos.')
+        return
+      }
+      currentUserId = currentUser.id
     }
 
-    await cargarMisFavoritos(user.id)
+    const yaEsFavorito = idsFavoritos.includes(frontonId)
+
+    // Actualización optimista inmediata en la interfaz
+    if (yaEsFavorito) {
+      setIdsFavoritos(prev => prev.filter(id => id !== frontonId))
+      setMisFavoritos(prev => prev.filter(f => f.id !== frontonId))
+    } else {
+      setIdsFavoritos(prev => [...prev, frontonId])
+      if (frontonSeleccionado && frontonSeleccionado.id === frontonId) {
+        setMisFavoritos(prev => [...prev.filter(f => f.id !== frontonId), frontonSeleccionado])
+      }
+    }
+
+    try {
+      if (yaEsFavorito) {
+        const { error } = await supabase
+          .from('frontones_favoritos')
+          .delete()
+          .eq('user_id', currentUserId)
+          .eq('fronton_id', frontonId)
+
+        if (error) {
+          console.error('Error al eliminar favorito:', error)
+          alert('No se pudo quitar de favoritos: ' + error.message)
+          await cargarMisFavoritos(currentUserId)
+        }
+      } else {
+        const { error } = await supabase
+          .from('frontones_favoritos')
+          .insert([{ user_id: currentUserId, fronton_id: frontonId }])
+
+        if (error) {
+          console.error('Error al guardar favorito:', error)
+          alert('No se pudo añadir a favoritos: ' + error.message)
+          await cargarMisFavoritos(currentUserId)
+        }
+      }
+    } catch (err: any) {
+      console.error('Error en toggleFavorito:', err)
+      await cargarMisFavoritos(currentUserId)
+    }
   }
 
   const handleProvinciaChange = async (provId: string) => {
