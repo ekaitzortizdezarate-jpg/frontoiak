@@ -26,25 +26,12 @@ export default function RegisterPage() {
     setLoading(true)
     setErrorMsg('')
 
-    // 1. Registrar el usuario en Supabase Auth (sin metadatos complejos que fallen)
+    // 1. Registramos enviando todos los datos dentro de options.data para que el Trigger de Supabase cree la fila en profiles
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-    })
-
-    if (authError) {
-      setErrorMsg(authError.message)
-      setLoading(false)
-      return
-    }
-
-    const user = authData.user
-    if (user) {
-      // 2. Insertar directamente los datos en la tabla profiles con el ID del usuario creado
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
+      options: {
+        data: {
           nombre_completo: nombre,
           apellidos,
           dni,
@@ -53,15 +40,18 @@ export default function RegisterPage() {
           localidad,
           codigo_postal: codigoPostal,
           role: 'usuario'
-        })
-
-      if (profileError) {
-        setErrorMsg('Error al guardar el perfil: ' + profileError.message)
-        setLoading(false)
-        return
+        }
       }
+    })
 
-      alert('¡Registro completado con éxito! Ya puedes iniciar sesión y ver tus datos en ajustes.')
+    if (authError) {
+      setErrorMsg(authError.message)
+      setLoading(false)
+      return
+    }
+
+    if (authData.user) {
+      alert('¡Registro completado con éxito!')
       router.push('/reservas')
     }
 
@@ -70,7 +60,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
-      {/* CABECERA / HEADER UNIFICADO */}
+      {/* HEADER */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div 
@@ -97,7 +87,7 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
+      {/* CONTENIDO */}
       <main className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-xl">
           <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">

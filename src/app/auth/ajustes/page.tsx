@@ -12,7 +12,7 @@ export default function AjustesUsuarioPage() {
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [modoCambioPass, setModoCambioPass] = useState(false)
 
-  // Campos de perfil correspondientes al registro
+  // Campos de perfil
   const [nombre, setNombre] = useState('')
   const [apellidos, setApellidos] = useState('')
   const [dni, setDni] = useState('')
@@ -22,7 +22,7 @@ export default function AjustesUsuarioPage() {
   const [codigoPostal, setCodigoPostal] = useState('')
   const [email, setEmail] = useState('')
 
-  // Seguridad y contraseñas
+  // Seguridad
   const [passwordActual, setPasswordActual] = useState('')
   const [nuevaPassword, setNuevaPassword] = useState('')
   const [confirmarPassword, setConfirmarPassword] = useState('')
@@ -44,14 +44,15 @@ export default function AjustesUsuarioPage() {
     setUser(user)
     setEmail(user.email || '')
 
-    // Consultamos los datos en la tabla profiles asociados al ID del usuario
-    const { data: profile, error } = await supabase
+    // 1. Intentamos leer de la tabla profiles
+    const { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
 
-    if (profile) {
+    // 2. Si la tabla profiles tiene datos, los usamos
+    if (profile && (profile.nombre_completo || profile.dni)) {
       setNombre(profile.nombre_completo || '')
       setApellidos(profile.apellidos || '')
       setDni(profile.dni || '')
@@ -59,8 +60,28 @@ export default function AjustesUsuarioPage() {
       setFechaNacimiento(profile.fecha_nacimiento || '')
       setLocalidad(profile.localidad || '')
       setCodigoPostal(profile.codigo_postal || '')
-    } else if (error) {
-      console.error('Error al cargar el perfil:', error.message)
+    } else {
+      // 3. Respaldo: Si profiles está vacío, leemos directamente de los metadatos de autenticación del registro
+      const meta = user.user_metadata || {}
+      setNombre(meta.nombre_completo || '')
+      setApellidos(meta.apellidos || '')
+      setDni(meta.dni || '')
+      setCalle(meta.calle || '')
+      setFechaNacimiento(meta.fecha_nacimiento || '')
+      setLocalidad(meta.localidad || '')
+      setCodigoPostal(meta.codigo_postal || '')
+
+      // Opcional: sincronizamos la tabla profiles de paso para que quede arreglada
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        nombre_completo: meta.nombre_completo || '',
+        apellidos: meta.apellidos || '',
+        dni: meta.dni || '',
+        calle: meta.calle || '',
+        fecha_nacimiento: meta.fecha_nacimiento || null,
+        localidad: meta.localidad || '',
+        codigo_postal: meta.codigo_postal || ''
+      })
     }
 
     setLoading(false)
@@ -74,7 +95,8 @@ export default function AjustesUsuarioPage() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({
+      .upsert({
+        id: user.id,
         nombre_completo: nombre,
         apellidos,
         dni,
@@ -83,7 +105,6 @@ export default function AjustesUsuarioPage() {
         localidad,
         codigo_postal: codigoPostal
       })
-      .eq('id', user.id)
 
     if (error) {
       alert('Error al actualizar el perfil: ' + error.message)
@@ -147,7 +168,6 @@ export default function AjustesUsuarioPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
-      {/* HEADER */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div 
@@ -171,7 +191,6 @@ export default function AjustesUsuarioPage() {
         </div>
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10 space-y-8">
         
         {/* TARJETA 1: DATOS PERSONALES */}
