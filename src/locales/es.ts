@@ -279,6 +279,7 @@ export const es = {
   },
   admin: {
     dashboard_title: 'Área de Gestión Municipal',
+    municipality_header_format: 'Ayuntamiento: {name}',
     frontons_tab: 'Frontones',
     schedule_tab: 'Gestión de Horarios',
     incidents_tab: 'Incidencias',

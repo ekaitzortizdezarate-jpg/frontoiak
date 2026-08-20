@@ -279,6 +279,7 @@ export const en = {
   },
   admin: {
     dashboard_title: 'Municipal Management Area',
+    municipality_header_format: '{name} Town Hall',
     frontons_tab: 'Frontons',
     schedule_tab: 'Schedule Management',
     incidents_tab: 'Incidents',

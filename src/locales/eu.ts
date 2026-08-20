@@ -279,6 +279,7 @@ export const eu = {
   },
   admin: {
     dashboard_title: 'Udal Kudeaketa Arloa',
+    municipality_header_format: '{name} Udaletxea',
     frontons_tab: 'Frontoiak',
     schedule_tab: 'Ordutegien Kudeaketa',
     incidents_tab: 'Gertakariak',
