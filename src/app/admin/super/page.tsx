@@ -320,11 +320,18 @@ export default function SuperAdminDashboard() {
 
     let aviso = `¿Estás seguro de que deseas eliminar el municipio "${mun.nombre}"?`
     if (frontonesVinculados > 0 || gestoresVinculados > 0) {
-      aviso += `\n\n⚠️ Atención: Este municipio tiene ${frontonesVinculados} frontón(es) y ${gestoresVinculados} gestor(es) vinculados.`
+      aviso += `\n\n⚠️ Atención: Este municipio tiene ${frontonesVinculados} frontón(es) y ${gestoresVinculados} gestor(es) vinculados. Si continúas, los frontones se eliminarán y los gestores quedarán desvinculados.`
     }
 
     if (!confirm(aviso)) return
 
+    // 1. Desvincular perfiles asociados a este municipio
+    await supabase.from('profiles').update({ municipio_id: null }).eq('municipio_id', mun.id)
+
+    // 2. Eliminar frontones asociados
+    await supabase.from('frontones').delete().eq('municipio_id', mun.id)
+
+    // 3. Eliminar el municipio
     const { error } = await supabase
       .from('municipios')
       .delete()
@@ -334,6 +341,7 @@ export default function SuperAdminDashboard() {
       alert('Error al eliminar municipio: ' + error.message)
     } else {
       alert('Municipio eliminado correctamente.')
+      setMunicipiosSeleccionados(prev => prev.filter(id => id !== mun.id))
       await cargarDatosGlobales()
     }
   }
@@ -378,11 +386,19 @@ export default function SuperAdminDashboard() {
   const handleEliminarLote = async () => {
     if (municipiosSeleccionados.length === 0) return
 
-    if (!confirm(`¿Estás seguro de que deseas eliminar los ${municipiosSeleccionados.length} municipios seleccionados?\n\n⚠️ Esta acción eliminará los municipios y no se puede deshacer.`)) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar los ${municipiosSeleccionados.length} municipios seleccionados?\n\n⚠️ Esta acción eliminará los municipios y sus frontones asociados, y desvinculará a los gestores.`)) {
       return
     }
 
     setEjecutandoAccionLote(true)
+
+    // 1. Desvincular gestores
+    await supabase.from('profiles').update({ municipio_id: null }).in('municipio_id', municipiosSeleccionados)
+
+    // 2. Eliminar frontones asociados
+    await supabase.from('frontones').delete().in('municipio_id', municipiosSeleccionados)
+
+    // 3. Eliminar municipios
     const { error } = await supabase
       .from('municipios')
       .delete()
