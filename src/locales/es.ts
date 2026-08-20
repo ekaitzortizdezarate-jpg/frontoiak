@@ -225,7 +225,7 @@ export const es = {
     city: 'Localidad',
     postal_code: 'Código Postal',
     province: 'Provincia',
-    municipality: 'Población / Municipio',
+    municipality: 'Municipio',
     select_postal_code: 'Selecciona código postal...',
     create_account: 'Crear Cuenta',
     creating_account: 'Creando cuenta...',

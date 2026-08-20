@@ -576,8 +576,8 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* 5, 6 & 7: Provincia, Municipio & Código Postal */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* 5 & 6: Provincia y Municipio en la misma línea */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
                         {t.auth.province} *
@@ -612,36 +612,37 @@ export default function RegisterPage() {
                         ))}
                       </select>
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        {t.auth.postal_code} *
-                      </label>
-                      {codigosPostales.length > 0 ? (
-                        <select
-                          value={codigoPostal}
-                          onChange={(e) => setCodigoPostal(e.target.value)}
-                          required
-                          disabled={!selectedMunicipioId}
-                          className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
-                        >
-                          <option value="">{t.auth.select_postal_code}</option>
-                          {codigosPostales.map(cp => (
-                            <option key={cp} value={cp}>{cp}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          required
-                          disabled={!selectedMunicipioId}
-                          value={codigoPostal}
-                          onChange={(e) => setCodigoPostal(e.target.value)}
-                          placeholder="ej. 20001"
-                          className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
-                        />
-                      )}
-                    </div>
+                  {/* 7: Código Postal debajo */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                      {t.auth.postal_code} *
+                    </label>
+                    {codigosPostales.length > 0 ? (
+                      <select
+                        value={codigoPostal}
+                        onChange={(e) => setCodigoPostal(e.target.value)}
+                        required
+                        disabled={!selectedMunicipioId}
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      >
+                        <option value="">{t.auth.select_postal_code}</option>
+                        {codigosPostales.map(cp => (
+                          <option key={cp} value={cp}>{cp}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        required
+                        disabled={!selectedMunicipioId}
+                        value={codigoPostal}
+                        onChange={(e) => setCodigoPostal(e.target.value)}
+                        placeholder="ej. 20001"
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      />
+                    )}
                   </div>
 
                   {/* 8: Calle */}
