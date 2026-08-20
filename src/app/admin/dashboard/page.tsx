@@ -84,6 +84,7 @@ export default function AdminDashboard() {
   const [incidencias, setIncidencias] = useState<any[]>([])
   const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
   const [incidenciaCambioEstadoModal, setIncidenciaCambioEstadoModal] = useState<any | null>(null)
+  const [incidenciaVerHistoricoModal, setIncidenciaVerHistoricoModal] = useState<any | null>(null)
   const [nuevoEstadoSeleccionado, setNuevoEstadoSeleccionado] = useState<'pendiente' | 'en_curso' | 'resuelta'>('en_curso')
   const [comentarioCambioEstado, setComentarioCambioEstado] = useState('')
   const [guardandoCambioEstado, setGuardandoCambioEstado] = useState(false)
@@ -1662,6 +1663,14 @@ export default function AdminDashboard() {
                         {/* BOTONES DE ACCIÓN PARA EL GESTOR */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full md:w-auto">
                           <button
+                            onClick={() => setIncidenciaVerHistoricoModal(inc)}
+                            className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                            title="Consultar cronología y comentarios de esta incidencia"
+                          >
+                            <span>📜 Ver Histórico</span>
+                          </button>
+
+                          <button
                             onClick={() => abrirModalCambioEstado(inc)}
                             className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                             title="Cambiar estado e introducir comentario obligatorio"
@@ -2100,6 +2109,173 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL VER HISTÓRICO DE INCIDENCIA */}
+        {incidenciaVerHistoricoModal && (
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in zoom-in duration-150">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] flex flex-col space-y-5 shadow-2xl border border-stone-200">
+              
+              {/* CABECERA DEL MODAL */}
+              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shadow-inner">
+                    📜
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-stone-900">Histórico de la Incidencia</h3>
+                    <p className="text-xs text-stone-500">
+                      {incidenciaVerHistoricoModal.frontones?.nombre} • {incidenciaVerHistoricoModal.titulo}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIncidenciaVerHistoricoModal(null)}
+                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:text-stone-700 transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* CONTENIDO SCROLLEABLE */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                
+                {/* FICHA RESUMEN DE LA INCIDENCIA */}
+                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 text-xs">
+                  <div className="flex justify-between items-center flex-wrap gap-2">
+                    <span className="font-bold text-sm text-stone-900">{incidenciaVerHistoricoModal.titulo}</span>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs ${
+                      incidenciaVerHistoricoModal.estado === 'en_curso'
+                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                        : incidenciaVerHistoricoModal.estado === 'resuelta'
+                        ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                        : 'bg-rose-100 text-rose-800 border-rose-200'
+                    }`}>
+                      {incidenciaVerHistoricoModal.estado === 'en_curso' ? '🔧 En curso' : incidenciaVerHistoricoModal.estado === 'resuelta' ? '✅ Resuelta' : '⏳ Pendiente'}
+                    </span>
+                  </div>
+
+                  {incidenciaVerHistoricoModal.descripcion && (
+                    <p className="text-stone-600 leading-relaxed bg-white p-2.5 rounded-xl border border-stone-150">
+                      "{incidenciaVerHistoricoModal.descripcion}"
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 pt-1">
+                    <span>🏟️ Frontón: <strong>{incidenciaVerHistoricoModal.frontones?.nombre}</strong></span>
+                    <span>•</span>
+                    <span>👤 Reportado por: <strong>{incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Usuario'} {incidenciaVerHistoricoModal.profiles?.apellidos || ''}</strong></span>
+                    {incidenciaVerHistoricoModal.profiles?.email && (
+                      <span>({incidenciaVerHistoricoModal.profiles.email})</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* TIMELINE / LÍNEA TEMPORAL */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🕒 Cronología de actuaciones y cambios de estado</span>
+                  </h4>
+
+                  <div className="relative pl-6 border-l-2 border-stone-200 space-y-6">
+                    
+                    {/* HITO 1: REPORTE INICIAL */}
+                    <div className="relative">
+                      <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-xs"></div>
+                      <div className="p-3.5 bg-rose-50/60 border border-rose-200/80 rounded-2xl space-y-1 text-xs">
+                        <div className="flex justify-between items-center flex-wrap gap-1">
+                          <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                            📋 Incidencia Registrada
+                          </span>
+                          <span className="text-[10px] text-rose-700 font-medium">
+                            {new Date(incidenciaVerHistoricoModal.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-stone-600 text-[11px]">
+                          La incidencia fue comunicada al ayuntamiento en estado <strong>Pendiente de revisión</strong>.
+                        </p>
+                        <span className="text-[10px] text-stone-400 font-semibold block">
+                          Por: {incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Ciudadano'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* HITOS POSTERIORES: HISTÓRICO DE CAMBIOS */}
+                    {Array.isArray(incidenciaVerHistoricoModal.historial) && incidenciaVerHistoricoModal.historial.length > 0 ? (
+                      incidenciaVerHistoricoModal.historial.map((h: any, idx: number) => {
+                        let colorBadge = 'bg-stone-500'
+                        let bgCard = 'bg-stone-50/80 border-stone-200'
+                        if (h.estado_nuevo === 'en_curso') {
+                          colorBadge = 'bg-amber-500'
+                          bgCard = 'bg-amber-50/60 border-amber-200/80'
+                        } else if (h.estado_nuevo === 'resuelta') {
+                          colorBadge = 'bg-emerald-600'
+                          bgCard = 'bg-emerald-50/60 border-emerald-200/80'
+                        } else if (h.estado_nuevo === 'pendiente') {
+                          colorBadge = 'bg-rose-500'
+                          bgCard = 'bg-rose-50/60 border-rose-200/80'
+                        }
+
+                        return (
+                          <div key={idx} className="relative">
+                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
+                            <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
+                              <div className="flex justify-between items-center flex-wrap gap-1">
+                                <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
+                                  <span>Cambio de Estado:</span>
+                                  <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
+                                  <span>➔</span>
+                                  <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
+                                </span>
+                                <span className="text-[10px] text-stone-500 font-medium">
+                                  📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+
+                              <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
+                                "{h.comentario}"
+                              </div>
+
+                              <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
+                                <span>🏛️ Gestor: {h.autor || 'Equipo Municipal'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    ) : (
+                      <div className="text-xs text-stone-400 italic py-2 pl-1">
+                        No hay actuaciones posteriores registradas todavía. El estado actual es el inicial.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* BOTONES DEL PIE DEL MODAL */}
+              <div className="flex justify-between items-center gap-3 pt-2 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const incActual = incidenciaVerHistoricoModal
+                    setIncidenciaVerHistoricoModal(null)
+                    abrirModalCambioEstado(incActual)
+                  }}
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
+                >
+                  <span>📝 Cambiar Estado / Añadir Comentario</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIncidenciaVerHistoricoModal(null)}
+                  className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         )}
