@@ -67,7 +67,10 @@ export default function Home() {
       setUser({ ...user, profile: finalProfile })
 
       // Redirigir automáticamente según el rol del usuario
-      if (finalProfile.role === 'gestor_municipio' || finalProfile.role === 'admin') {
+      if (finalProfile.role === 'admin') {
+        router.replace('/admin/super')
+        return
+      } else if (finalProfile.role === 'gestor_municipio') {
         router.replace('/admin/dashboard')
         return
       } else {

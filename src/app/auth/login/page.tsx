@@ -65,7 +65,9 @@ export default function LoginPage() {
     setLoading(false)
 
     // 3. Redirigir según el rol
-    if (userRole === 'gestor_municipio' || userRole === 'admin') {
+    if (userRole === 'admin') {
+      router.push('/admin/super')
+    } else if (userRole === 'gestor_municipio') {
       router.push('/admin/dashboard')
     } else {
       router.push('/reservas')
