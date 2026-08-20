@@ -83,6 +83,11 @@ export default function AdminDashboard() {
   // Incidencias
   const [incidencias, setIncidencias] = useState<any[]>([])
   const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
+  const [incidenciaCambioEstadoModal, setIncidenciaCambioEstadoModal] = useState<any | null>(null)
+  const [nuevoEstadoSeleccionado, setNuevoEstadoSeleccionado] = useState<'pendiente' | 'en_curso' | 'resuelta'>('en_curso')
+  const [comentarioCambioEstado, setComentarioCambioEstado] = useState('')
+  const [guardandoCambioEstado, setGuardandoCambioEstado] = useState(false)
+  const [incidenciasHistorialAbierto, setIncidenciasHistorialAbierto] = useState<string[]>([])
 
   // Ciudadanos / Personas del municipio
   const [ciudadanos, setCiudadanos] = useState<any[]>([])
@@ -261,17 +266,91 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleCambiarEstadoIncidencia = async (incidenciaId: string, nuevoEstado: 'pendiente' | 'en_curso' | 'resuelta') => {
+  const toggleVerHistorialIncidencia = (incidenciaId: string) => {
+    setIncidenciasHistorialAbierto(prev => 
+      prev.includes(incidenciaId) ? prev.filter(id => id !== incidenciaId) : [...prev, incidenciaId]
+    )
+  }
+
+  const abrirModalCambioEstado = (incidencia: any, defaultEstado?: 'pendiente' | 'en_curso' | 'resuelta') => {
+    setIncidenciaCambioEstadoModal(incidencia)
+    setNuevoEstadoSeleccionado(defaultEstado || incidencia.estado)
+    setComentarioCambioEstado('')
+  }
+
+  const handleGuardarCambioEstadoConComentario = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!incidenciaCambioEstadoModal) return
+
+    if (!comentarioCambioEstado.trim()) {
+      alert('Es obligatorio introducir un comentario explicando la actuación o motivo del cambio de estado.')
+      return
+    }
+
+    setGuardandoCambioEstado(true)
+
+    const historialPrevio = Array.isArray(incidenciaCambioEstadoModal.historial) 
+      ? incidenciaCambioEstadoModal.historial 
+      : []
+
+    const entradaHistorial = {
+      fecha: new Date().toISOString(),
+      estado_anterior: incidenciaCambioEstadoModal.estado,
+      estado_nuevo: nuevoEstadoSeleccionado,
+      comentario: comentarioCambioEstado.trim(),
+      autor: userProfile?.nombre_completo || userProfile?.nombre || userProfile?.email || 'Gestor Municipal'
+    }
+
+    const nuevoHistorial = [...historialPrevio, entradaHistorial]
+
+    // 1. Intentamos actualizar con historial y respuesta_municipio
+    let { error } = await supabase
+      .from('incidencias_fronton')
+      .update({
+        estado: nuevoEstadoSeleccionado,
+        historial: nuevoHistorial,
+        respuesta_municipio: comentarioCambioEstado.trim()
+      })
+      .eq('id', incidenciaCambioEstadoModal.id)
+
+    // Fallback si las columnas historial o respuesta_municipio aún no existen en la BD
+    if (error && (error.message?.includes('column') || error.message?.includes('schema'))) {
+      const retry = await supabase
+        .from('incidencias_fronton')
+        .update({ estado: nuevoEstadoSeleccionado })
+        .eq('id', incidenciaCambioEstadoModal.id)
+      error = retry.error
+    }
+
+    if (error) {
+      alert('Error al actualizar la incidencia: ' + error.message)
+    } else {
+      alert('¡Estado y comentario guardados correctamente en el histórico!')
+      setIncidenciaCambioEstadoModal(null)
+      setComentarioCambioEstado('')
+      if (userProfile?.municipio_id) {
+        await cargarIncidencias(userProfile.municipio_id)
+      }
+    }
+
+    setGuardandoCambioEstado(false)
+  }
+
+  const handleBorrarIncidencia = async (incidenciaId: string, tituloIncidencia: string) => {
+    const confirmado = confirm(`¿Estás seguro de que deseas eliminar permanentemente la incidencia "${tituloIncidencia}"?\n\nEsta acción no se puede deshacer.`)
+    if (!confirmado) return
+
     const { error } = await supabase
       .from('incidencias_fronton')
-      .update({ estado: nuevoEstado })
+      .delete()
       .eq('id', incidenciaId)
 
     if (error) {
-      alert('Error al actualizar incidencia: ' + error.message)
+      alert('Error al borrar la incidencia: ' + error.message)
     } else {
+      alert('Incidencia eliminada correctamente.')
       if (userProfile?.municipio_id) {
-        cargarIncidencias(userProfile.municipio_id)
+        await cargarIncidencias(userProfile.municipio_id)
       }
     }
   }
@@ -1519,63 +1598,133 @@ export default function AdminDashboard() {
                   const nombreUsuario = inc.profiles?.nombre_completo || inc.profiles?.nombre || 'Usuario'
                   const apellidosUsuario = inc.profiles?.apellidos || ''
                   const nombreCompletoUsuario = `${nombreUsuario} ${apellidosUsuario}`.trim()
+                  const historial = Array.isArray(inc.historial) ? inc.historial : []
+                  const estaHistorialAbierto = incidenciasHistorialAbierto.includes(inc.id)
+
+                  let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
+                  let badgeTexto = '⏳ Pendiente'
+                  if (inc.estado === 'en_curso') {
+                    badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
+                    badgeTexto = '🔧 En curso'
+                  } else if (inc.estado === 'resuelta') {
+                    badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                    badgeTexto = '✅ Resuelta'
+                  }
 
                   return (
-                    <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center shadow-2xs">
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-stone-900 text-sm">{inc.titulo}</span>
-                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
-                            🏟️ {inc.frontones?.nombre}
-                          </span>
-                        </div>
-                        
-                        {inc.descripcion && (
-                          <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
-                        )}
-
-                        <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
-                          <span className="text-[11px] text-stone-400 font-medium mr-1">
-                            📅 {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-
-                          {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
-                          <span className="font-bold text-stone-700 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs flex items-center gap-1">
-                            👤 {nombreCompletoUsuario}
-                          </span>
+                    <div key={inc.id} className="p-5 border border-stone-200 rounded-3xl bg-stone-50/70 space-y-3 shadow-2xs">
+                      <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="font-bold text-stone-900 text-base">{inc.titulo}</span>
+                            <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200/60">
+                              🏟️ {inc.frontones?.nombre}
+                            </span>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
+                              {badgeTexto}
+                            </span>
+                          </div>
                           
-                          {inc.profiles?.email && (
-                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
-                              ✉️ {inc.profiles.email}
-                            </span>
+                          {inc.descripcion && (
+                            <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                           )}
 
-                          {inc.profiles?.dni && (
-                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
-                              🪪 DNI: {inc.profiles.dni}
+                          <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
+                            <span className="text-[11px] text-stone-400 font-medium mr-1">
+                              📅 Reportado: {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                             </span>
-                          )}
 
-                          {inc.profiles?.localidad && (
-                            <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
-                              📍 {inc.profiles.localidad} {inc.profiles.codigo_postal ? `(${inc.profiles.codigo_postal})` : ''}
+                            {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
+                            <span className="font-bold text-stone-700 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs flex items-center gap-1">
+                              👤 {nombreCompletoUsuario}
                             </span>
-                          )}
+                            
+                            {inc.profiles?.email && (
+                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                                ✉️ {inc.profiles.email}
+                              </span>
+                            )}
+
+                            {inc.profiles?.dni && (
+                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                                🪪 DNI: {inc.profiles.dni}
+                              </span>
+                            )}
+
+                            {inc.profiles?.localidad && (
+                              <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
+                                📍 {inc.profiles.localidad} {inc.profiles.codigo_postal ? `(${inc.profiles.codigo_postal})` : ''}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* BOTONES DE ACCIÓN PARA EL GESTOR */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full md:w-auto">
+                          <button
+                            onClick={() => abrirModalCambioEstado(inc)}
+                            className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                            title="Cambiar estado e introducir comentario obligatorio"
+                          >
+                            <span>📝 Cambiar Estado</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleBorrarIncidencia(inc.id, inc.titulo)}
+                            className="bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                            title="Eliminar permanentemente esta incidencia"
+                          >
+                            <span>🗑️ Borrar</span>
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0 bg-white p-2 rounded-xl border border-stone-200 shadow-2xs">
-                        <span className="text-xs font-bold text-stone-500">Estado:</span>
-                        <select 
-                          value={inc.estado}
-                          onChange={(e) => handleCambiarEstadoIncidencia(inc.id, e.target.value as any)}
-                          className="text-xs font-bold rounded-lg p-1.5 border border-stone-300 bg-stone-50 cursor-pointer focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-                        >
-                          <option value="pendiente">⏳ Pendiente</option>
-                          <option value="en_curso">🔧 En curso</option>
-                          <option value="resuelta">✅ Resuelta</option>
-                        </select>
-                      </div>
+                      {/* ÚLTIMO COMENTARIO REGISTRADO */}
+                      {inc.respuesta_municipio && (
+                        <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl text-xs text-emerald-950 space-y-1">
+                          <span className="font-bold flex items-center gap-1 text-emerald-900">
+                            🏛️ Última actuación municipal:
+                          </span>
+                          <p className="text-stone-700 italic font-medium">"{inc.respuesta_municipio}"</p>
+                        </div>
+                      )}
+
+                      {/* HISTÓRICO DE ACTUACIONES */}
+                      {historial.length > 0 && (
+                        <div className="pt-1">
+                          <button
+                            onClick={() => toggleVerHistorialIncidencia(inc.id)}
+                            className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
+                          >
+                            <span>💬 {estaHistorialAbierto ? 'Ocultar historial de actuaciones' : `Ver histórico de actuaciones (${historial.length})`}</span>
+                            <span className="text-[10px]">{estaHistorialAbierto ? '▲' : '▼'}</span>
+                          </button>
+
+                          {estaHistorialAbierto && (
+                            <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2.5 text-xs shadow-2xs">
+                              <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
+                                <span>📜 Historial cronológico de cambios de estado:</span>
+                              </h4>
+                              <div className="space-y-2">
+                                {historial.map((h: any, hIdx: number) => (
+                                  <div key={hIdx} className="p-2.5 bg-stone-50 rounded-xl border border-stone-150 space-y-1">
+                                    <div className="flex justify-between items-center flex-wrap gap-1">
+                                      <span className="font-bold text-stone-800 text-xs">
+                                        Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                      </span>
+                                      <span className="text-[10px] text-stone-400 font-medium">
+                                        📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                      </span>
+                                    </div>
+                                    <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
+                                    <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -1841,6 +1990,116 @@ export default function AdminDashboard() {
               >
                 Cerrar
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL CAMBIO DE ESTADO Y COMENTARIO OBLIGATORIO DE INCIDENCIA */}
+        {incidenciaCambioEstadoModal && (
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in zoom-in duration-150">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl border border-stone-200">
+              <div className="flex justify-between items-start border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shadow-inner">
+                    📝
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-stone-900">Actualizar Estado de Incidencia</h3>
+                    <p className="text-xs text-stone-500">
+                      {incidenciaCambioEstadoModal.frontones?.nombre} • {incidenciaCambioEstadoModal.titulo}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIncidenciaCambioEstadoModal(null)}
+                  className="text-stone-400 font-bold text-lg w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:text-stone-700 transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleGuardarCambioEstadoConComentario} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                    1. Nuevo Estado de la Incidencia *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNuevoEstadoSeleccionado('pendiente')}
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                        nuevoEstadoSeleccionado === 'pendiente'
+                          ? 'bg-rose-100 border-rose-400 text-rose-900 ring-2 ring-rose-400'
+                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-rose-50/50'
+                      }`}
+                    >
+                      <span>⏳</span>
+                      <span>Pendiente</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setNuevoEstadoSeleccionado('en_curso')}
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                        nuevoEstadoSeleccionado === 'en_curso'
+                          ? 'bg-amber-100 border-amber-400 text-amber-900 ring-2 ring-amber-400'
+                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-amber-50/50'
+                      }`}
+                    >
+                      <span>🔧</span>
+                      <span>En curso</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setNuevoEstadoSeleccionado('resuelta')}
+                      className={`p-3 rounded-2xl border text-xs font-bold transition flex flex-col items-center gap-1 ${
+                        nuevoEstadoSeleccionado === 'resuelta'
+                          ? 'bg-emerald-100 border-emerald-500 text-emerald-900 ring-2 ring-emerald-500'
+                          : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-emerald-50/50'
+                      }`}
+                    >
+                      <span>✅</span>
+                      <span>Resuelta</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                    2. Comentario de Actuación (Obligatorio) *
+                  </label>
+                  <p className="text-[11px] text-stone-500 mb-2">
+                    Este comentario se registrará en el histórico cronológico y será visible para el ciudadano que reportó la incidencia.
+                  </p>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Describe qué se ha hecho o se va a hacer (ej. 'Se ha enviado al electricista municipal a revisar los focos', 'Material pedido al proveedor', 'Reparación completada y verificada')..."
+                    value={comentarioCambioEstado}
+                    onChange={(e) => setComentarioCambioEstado(e.target.value)}
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={guardandoCambioEstado}
+                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
+                  >
+                    {guardandoCambioEstado ? 'Guardando en histórico...' : 'Guardar y Registrar en Histórico'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIncidenciaCambioEstadoModal(null)}
+                    className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

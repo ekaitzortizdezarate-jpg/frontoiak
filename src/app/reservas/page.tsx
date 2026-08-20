@@ -40,6 +40,7 @@ export default function PortalReservas() {
   const [incidenciaDescripcion, setIncidenciaDescripcion] = useState('')
   const [enviandoIncidencia, setEnviandoIncidencia] = useState(false)
   const [todosLosFrontones, setTodosLosFrontones] = useState<any[]>([])
+  const [incidenciasHistorialAbierto, setIncidenciasHistorialAbierto] = useState<string[]>([])
 
   // Calendario y Navegación de 4 semanas
   const [offsetSemanas, setOffsetSemanas] = useState(0)
@@ -967,28 +968,79 @@ export default function PortalReservas() {
                 }
 
                 return (
-                  <div key={inc.id} className="p-4 border border-stone-200 rounded-2xl bg-stone-50/70 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center shadow-2xs">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-stone-900 text-sm">{inc.titulo}</span>
-                        <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
-                          🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
+                  <div key={inc.id} className="p-5 border border-stone-200 rounded-3xl bg-stone-50/70 space-y-3 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-stone-900 text-base">{inc.titulo}</span>
+                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200/60">
+                            🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
+                          </span>
+                        </div>
+                        {inc.descripcion && (
+                          <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
+                        )}
+                        <span className="text-[10px] text-stone-400 font-medium block">
+                          📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      {inc.descripcion && (
-                        <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
-                      )}
-                      <span className="text-[10px] text-stone-400 font-medium block">
-                        📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </span>
+
+                      <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
+                          {estadoTexto}
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
-                        {estadoTexto}
-                      </span>
-                      <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
-                    </div>
+                    {/* COMENTARIO MUNICIPAL */}
+                    {inc.respuesta_municipio && (
+                      <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl text-xs text-emerald-950 space-y-1">
+                        <span className="font-bold flex items-center gap-1 text-emerald-900">
+                          🏛️ Respuesta del Ayuntamiento:
+                        </span>
+                        <p className="text-stone-700 italic font-medium">"{inc.respuesta_municipio}"</p>
+                      </div>
+                    )}
+
+                    {/* HISTÓRICO DE ACTUACIONES */}
+                    {Array.isArray(inc.historial) && inc.historial.length > 0 && (
+                      <div className="pt-1">
+                        <button
+                          onClick={() => setIncidenciasHistorialAbierto(prev => 
+                            prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
+                          )}
+                          className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
+                        >
+                          <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? 'Ocultar histórico de actuaciones' : `Ver histórico de actuaciones (${inc.historial.length})`}</span>
+                          <span className="text-[10px]">{incidenciasHistorialAbierto.includes(inc.id) ? '▲' : '▼'}</span>
+                        </button>
+
+                        {incidenciasHistorialAbierto.includes(inc.id) && (
+                          <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2 text-xs shadow-2xs">
+                            <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
+                              <span>📜 Historial cronológico de cambios de estado:</span>
+                            </h4>
+                            <div className="space-y-2">
+                              {inc.historial.map((h: any, hIdx: number) => (
+                                <div key={hIdx} className="p-2.5 bg-stone-50 rounded-xl border border-stone-150 space-y-1">
+                                  <div className="flex justify-between items-center flex-wrap gap-1">
+                                    <span className="font-bold text-stone-800 text-xs">
+                                      Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                    </span>
+                                    <span className="text-[10px] text-stone-400 font-medium">
+                                      📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </div>
+                                  <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
+                                  <span className="text-[10px] text-stone-400 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
