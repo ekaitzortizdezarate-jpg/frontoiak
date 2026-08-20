@@ -71,6 +71,7 @@ export default function PortalReservas() {
   const [buscandoLibres, setBuscandoLibres] = useState(false)
   const [busquedaLibresRealizada, setBusquedaLibresRealizada] = useState(false)
   const [reservandoDesdeLibresId, setReservandoDesdeLibresId] = useState<string | null>(null)
+  const [slotDestacadoHoraInicio, setSlotDestacadoHoraInicio] = useState<string | null>(null)
 
   // Calendario y Navegación de 4 semanas
   const [offsetSemanas, setOffsetSemanas] = useState(0)
@@ -711,9 +712,63 @@ export default function PortalReservas() {
     }
   }
 
-  const handleVerFrontonDesdeBusqueda = async (fronton: any) => {
-    await seleccionarFronton(fronton)
+  const handleIrAReservarSlotDesdeBusqueda = async (fronton: any) => {
+    let frontonConMun = fronton
+    if (!frontonConMun.municipios && frontonConMun.municipio_id) {
+      const mun = municipios.find(m => m.id === frontonConMun.municipio_id)
+      if (mun) {
+        frontonConMun = { ...frontonConMun, municipios: mun }
+      } else {
+        const { data: munData } = await supabase.from('municipios').select('*').eq('id', frontonConMun.municipio_id).maybeSingle()
+        if (munData) {
+          frontonConMun = { ...frontonConMun, municipios: munData }
+        }
+      }
+    }
+
+    setFrontonSeleccionado(frontonConMun)
+    if (frontonConMun.municipio_id) {
+      setMunicipioSeleccionado(frontonConMun.municipio_id)
+    }
+
+    // Configurar la fecha seleccionada con la fecha introducida en la búsqueda
     setFechaSeleccionada(busquedaLibresFecha)
+
+    // Ajustar el preview de días para que muestre la fecha seleccionada
+    const hoy = new Date()
+    hoy.setHours(0, 0, 0, 0)
+    const [anio, mes, dia] = busquedaLibresFecha.split('-').map(Number)
+    const fechaObj = new Date(anio, mes - 1, dia)
+    fechaObj.setHours(0, 0, 0, 0)
+    const diffDias = Math.round((fechaObj.getTime() - hoy.getTime()) / (1000 * 3600 * 24))
+    if (diffDias >= 0) {
+      setOffsetDiasPreview(diffDias)
+    }
+
+    setCalendarioAbierto(false)
+    setSlotDestacadoHoraInicio(busquedaLibresHoraInicio)
+
+    // Cargar eventos del frontón seleccionado
+    await cargarEventosFronton(frontonConMun.id)
+
+    // Scrollear suavemente hasta la franja horaria correspondiente a la hora inicial
+    setTimeout(() => {
+      const slotElement = document.getElementById(`slot-${busquedaLibresHoraInicio}`)
+      if (slotElement) {
+        slotElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      } else if (franjasHorariasRef.current) {
+        franjasHorariasRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 200)
+
+    // Quitar el resalte tras unos segundos
+    setTimeout(() => {
+      setSlotDestacadoHoraInicio(null)
+    }, 4500)
+  }
+
+  const handleVerFrontonDesdeBusqueda = async (fronton: any) => {
+    await handleIrAReservarSlotDesdeBusqueda(fronton)
   }
 
   const seleccionarFronton = async (fronton: any) => {
@@ -1521,24 +1576,20 @@ export default function PortalReservas() {
                           </div>
                         </div>
 
-                        {/* Botones de acción */}
-                        <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800 flex items-center gap-2">
+                        {/* Botón de acción: Reservar esta franja */}
+                        <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800">
                           <button
                             type="button"
-                            onClick={() => handleVerFrontonDesdeBusqueda(f)}
-                            className="flex-1 px-3 py-2 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold transition text-center cursor-pointer"
+                            disabled={!puedeReservar}
+                            onClick={() => handleIrAReservarSlotDesdeBusqueda(f)}
+                            className="w-full px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer group-hover:scale-[1.01]"
                           >
-                            {t.reservas.select_and_view || 'Ver Frontón'}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={!puedeReservar || reservandoDesdeLibresId === f.id}
-                            onClick={() => handleReservarDesdeBusqueda(f)}
-                            className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition text-center shadow-xs disabled:opacity-50 cursor-pointer"
-                          >
-                            {reservandoDesdeLibresId === f.id
-                              ? 'Reservando...'
-                              : (t.reservas.book_this_slot || 'Reservar')}
+                            <span>📅</span>
+                            <span>{t.reservas.book_this_slot || 'Reservar esta Franja'}</span>
+                            <span className="text-emerald-200 dark:text-emerald-300 font-mono text-[11px]">
+                              ({busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
+                            </span>
+                            <span className="text-xs">↓</span>
                           </button>
                         </div>
                       </div>
@@ -2151,37 +2202,54 @@ export default function PortalReservas() {
 
                   const estaBloqueado = frontonSeleccionado.habilitado === false || noEsEmpadronado || estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora
 
+                  const esSlotDestacado = slotDestacadoHoraInicio === slot.inicio
+
                   return (
                     <div 
                       key={idx} 
-                      className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition ${
-                        slot.ocupado 
-                          ? slot.esMunicipal
-                            ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
-                            : 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800' 
-                          : estaBloqueado
-                            ? 'bg-stone-100/70 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 opacity-60'
-                            : 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80 hover:border-emerald-300 dark:hover:border-emerald-700'
+                      id={`slot-${slot.inicio}`}
+                      className={`p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition scroll-mt-32 ${
+                        esSlotDestacado
+                          ? 'ring-2 ring-emerald-500 dark:ring-emerald-400 bg-emerald-100/90 dark:bg-emerald-950/80 border-emerald-400 dark:border-emerald-600 shadow-md animate-pulse'
+                          : slot.ocupado 
+                            ? slot.esMunicipal
+                              ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
+                              : 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800' 
+                            : estaBloqueado
+                              ? 'bg-stone-100/70 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 opacity-60'
+                              : 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80 hover:border-emerald-300 dark:hover:border-emerald-700'
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className="font-mono font-bold text-base text-stone-800 dark:text-stone-200 w-28 bg-white dark:bg-stone-950 px-2.5 py-1 rounded-xl border border-stone-200 dark:border-stone-800 text-center shadow-2xs">
+                        <span className={`font-mono font-bold text-base w-28 px-2.5 py-1 rounded-xl border text-center shadow-2xs ${
+                          esSlotDestacado
+                            ? 'bg-emerald-700 text-white border-emerald-600 dark:bg-emerald-600'
+                            : 'text-stone-800 dark:text-stone-200 bg-white dark:bg-stone-950 border-stone-200 dark:border-stone-800'
+                        }`}>
                           {slot.inicio} - {slot.fin}
                         </span>
                         <div>
-                          <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
-                            slot.ocupado 
-                              ? slot.esMunicipal
-                                ? 'bg-blue-200 dark:bg-blue-900 text-blue-950 dark:text-blue-200'
-                                : 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200' 
-                              : noEsEmpadronado
-                                ? 'bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-200'
-                                : estaBloqueado
-                                  ? 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400'
-                                  : 'bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200'
-                          }`}>
-                            {badgeTexto}
-                          </span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                              slot.ocupado 
+                                ? slot.esMunicipal
+                                  ? 'bg-blue-200 dark:bg-blue-900 text-blue-950 dark:text-blue-200'
+                                  : 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200' 
+                                : noEsEmpadronado
+                                  ? 'bg-amber-200 dark:bg-amber-900 text-amber-950 dark:text-amber-200'
+                                  : estaBloqueado
+                                    ? 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400'
+                                    : 'bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200'
+                            }`}>
+                              {badgeTexto}
+                            </span>
+                            {esSlotDestacado && (
+                              <span className="text-[10px] font-extrabold text-emerald-900 dark:text-emerald-200 bg-emerald-200 dark:bg-emerald-800/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <span>🎯</span>
+                                <span>Franja buscada</span>
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 font-medium">
                             {descripcionTexto}
                           </p>
