@@ -513,17 +513,28 @@ export default function SuperAdminDashboard() {
 
     if (res.error) {
       console.warn('Aviso al guardar frontón:', res.error)
-      if (res.error.message?.includes('column') || res.error.code === 'PGRST204') {
+      if (res.error.message?.includes('column') || res.error.code === 'PGRST204' || res.error.message?.includes('uuid') || res.error.message?.includes('syntax')) {
         const fallback = { ...datosFronton }
         delete fallback.anchura
         delete fallback.largura
         delete fallback.labur
         delete fallback.luze
         delete fallback.habilitado
+        if (res.error.message?.includes('uuid') || res.error.message?.includes('syntax')) {
+          // Si hardware_token en la base de datos es de tipo UUID, omitirlo o usar null en el fallback
+          delete fallback.hardware_token
+        }
+        let fallbackRes
         if (frontonEnEdicion) {
-          await supabase.from('frontones').update(fallback).eq('id', frontonEnEdicion.id)
+          fallbackRes = await supabase.from('frontones').update(fallback).eq('id', frontonEnEdicion.id)
         } else {
-          await supabase.from('frontones').insert([fallback])
+          fallbackRes = await supabase.from('frontones').insert([fallback])
+        }
+
+        if (fallbackRes.error) {
+          alert('Error al guardar frontón: ' + fallbackRes.error.message)
+          setGuardandoFronton(false)
+          return
         }
       } else {
         alert('Error al guardar frontón: ' + res.error.message)
