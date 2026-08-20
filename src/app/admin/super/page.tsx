@@ -1082,36 +1082,36 @@ export default function SuperAdminDashboard() {
         {/* TARJETAS DE MÉTRICAS GLOBALES */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm space-y-1">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Poblaciones</span>
+            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">{t.auth.municipality}</span>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl sm:text-3xl font-black text-white">{municipios.length}</span>
-              <span className="text-xs text-emerald-400 font-bold">{municipios.filter(m => (m.estado || 'activo') === 'activo').length} activas</span>
+              <span className="text-xs text-emerald-400 font-bold">{municipios.filter(m => (m.estado || 'activo') === 'activo').length} {t.common.active}</span>
             </div>
           </div>
 
           <div className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm space-y-1">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Gestores</span>
+            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">{t.superadmin.tab_managers.replace('👥 ', '')}</span>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl sm:text-3xl font-black text-white">{gestores.length}</span>
-              <span className="text-xs text-teal-400 font-bold">{gestores.filter(g => g.municipio_id).length} asignados</span>
+              <span className="text-xs text-teal-400 font-bold">{gestores.filter(g => g.municipio_id).length} {t.common.approved}</span>
             </div>
           </div>
 
           <div className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm space-y-1">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Frontones</span>
+            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">{t.admin.frontons_tab}</span>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl sm:text-3xl font-black text-white">{frontones.length}</span>
-              <span className="text-xs text-emerald-400 font-bold">{frontones.filter(f => f.habilitado !== false).length} habilitados</span>
+              <span className="text-xs text-emerald-400 font-bold">{frontones.filter(f => f.habilitado !== false).length} {t.common.active}</span>
             </div>
           </div>
 
           <div className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm space-y-1">
-            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Sensores IoT</span>
+            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">{t.superadmin.tab_iot.replace('📡 ', '')}</span>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl sm:text-3xl font-black text-white">{frontones.filter(f => f.tiene_sensor_iot).length}</span>
               <span className="text-xs text-amber-400 font-bold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                {frontones.filter(f => f.tiene_sensor_iot && f.en_uso).length} en uso
+                {frontones.filter(f => f.tiene_sensor_iot && f.en_uso).length} {t.common.in_use}
               </span>
             </div>
           </div>
@@ -1127,7 +1127,7 @@ export default function SuperAdminDashboard() {
                 : 'border-transparent text-stone-400 hover:text-stone-200'
             }`}
           >
-            🏛️ Municipios y Provincias ({municipios.length})
+            {t.superadmin.tab_municipalities} ({municipios.length})
           </button>
           <button 
             onClick={() => setActiveTab('gestores')}
@@ -1137,7 +1137,7 @@ export default function SuperAdminDashboard() {
                 : 'border-transparent text-stone-400 hover:text-stone-200'
             }`}
           >
-            <span>👥 Gestores Municipales ({gestores.length})</span>
+            <span>{t.superadmin.tab_managers} ({gestores.length})</span>
             {gestores.filter(g => g.estado_aprobacion === 'pendiente').length > 0 && (
               <span className="bg-amber-500 text-stone-950 text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce shadow-md flex items-center gap-1">
                 <span>⏳</span> {gestores.filter(g => g.estado_aprobacion === 'pendiente').length}
@@ -1152,7 +1152,7 @@ export default function SuperAdminDashboard() {
                 : 'border-transparent text-stone-400 hover:text-stone-200'
             }`}
           >
-            📡 Red Hardware / IoT ({frontones.filter(f => f.tiene_sensor_iot).length})
+            {t.superadmin.tab_iot} ({frontones.filter(f => f.tiene_sensor_iot).length})
           </button>
           <button 
             onClick={() => setActiveTab('provincias')}
@@ -1162,7 +1162,7 @@ export default function SuperAdminDashboard() {
                 : 'border-transparent text-stone-400 hover:text-stone-200'
             }`}
           >
-            🗺️ Provincias ({provincias.length})
+            {t.superadmin.tab_provinces} ({provincias.length})
           </button>
         </div>
 
@@ -1175,7 +1175,7 @@ export default function SuperAdminDashboard() {
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                 <input 
                   type="text" 
-                  placeholder="Buscar población..." 
+                  placeholder={`${t.common.search}...`} 
                   value={busquedaMunicipio}
                   onChange={(e) => setBusquedaMunicipio(e.target.value)}
                   className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-60 font-medium"

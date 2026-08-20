@@ -386,7 +386,7 @@ export default function AjustesUsuarioPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <p className="text-emerald-800 font-bold text-sm">Cargando ajustes...</p>
+        <p className="text-emerald-800 font-bold text-sm">{t.common.loading}</p>
       </div>
     )
   }
@@ -439,8 +439,8 @@ export default function AjustesUsuarioPage() {
                   🏛️
                 </div>
                 <div>
-                  <h1 className="text-xl font-black text-stone-900">Ajustes del Gestor Municipal</h1>
-                  <p className="text-xs text-stone-500 font-medium">Datos de tu municipio y contacto de gestión</p>
+                  <h1 className="text-xl font-black text-stone-900">{t.ajustes.title_gestor}</h1>
+                  <p className="text-xs text-stone-500 font-medium">{t.ajustes.subtitle_gestor}</p>
                 </div>
               </div>
 
@@ -449,7 +449,7 @@ export default function AjustesUsuarioPage() {
                   onClick={() => setEditandoPerfil(true)}
                   className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs"
                 >
-                  Editar Datos
+                  {t.ajustes.edit_data}
                 </button>
               )}
             </div>
@@ -458,7 +458,7 @@ export default function AjustesUsuarioPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Nombre del Gestor *
+                    {t.ajustes.manager_name} *
                   </label>
                   <input 
                     type="text" 
@@ -466,20 +466,18 @@ export default function AjustesUsuarioPage() {
                     value={nombre} 
                     onChange={(e) => setNombre(e.target.value)} 
                     disabled={!editandoPerfil}
-                    placeholder="ej. Jon"
                     className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Apellidos del Gestor
+                    {t.ajustes.manager_last_name}
                   </label>
                   <input 
                     type="text" 
                     value={apellidos} 
                     onChange={(e) => setApellidos(e.target.value)} 
                     disabled={!editandoPerfil}
-                    placeholder="ej. Pérez Gómez"
                     className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
@@ -487,7 +485,7 @@ export default function AjustesUsuarioPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                  Imagen / Escudo del Municipio (Opcional)
+                  {t.ajustes.municipality_logo}
                 </label>
                 {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
@@ -498,12 +496,12 @@ export default function AjustesUsuarioPage() {
                     />
                     <div className="space-y-1.5">
                       <p className="text-xs font-bold text-stone-800">
-                        {archivoImagenMunicipio ? `Nueva imagen seleccionada: ${archivoImagenMunicipio.name}` : 'Imagen actual guardada'}
+                        {archivoImagenMunicipio ? `Nueva imagen: ${archivoImagenMunicipio.name}` : 'Imagen guardada'}
                       </p>
                       {editandoPerfil && (
                         <div className="flex gap-2 flex-wrap">
                           <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
-                            Cambiar imagen
+                            {t.common.edit}
                             <input 
                               type="file" 
                               accept="image/*"
@@ -523,7 +521,7 @@ export default function AjustesUsuarioPage() {
                             }} 
                             className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                           >
-                            Borrar imagen
+                            {t.common.delete}
                           </button>
                         </div>
                       )}
@@ -532,8 +530,8 @@ export default function AjustesUsuarioPage() {
                 ) : editandoPerfil ? (
                   <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
                     <span className="text-2xl mb-1 group-hover:scale-110 transition">🏛️</span>
-                    <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">Seleccionar imagen o escudo municipal</span>
-                    <span className="text-[10px] text-stone-400 mt-0.5">PNG, JPG o WEBP</span>
+                    <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">{t.ajustes.upload_logo}</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">PNG, JPG, WEBP</span>
                     <input 
                       type="file" 
                       accept="image/*"
@@ -553,7 +551,7 @@ export default function AjustesUsuarioPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Provincia *
+                    {t.auth.province} *
                   </label>
                   {editandoPerfil ? (
                     <select 
@@ -562,7 +560,7 @@ export default function AjustesUsuarioPage() {
                       required
                       className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                     >
-                      <option value="">Selecciona provincia...</option>
+                      <option value="">{t.reservas.select_province}</option>
                       {provincias.map(p => (
                         <option key={p.id} value={p.id}>{p.nombre}</option>
                       ))}
@@ -579,7 +577,7 @@ export default function AjustesUsuarioPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                    Población / Municipio *
+                    {t.auth.municipality} *
                   </label>
                   {editandoPerfil ? (
                     <select 
@@ -589,7 +587,7 @@ export default function AjustesUsuarioPage() {
                       disabled={!selectedProvinciaId}
                       className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                     >
-                      <option value="">Selecciona pueblo / municipio...</option>
+                      <option value="">{t.reservas.select_town}</option>
                       {municipiosDisponibles.map(m => (
                         <option key={m.id} value={m.id}>{m.nombre}</option>
                       ))}
@@ -607,7 +605,7 @@ export default function AjustesUsuarioPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Códigos Postales del Municipio
+                  {t.ajustes.postal_codes}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2 min-h-[36px] items-center">
                   {codigosPostales.length > 0 ? (
@@ -638,7 +636,7 @@ export default function AjustesUsuarioPage() {
                   <div className="flex gap-2 pt-1">
                     <input 
                       type="text" 
-                      placeholder="Añadir otro C.P. (ej. 20500)" 
+                      placeholder={t.ajustes.add_cp_placeholder} 
                       value={nuevoCp}
                       onChange={(e) => setNuevoCp(e.target.value)}
                       onKeyDown={(e) => {
@@ -654,7 +652,7 @@ export default function AjustesUsuarioPage() {
                       onClick={handleAddCp} 
                       className="bg-stone-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
                     >
-                      Añadir C.P.
+                      {t.ajustes.add_cp}
                     </button>
                   </div>
                 )}
@@ -662,7 +660,7 @@ export default function AjustesUsuarioPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Correo de Contacto / Acceso
+                  {t.auth.email}
                 </label>
                 <input 
                   type="email" 
@@ -679,7 +677,7 @@ export default function AjustesUsuarioPage() {
                     disabled={guardando}
                     className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm disabled:bg-stone-300"
                   >
-                    {guardando ? 'Guardando...' : 'Guardar Ajustes'}
+                    {guardando ? t.ajustes.saving : t.ajustes.save_changes}
                   </button>
                   <button 
                     type="button" 
@@ -689,7 +687,7 @@ export default function AjustesUsuarioPage() {
                     }}
                     className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
                   >
-                    Cancelar
+                    {t.common.cancel}
                   </button>
                 </div>
               )}
@@ -703,8 +701,8 @@ export default function AjustesUsuarioPage() {
                   👤
                 </div>
                 <div>
-                  <h1 className="text-xl font-black text-stone-900">Mi Perfil y Datos Personales</h1>
-                  <p className="text-xs text-stone-500 font-medium">Información registrada en tu cuenta</p>
+                  <h1 className="text-xl font-black text-stone-900">{t.ajustes.title_user}</h1>
+                  <p className="text-xs text-stone-500 font-medium">{t.ajustes.subtitle_user}</p>
                 </div>
               </div>
 
@@ -713,7 +711,7 @@ export default function AjustesUsuarioPage() {
                   onClick={() => setEditandoPerfil(true)}
                   className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs"
                 >
-                  Editar Datos
+                  {t.ajustes.edit_data}
                 </button>
               )}
             </div>
@@ -721,7 +719,7 @@ export default function AjustesUsuarioPage() {
             <form onSubmit={handleGuardarPerfil} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nombre *</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.name} *</label>
                   <input 
                     type="text" 
                     required
@@ -733,7 +731,7 @@ export default function AjustesUsuarioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Apellidos</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.last_name}</label>
                   <input 
                     type="text" 
                     value={apellidos} 
@@ -746,7 +744,7 @@ export default function AjustesUsuarioPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">DNI</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.dni}</label>
                   <input 
                     type="text" 
                     value={dni} 
@@ -757,7 +755,7 @@ export default function AjustesUsuarioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Fecha de Nacimiento</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.birth_date}</label>
                   <input 
                     type="date" 
                     value={fechaNacimiento} 
@@ -769,7 +767,7 @@ export default function AjustesUsuarioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Calle / Dirección</label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.address}</label>
                 <input 
                   type="text" 
                   value={calle} 
@@ -781,7 +779,7 @@ export default function AjustesUsuarioPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Localidad</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.city}</label>
                   <input 
                     type="text" 
                     value={localidad} 
@@ -792,7 +790,7 @@ export default function AjustesUsuarioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Código Postal</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.postal_code}</label>
                   <input 
                     type="text" 
                     value={codigoPostal} 
@@ -803,7 +801,7 @@ export default function AjustesUsuarioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Correo</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.auth.email}</label>
                   <input 
                     type="email" 
                     value={email} 
@@ -820,7 +818,7 @@ export default function AjustesUsuarioPage() {
                     disabled={guardando}
                     className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm disabled:bg-stone-300"
                   >
-                    {guardando ? 'Guardando...' : 'Guardar Cambios'}
+                    {guardando ? t.ajustes.saving : t.ajustes.save_changes}
                   </button>
                   <button 
                     type="button" 
@@ -830,7 +828,7 @@ export default function AjustesUsuarioPage() {
                     }}
                     className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
                   >
-                    Cancelar
+                    {t.common.cancel}
                   </button>
                 </div>
               )}
@@ -845,8 +843,8 @@ export default function AjustesUsuarioPage() {
               🔒
             </div>
             <div>
-              <h2 className="text-xl font-black text-stone-900">Seguridad / Contraseña</h2>
-              <p className="text-xs text-stone-500 font-medium">Gestiona tu clave de acceso</p>
+              <h2 className="text-xl font-black text-stone-900">{t.ajustes.security}</h2>
+              <p className="text-xs text-stone-500 font-medium">{t.ajustes.change_password}</p>
             </div>
           </div>
 
@@ -856,13 +854,13 @@ export default function AjustesUsuarioPage() {
                 onClick={() => setModoCambioPass(true)}
                 className="bg-stone-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm"
               >
-                Cambiar contraseña
+                {t.ajustes.change_password}
               </button>
             </div>
           ) : (
             <form onSubmit={handleCambiarPassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Contraseña Actual</label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.current_password}</label>
                 <input 
                   type="password" 
                   value={passwordActual} 
@@ -873,7 +871,7 @@ export default function AjustesUsuarioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nueva Contraseña</label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.new_password}</label>
                 <input 
                   type="password" 
                   value={nuevaPassword} 
@@ -884,7 +882,7 @@ export default function AjustesUsuarioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Confirmar Nueva Contraseña</label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">{t.ajustes.confirm_new_password}</label>
                 <input 
                   type="password" 
                   value={confirmarPassword} 
@@ -900,14 +898,14 @@ export default function AjustesUsuarioPage() {
                   disabled={cambiandoPass}
                   className="flex-1 bg-stone-900 text-white p-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm disabled:bg-stone-300"
                 >
-                  {cambiandoPass ? 'Actualizando...' : 'Confirmar Cambio'}
+                  {cambiandoPass ? t.ajustes.saving : t.common.confirm}
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setModoCambioPass(false)}
                   className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-5 py-3 rounded-2xl text-sm font-bold transition"
                 >
-                  Cancelar
+                  {t.common.cancel}
                 </button>
               </div>
             </form>
@@ -917,7 +915,7 @@ export default function AjustesUsuarioPage() {
       </main>
 
       <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+        {t.home.footer}
       </footer>
     </div>
   )

@@ -8,7 +8,7 @@ import LanguageSelector from '@/components/LanguageSelector'
 
 export default function PortalReservas() {
   const [user, setUser] = useState<any>(null)
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [provincias, setProvincias] = useState<any[]>([])
   const [municipios, setMunicipios] = useState<any[]>([])
   const [frontones, setFrontones] = useState<any[]>([])
@@ -978,16 +978,16 @@ export default function PortalReservas() {
           <div className="flex items-center justify-between border-b border-stone-100 pb-3">
             <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
-              Mis Próximas Reservas
+              {t.reservas.my_upcoming_bookings}
             </h2>
             <span className="text-xs font-bold text-stone-400 bg-stone-100 px-2.5 py-0.5 rounded-full">
-              {misProximasReservas.length} activa(s)
+              {misProximasReservas.length} {t.reservas.active_count}
             </span>
           </div>
 
           {misProximasReservas.length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-sm text-stone-400 italic">Sin próximas reservas activas.</p>
+              <p className="text-sm text-stone-400 italic">{t.reservas.no_upcoming_bookings}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -998,14 +998,14 @@ export default function PortalReservas() {
                       {res.frontones?.nombre} <span className="font-normal text-stone-500">({res.frontones?.municipios?.nombre})</span>
                     </span>
                     <span className="inline-block mt-1 text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-lg">
-                      📅 {new Date(res.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
+                      📅 {new Date(res.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
                     </span>
                   </div>
                   <button 
                     onClick={() => handleCancelarReserva(res.id)}
                     className="bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold px-4 py-2 rounded-xl transition shadow-2xs"
                   >
-                    Cancelar Reserva
+                    {t.reservas.cancel_booking}
                   </button>
                 </div>
               ))}
@@ -1017,12 +1017,12 @@ export default function PortalReservas() {
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
           <h2 className="text-base font-bold text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
             <span className="text-amber-500 text-lg">★</span>
-            Mis Frontones Favoritos
+            {t.reservas.my_favorites}
           </h2>
 
           {misFavoritos.length === 0 ? (
             <p className="text-sm text-stone-400 italic py-2 text-center">
-              Aún no has añadido favoritos. Selecciónalos abajo y pulsa la estrella para acceso rápido.
+              {t.reservas.no_favorites}
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1044,7 +1044,7 @@ export default function PortalReservas() {
                       )}
                       <div className="flex-1 min-w-0">
                         <span className="font-bold text-sm text-stone-900 group-hover:text-emerald-900 block truncate">
-                          {f.nombre} {f.habilitado === false ? ' (🚫 Deshabilitado)' : ''}
+                          {f.nombre} {f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}
                         </span>
                         <span className="text-xs text-stone-500 block truncate">
                           {f.municipios?.nombre}
@@ -1057,13 +1057,13 @@ export default function PortalReservas() {
                       <div className="flex flex-wrap gap-1.5">
                         {pendientes > 0 && (
                           <span className="bg-rose-50 text-rose-800 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600">Pendientes:</span>
+                            <span className="text-stone-600">{t.common.pending}:</span>
                             <span className="font-black text-rose-700">{pendientes}</span>
                           </span>
                         )}
                         {enCurso > 0 && (
                           <span className="bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
-                            <span className="text-stone-600">En curso:</span>
+                            <span className="text-stone-600">{t.reservas.status_in_progress_short}:</span>
                             <span className="font-black text-amber-800">{enCurso}</span>
                           </span>
                         )}
@@ -1080,10 +1080,10 @@ export default function PortalReservas() {
                         <span className={`w-1.5 h-1.5 rounded-full ${
                           f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
                         }`}></span>
-                        {f.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
+                        {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
                       </span>
                       <span className="text-xs font-bold text-emerald-700 group-hover:translate-x-0.5 transition">
-                        Ver →
+                        {t.reservas.view}
                       </span>
                     </div>
                   </div>
@@ -1098,7 +1098,7 @@ export default function PortalReservas() {
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
               <span className="text-rose-500 text-base">⚠️</span>
-              Mis Incidencias y Mantenimiento
+              {t.reservas.my_incidents}
             </h2>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -1107,7 +1107,7 @@ export default function PortalReservas() {
                   onClick={() => setMostrarMisIncidencias(!mostrarMisIncidencias)}
                   className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
                 >
-                  <span>{mostrarMisIncidencias ? 'Ocultar mis incidencias' : `Mostrar mis incidencias (${misIncidencias.length})`}</span>
+                  <span>{mostrarMisIncidencias ? t.reservas.hide_my_incidents : `${t.reservas.show_my_incidents} (${misIncidencias.length})`}</span>
                   <span className="text-[10px]">{mostrarMisIncidencias ? '▲' : '▼'}</span>
                 </button>
               )}
@@ -1116,7 +1116,7 @@ export default function PortalReservas() {
                 onClick={() => abrirModalIncidencia()}
                 className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95"
               >
-                <span>+ Reportar Incidencia</span>
+                <span>{t.reservas.report_incident_btn}</span>
               </button>
             </div>
           </div>
@@ -1126,17 +1126,14 @@ export default function PortalReservas() {
             <div className="space-y-3 pt-3 border-t border-stone-100">
               {misIncidencias.map((inc) => {
                 let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
-                let estadoTexto = '⏳ Pendiente de revisión'
-                let descEstado = 'El municipio aún no ha comenzado la revisión'
+                let estadoTexto = t.reservas.status_pending_review
 
                 if (inc.estado === 'en_curso') {
                   badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
-                  estadoTexto = '🔧 En curso / En reparación'
-                  descEstado = 'El municipio está trabajando en solucionar este aviso'
+                  estadoTexto = t.reservas.status_in_progress
                 } else if (inc.estado === 'resuelta') {
                   badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                  estadoTexto = '✅ Resuelta / Solucionado'
-                  descEstado = 'El municipio ha dado por reparada esta incidencia'
+                  estadoTexto = t.reservas.status_resolved
                 }
 
                 return (
@@ -1153,7 +1150,7 @@ export default function PortalReservas() {
                           <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                         )}
                         <span className="text-[10px] text-stone-400 font-medium block">
-                          📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          📅 {t.reservas.reported_on} {new Date(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
 
@@ -1161,7 +1158,6 @@ export default function PortalReservas() {
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
                           {estadoTexto}
                         </span>
-                        <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
                       </div>
                     </div>
 
@@ -1174,24 +1170,24 @@ export default function PortalReservas() {
                           )}
                           className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
                         >
-                          <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? 'Ocultar histórico de actuaciones' : `Ver histórico de actuaciones (${inc.historial.length})`}</span>
+                          <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? `${t.reservas.hide_actions} (${inc.historial.length})` : `${t.reservas.show_actions} (${inc.historial.length})`}</span>
                           <span className="text-[10px]">{incidenciasHistorialAbierto.includes(inc.id) ? '▲' : '▼'}</span>
                         </button>
 
                         {incidenciasHistorialAbierto.includes(inc.id) && (
                           <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2 text-xs shadow-2xs">
                             <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
-                              <span>📜 Historial cronológico de cambios de estado:</span>
+                              <span>📜 {t.reservas.actions_timeline}:</span>
                             </h4>
                             <div className="space-y-2">
                               {inc.historial.map((h: any, hIdx: number) => (
                                 <div key={hIdx} className="p-2.5 bg-stone-50 rounded-xl border border-stone-150 space-y-1">
                                   <div className="flex justify-between items-center flex-wrap gap-1">
                                     <span className="font-bold text-stone-800 text-xs">
-                                      Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
+                                      {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                     </span>
                                     <span className="text-[10px] text-stone-400 font-medium">
-                                      📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                      📅 {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                   </div>
                                   <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -1217,8 +1213,8 @@ export default function PortalReservas() {
             className="p-6 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
           >
             <div>
-              <h2 className="text-base font-bold text-stone-900">🔍 Buscar y Explorar Frontones</h2>
-              <p className="text-xs text-stone-500">Haz clic aquí para {buscadorAbierto ? 'ocultar' : 'abrir'} el buscador por provincia y municipio</p>
+              <h2 className="text-base font-bold text-stone-900">{t.reservas.search_and_explore}</h2>
+              <p className="text-xs text-stone-500">{buscadorAbierto ? t.reservas.search_desc_open : t.reservas.search_desc_closed}</p>
             </div>
             <span className="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center font-bold text-stone-600 shadow-2xs">
               {buscadorAbierto ? '−' : '+'}
@@ -1228,13 +1224,13 @@ export default function PortalReservas() {
           {buscadorAbierto && (
             <div className="p-6 border-t border-stone-100 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">1. Provincia</label>
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_province}</label>
                 <select 
                   value={provinciaSeleccionada}
                   onChange={(e) => handleProvinciaChange(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 >
-                  <option value="">Selecciona provincia...</option>
+                  <option value="">{t.reservas.select_province}</option>
                   {provincias.map(p => (
                     <option key={p.id} value={p.id}>{p.nombre}</option>
                   ))}
@@ -1242,14 +1238,14 @@ export default function PortalReservas() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">2. Municipio</label>
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_municipality}</label>
                 <select 
                   value={municipioSeleccionado}
                   onChange={(e) => handleMunicipioChange(e.target.value)}
                   disabled={!provinciaSeleccionada}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
+                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
                 >
-                  <option value="">Selecciona pueblo...</option>
+                  <option value="">{t.reservas.select_town}</option>
                   {municipios.map(m => (
                     <option key={m.id} value={m.id}>{m.nombre}</option>
                   ))}
@@ -1257,7 +1253,7 @@ export default function PortalReservas() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">3. Frontón</label>
+                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">{t.reservas.step_fronton}</label>
                 <select 
                   value={frontonSeleccionado?.id || ''}
                   onChange={(e) => {
@@ -1266,11 +1262,11 @@ export default function PortalReservas() {
                     else setFrontonSeleccionado(null)
                   }}
                   disabled={!municipioSeleccionado}
-                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
+                  className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none disabled:bg-stone-100 disabled:text-stone-400 transition"
                 >
-                  <option value="">Selecciona frontón...</option>
+                  <option value="">{t.reservas.select_fronton}</option>
                   {frontones.map(f => (
-                    <option key={f.id} value={f.id}>{f.nombre}{f.habilitado === false ? ' (🚫 Deshabilitado)' : ''}</option>
+                    <option key={f.id} value={f.id}>{f.nombre}{f.habilitado === false ? ` (🚫 ${t.reservas.disabled})` : ''}</option>
                   ))}
                 </select>
               </div>
@@ -1300,13 +1296,13 @@ export default function PortalReservas() {
                       
                       {frontonSeleccionado.solo_empadronados && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-amber-100 text-amber-900 border border-amber-300">
-                          👥 Solo Empadronados
+                          {t.reservas.solo_empadronados_badge}
                         </span>
                       )}
 
                       {frontonSeleccionado.habilitado === false ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 text-rose-800 border border-rose-200">
-                          🚫 Deshabilitado para reservas
+                          🚫 {t.reservas.fronton_disabled}
                         </span>
                       ) : (
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
@@ -1317,16 +1313,16 @@ export default function PortalReservas() {
                           <span className={`w-2 h-2 rounded-full ${
                             frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
                           }`}></span>
-                          {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
+                          {frontonSeleccionado.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
                         </span>
                       )}
                     </div>
 
                     {/* Fila 2: Horario y características */}
                     <p className="text-xs text-stone-500 font-medium">
-                      Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Máximo: {frontonSeleccionado.dias_antelacion_maxima ?? 7} día(s) antelación
+                      {t.reservas.hours}: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | {frontonSeleccionado.dias_antelacion_maxima ?? 7} {t.common.days}
                       {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
-                        <> | Medidas: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
+                        <> | {t.reservas.dimensions}: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
                       )}
                       {frontonSeleccionado.cuadros && <> | Cuadros: {frontonSeleccionado.cuadros}</>}
                       {(frontonSeleccionado.labur || frontonSeleccionado.numero_labur) && <> | Labur: {frontonSeleccionado.labur || frontonSeleccionado.numero_labur}</>}
@@ -1341,20 +1337,20 @@ export default function PortalReservas() {
                       return (
                         <div className="flex items-center gap-2 flex-wrap text-xs pt-0.5">
                           <span className="font-bold text-stone-700 text-xs">
-                            Incidencias
+                            {t.common.incidents}
                           </span>
 
                           <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
                             pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
                           }`}>
-                            <span className="text-stone-600 font-semibold text-[11px]">Pendientes:</span>
+                            <span className="text-stone-600 font-semibold text-[11px]">{t.common.pending}:</span>
                             <span className={`font-black ${pendientes > 0 ? 'text-rose-700' : 'text-stone-800'}`}>{pendientes}</span>
                           </span>
 
                           <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
                             enCurso > 0 ? 'bg-amber-50 text-amber-950 border-amber-300' : 'bg-stone-50 text-stone-600 border-stone-200'
                           }`}>
-                            <span className="text-stone-600 font-semibold text-[11px]">En curso:</span>
+                            <span className="text-stone-600 font-semibold text-[11px]">{t.reservas.status_in_progress_short}:</span>
                             <span className={`font-black ${enCurso > 0 ? 'text-amber-800' : 'text-stone-800'}`}>{enCurso}</span>
                           </span>
                         </div>
@@ -1372,7 +1368,7 @@ export default function PortalReservas() {
                         : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-stone-100'
                     }`}
                   >
-                    <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
+                    <span>{esFavoritoActual ? t.reservas.in_favorites : t.reservas.mark_favorite}</span>
                   </button>
 
                   {/* BOTÓN VER INCIDENCIAS (Sólo visible si hay incidencias pendientes o en curso) */}
@@ -1384,9 +1380,9 @@ export default function PortalReservas() {
                       <button
                         onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
                         className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto"
-                        title="Ver incidencias activas en este frontón"
+                        title={t.reservas.view_incidents}
                       >
-                        <span>⚠️ Ver Incidencias</span>
+                        <span>{t.reservas.view_incidents}</span>
                       </button>
                     )
                   })()}
@@ -1410,10 +1406,10 @@ export default function PortalReservas() {
                   <span className="text-xl">⚠️</span>
                   <div>
                     <p className="text-amber-900 font-extrabold text-xs uppercase tracking-wide">
-                      Acceso Exclusivo para Empadronados
+                      {t.reservas.exclusive_residents}
                     </p>
                     <p className="text-amber-800 font-medium text-xs mt-0.5 leading-relaxed">
-                      Este frontón requiere estar empadronado o residir en <strong className="text-amber-950">{frontonSeleccionado.municipios?.nombre || 'este municipio'}</strong>. Tu código postal o localidad de residencia no coincide con las autorizadas para este municipio.
+                      {t.reservas.exclusive_residents_desc} <strong className="text-amber-950">{frontonSeleccionado.municipios?.nombre || 'este municipio'}</strong>.
                     </p>
                   </div>
                 </div>
@@ -1423,9 +1419,9 @@ export default function PortalReservas() {
               <div className="pt-2 border-t border-stone-100 space-y-3">
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">Próximas ocupaciones / reservas</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">{t.reservas.next_occupations}</h4>
                     <span className="text-[10px] bg-stone-100 text-stone-500 font-semibold px-2 py-0.5 rounded-md">
-                      (Días en gris = Bloqueados para reserva)
+                      {t.reservas.blocked_days_notice}
                     </span>
                   </div>
                   
@@ -1433,7 +1429,7 @@ export default function PortalReservas() {
                     <button 
                       onClick={() => setOffsetDiasPreview(prev => prev - 1)}
                       className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2 transition"
-                      title="Día anterior"
+                      title={t.reservas.prev_day}
                     >
                       ←
                     </button>
@@ -1441,12 +1437,12 @@ export default function PortalReservas() {
                       onClick={() => setOffsetDiasPreview(0)}
                       className="px-2 py-0.5 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-[11px] transition"
                     >
-                      Hoy
+                      {t.reservas.today}
                     </button>
                     <button 
                       onClick={() => setOffsetDiasPreview(prev => prev + 1)}
                       className="p-1 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold px-2 transition"
-                      title="Día siguiente"
+                      title={t.reservas.next_day}
                     >
                       →
                     </button>
@@ -1464,7 +1460,7 @@ export default function PortalReservas() {
 
                     return (
                       <div 
-                        key={idx}
+                        key={idx} 
                         onClick={() => handleSeleccionarDia(fechaStr)}
                         className={`p-3.5 rounded-2xl border text-xs cursor-pointer transition ${
                           noReservable 
@@ -1480,22 +1476,22 @@ export default function PortalReservas() {
                           noReservable ? 'border-stone-300 text-stone-600' : 'text-stone-800 border-stone-200/80'
                         }`}>
                           <span className={`capitalize ${noReservable ? 'line-through' : ''}`}>
-                            {dia.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
+                            {dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
                           </span>
-                          {esHoy && <span className="text-emerald-700 font-extrabold no-underline">(Hoy)</span>}
+                          {esHoy && <span className="text-emerald-700 font-extrabold no-underline">({t.reservas.today})</span>}
                         </div>
 
                         {noReservable && (
                           <div className="mb-2">
                             <span className="bg-stone-300/90 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider block text-center shadow-2xs">
-                              {esPasado ? 'Bloqueado (Día pasado)' : 'Bloqueado (Máx. antelación)'}
+                              {esPasado ? t.reservas.blocked : t.reservas.blocked}
                             </span>
                           </div>
                         )}
                         
                         {eventosDelDia.length === 0 ? (
                           <p className="text-stone-500 italic text-[11px] py-1">
-                            {noReservable ? 'Sin reservas' : 'Sin ocupaciones'}
+                            {noReservable ? t.reservas.no_reservations : t.reservas.free_now}
                           </p>
                         ) : (
                           <div className="space-y-1.5 max-h-[110px] overflow-y-auto pr-1">
@@ -1539,8 +1535,8 @@ export default function PortalReservas() {
                 className="p-6 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex justify-between items-center transition"
               >
                 <div>
-                  <h3 className="text-base font-bold text-stone-900">Seleccionar un día en calendario</h3>
-                  <p className="text-xs text-stone-500">Haz clic aquí para {calendarioAbierto ? 'ocultar' : 'abrir'} el calendario completo de 4 semanas</p>
+                  <h3 className="text-base font-bold text-stone-900">{t.reservas.select_day_calendar}</h3>
+                  <p className="text-xs text-stone-500">{calendarioAbierto ? t.reservas.calendar_desc_open : t.reservas.calendar_desc_closed}</p>
                 </div>
                 <span className="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center font-bold text-stone-600 shadow-2xs">
                   {calendarioAbierto ? '−' : '+'}
@@ -1554,19 +1550,19 @@ export default function PortalReservas() {
                       onClick={() => setOffsetSemanas(prev => prev - 1)}
                       className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
                     >
-                      ← Anteriores 4 semanas
+                      {t.reservas.prev_4_weeks}
                     </button>
                     <div className="text-center">
-                      <h4 className="text-sm font-bold text-stone-900">Parrilla mensual</h4>
+                      <h4 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h4>
                       <p className="text-xs text-stone-500">
-                        {diasCalendario[0]?.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {diasCalendario[0]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev + 1)}
                       className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
                     >
-                      Siguientes 4 semanas →
+                      {t.reservas.next_4_weeks}
                     </button>
                   </div>
 
@@ -1597,15 +1593,15 @@ export default function PortalReservas() {
                             noReservable ? 'border-stone-200 text-stone-400' : 'text-stone-800 border-stone-200'
                           }`}>
                             <span className={noReservable ? 'line-through' : ''}>
-                              {dia.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
+                              {dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
                             </span>
-                            {esHoy && <span className="text-emerald-700 font-black text-[10px]">(Hoy)</span>}
+                            {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
 
                           <div className="flex-1 space-y-1 overflow-y-auto max-h-[80px] pr-1">
                             {eventosDia.length === 0 ? (
                               <span className="text-[10px] text-stone-400 italic block text-center mt-2 font-medium">
-                                {noReservable ? (esPasado ? 'Pasado' : 'Bloqueado') : 'Libre'}
+                                {noReservable ? t.reservas.blocked : t.reservas.available}
                               </span>
                             ) : (
                               eventosDia.map(ev => {
@@ -1638,7 +1634,7 @@ export default function PortalReservas() {
                           <span className={`text-[10px] mt-auto text-center font-bold ${
                             noReservable ? 'text-stone-400' : 'text-stone-500'
                           }`}>
-                            {esSeleccionado ? '✓ Elegido' : noReservable ? (esPasado ? 'No disponible' : 'Excede máx. antelación') : 'Ver franjas'}
+                            {esSeleccionado ? '✓' : noReservable ? t.reservas.not_available : t.reservas.book_slot}
                           </span>
                         </div>
                       )
@@ -1652,39 +1648,33 @@ export default function PortalReservas() {
             <div ref={franjasHorariasRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
               <div className="border-b border-stone-100 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h3 className="font-bold text-lg text-stone-900">
-                  Horarios para el <span className="text-emerald-700 font-extrabold">{new Date(fechaSeleccionada).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{new Date(fechaSeleccionada).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                 </h3>
-                
-                {estadoFechaActual.noReservable && (
-                  <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
-                    ⚠️ {estadoFechaActual.esPasado ? 'Fecha pasada (No reservable)' : `Supera la antelación máxima permitida (${frontonSeleccionado.dias_antelacion_maxima ?? 7} día(s))`}
-                  </span>
-                )}
               </div>
 
               <div className="space-y-2.5">
                 {slotsDelDiaSeleccionado.map((slot, idx) => {
                   const noEsEmpadronado = frontonSeleccionado.solo_empadronados && !esUsuarioEmpadronado(user, frontonSeleccionado)
-                  let badgeTexto = 'Disponible'
-                  let descripcionTexto = 'Hueco libre para jugar'
+                  let badgeTexto = t.reservas.available
+                  let descripcionTexto = t.reservas.free_slot_to_play
 
                   if (frontonSeleccionado.habilitado === false) {
-                    badgeTexto = 'Deshabilitado'
-                    descripcionTexto = 'Frontón deshabilitado para reservas por el municipio'
+                    badgeTexto = t.reservas.disabled
+                    descripcionTexto = t.reservas.fronton_disabled
                   } else if (noEsEmpadronado) {
-                    badgeTexto = 'Solo Empadronados'
-                    descripcionTexto = `Restringido a personas empadronadas en ${frontonSeleccionado.municipios?.nombre || 'este municipio'}`
+                    badgeTexto = t.reservas.solo_empadronados_badge
+                    descripcionTexto = `${t.reservas.exclusive_residents_desc} ${frontonSeleccionado.municipios?.nombre || ''}`
                   } else if (slot.ocupado) {
                     if (slot.esMunicipal) {
-                      badgeTexto = 'Evento Municipal'
-                      descripcionTexto = `Motivo: ${slot.titulo}`
+                      badgeTexto = t.reservas.municipal_event
+                      descripcionTexto = `${slot.titulo}`
                     } else {
-                      badgeTexto = 'Ocupado'
-                      descripcionTexto = `Estado: ${slot.titulo}`
+                      badgeTexto = t.reservas.occupied
+                      descripcionTexto = `${slot.titulo}`
                     }
                   } else if (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) {
-                    badgeTexto = 'No disponible'
-                    descripcionTexto = estadoFechaActual.esPasado ? 'Día pasado' : slot.esPasadoPorHora ? 'Hora ya pasada' : 'Supera la antelación máxima permitida'
+                    badgeTexto = t.reservas.not_available
+                    descripcionTexto = t.reservas.not_available
                   }
 
                   const estaBloqueado = frontonSeleccionado.habilitado === false || noEsEmpadronado || estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora
@@ -1732,29 +1722,29 @@ export default function PortalReservas() {
                             disabled
                             className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
-                            Frontón Deshabilitado
+                            {t.reservas.fronton_disabled}
                           </button>
                         ) : noEsEmpadronado ? (
                           <button 
                             disabled
                             className="bg-amber-100 text-amber-800 border border-amber-300 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
-                            title={`Solo personas empadronadas en ${frontonSeleccionado.municipios?.nombre || 'este municipio'}`}
+                            title={t.reservas.solo_empadronados_warning}
                           >
-                            🔒 Solo Empadronados
+                            {t.reservas.solo_empadronados_btn}
                           </button>
                         ) : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
                           <button 
                             disabled
                             className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
-                            {slot.esPasadoPorHora ? 'Hora pasada' : 'No disponible'}
+                            {t.reservas.not_available}
                           </button>
                         ) : (
                           <button 
                             onClick={() => handleReservarSlot(slot.inicio, slot.fin)}
                             className="bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95"
                           >
-                            Reservar Franja
+                            {t.reservas.book_slot_btn}
                           </button>
                         )
                       ) : slot.esMia ? (
@@ -1762,10 +1752,10 @@ export default function PortalReservas() {
                           onClick={() => handleCancelarReserva(slot.idEvento)}
                           className="bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition shadow-sm active:scale-95"
                         >
-                          Cancelar mi reserva
+                          {t.reservas.cancel_my_booking}
                         </button>
                       ) : (
-                        <span className="text-xs font-bold text-stone-500 uppercase tracking-wider pr-2">No disponible</span>
+                        <span className="text-xs font-bold text-stone-500 uppercase tracking-wider pr-2">{t.reservas.not_available}</span>
                       )}
                     </div>
                   )
@@ -1784,8 +1774,8 @@ export default function PortalReservas() {
                     ⚠️
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">Comunicar Incidencia al Municipio</h3>
-                    <p className="text-xs text-stone-500">Informa de desperfectos, averías de luz o mantenimiento</p>
+                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.communicate_incident}</h3>
+                    <p className="text-xs text-stone-500">{t.reservas.communicate_incident_desc}</p>
                   </div>
                 </div>
                 <button 
@@ -1799,15 +1789,15 @@ export default function PortalReservas() {
               <form onSubmit={handleCrearIncidencia} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                    1. Frontón Afectado *
+                    {t.reservas.affected_fronton}
                   </label>
                   <select
                     value={incidenciaFrontonId}
                     onChange={(e) => setIncidenciaFrontonId(e.target.value)}
                     required
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 font-medium focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                   >
-                    <option value="">Selecciona el frontón...</option>
+                    <option value="">{t.reservas.select_fronton}</option>
                     {todosLosFrontones.map((f) => (
                       <option key={f.id} value={f.id}>
                         {f.nombre} {f.municipios?.nombre ? `(${f.municipios.nombre})` : ''}
@@ -1818,12 +1808,11 @@ export default function PortalReservas() {
 
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                    2. Título / Asunto *
+                    {t.reservas.incident_title}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="ej. Luces de cuadro 4 fundidas, red rota, goteras..."
                     value={incidenciaTitulo}
                     onChange={(e) => setIncidenciaTitulo(e.target.value)}
                     className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
@@ -1832,11 +1821,10 @@ export default function PortalReservas() {
 
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                    3. Descripción Detallada
+                    {t.reservas.incident_description}
                   </label>
                   <textarea
                     rows={4}
-                    placeholder="Explica qué ocurre detalladamente para que el personal de mantenimiento municipal pueda revisarlo..."
                     value={incidenciaDescripcion}
                     onChange={(e) => setIncidenciaDescripcion(e.target.value)}
                     className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none font-medium"
@@ -1849,14 +1837,14 @@ export default function PortalReservas() {
                     disabled={enviandoIncidencia}
                     className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
                   >
-                    {enviandoIncidencia ? 'Enviando al municipio...' : 'Enviar Incidencia'}
+                    {enviandoIncidencia ? t.reservas.sending_incident : t.reservas.send_incident}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMostrarModalIncidencia(false)}
                     className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
                   >
-                    Cancelar
+                    {t.common.cancel}
                   </button>
                 </div>
               </form>
@@ -1876,7 +1864,7 @@ export default function PortalReservas() {
                     📜
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">Histórico de la Incidencia</h3>
+                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.incident_history}</h3>
                     <p className="text-xs text-stone-500">
                       {incidenciaVerHistoricoModal.frontones?.nombre || 'Frontón'} • {incidenciaVerHistoricoModal.titulo}
                     </p>
@@ -1904,7 +1892,7 @@ export default function PortalReservas() {
                         ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
                         : 'bg-rose-100 text-rose-800 border-rose-200'
                     }`}>
-                      {incidenciaVerHistoricoModal.estado === 'en_curso' ? '🔧 En curso' : incidenciaVerHistoricoModal.estado === 'resuelta' ? '✅ Resuelta' : '⏳ Pendiente'}
+                      {incidenciaVerHistoricoModal.estado === 'en_curso' ? t.reservas.status_in_progress_short : incidenciaVerHistoricoModal.estado === 'resuelta' ? t.reservas.status_resolved_short : t.reservas.status_pending_short}
                     </span>
                   </div>
 
@@ -1915,7 +1903,7 @@ export default function PortalReservas() {
                   )}
 
                   <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 pt-1">
-                    <span>🏟️ Frontón: <strong>{incidenciaVerHistoricoModal.frontones?.nombre || 'Frontón'}</strong></span>
+                    <span>🏟️ {t.reservas.step_fronton.replace('3. ', '')}: <strong>{incidenciaVerHistoricoModal.frontones?.nombre || 'Frontón'}</strong></span>
                     {incidenciaVerHistoricoModal.frontones?.municipios?.nombre && (
                       <span>({incidenciaVerHistoricoModal.frontones.municipios.nombre})</span>
                     )}
@@ -1925,7 +1913,7 @@ export default function PortalReservas() {
                 {/* TIMELINE / LÍNEA TEMPORAL */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>🕒 Cronología de actuaciones del ayuntamiento</span>
+                    <span>🕒 {t.reservas.actions_timeline}</span>
                   </h4>
 
                   <div className="relative pl-6 border-l-2 border-stone-200 space-y-6">
@@ -1936,15 +1924,12 @@ export default function PortalReservas() {
                       <div className="p-3.5 bg-rose-50/60 border border-rose-200/80 rounded-2xl space-y-1 text-xs">
                         <div className="flex justify-between items-center flex-wrap gap-1">
                           <span className="font-bold text-rose-950 flex items-center gap-1.5">
-                            📋 Incidencia Registrada
+                            📋 {t.reservas.incident_registered}
                           </span>
                           <span className="text-[10px] text-rose-700 font-medium">
-                            {new Date(incidenciaVerHistoricoModal.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {new Date(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <p className="text-stone-600 text-[11px]">
-                          Comunicaste esta incidencia al ayuntamiento. Estado inicial: <strong>Pendiente de revisión</strong>.
-                        </p>
                       </div>
                     </div>
 
@@ -1972,13 +1957,12 @@ export default function PortalReservas() {
                               <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
                                 <div className="flex justify-between items-center flex-wrap gap-1">
                                   <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                                    <span>Actualización:</span>
                                     <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
                                     <span>➔</span>
                                     <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
                                   </span>
                                   <span className="text-[10px] text-stone-500 font-medium">
-                                    📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    📅 {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
 
@@ -1987,17 +1971,13 @@ export default function PortalReservas() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
-                                  <span>🏛️ Ayuntamiento ({h.autor || 'Gestor Municipal'})</span>
+                                  <span>🏛️ ({h.autor || 'Gestor Municipal'})</span>
                                 </div>
                               </div>
                             </div>
                           )
                         })
-                      ) : (
-                        <div className="text-xs text-stone-400 italic py-2 pl-1">
-                          El ayuntamiento aún no ha registrado actuaciones posteriores para esta incidencia.
-                        </div>
-                      )
+                      ) : null
                     })()}
                   </div>
                 </div>
@@ -2010,7 +1990,7 @@ export default function PortalReservas() {
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
                   className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
                 >
-                  Cerrar
+                  {t.common.close}
                 </button>
               </div>
             </div>
@@ -2025,11 +2005,8 @@ export default function PortalReservas() {
                 <div>
                   <h3 className="text-xl font-bold text-stone-900 flex items-center gap-2">
                     <span className="text-amber-500">⚠️</span>
-                    Incidencias: {modalFrontonIncidencias.nombre}
+                    {t.common.incidents}: {modalFrontonIncidencias.nombre}
                   </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Avisos y estado de reparaciones registradas en este frontón
-                  </p>
                 </div>
                 <button 
                   onClick={() => setModalFrontonIncidencias(null)}
@@ -2042,25 +2019,25 @@ export default function PortalReservas() {
               <div className="overflow-y-auto flex-1 pr-1 space-y-3">
                 {cargandoIncidenciasFronton ? (
                   <div className="py-12 text-center text-xs text-stone-400 font-bold">
-                    Cargando incidencias del frontón...
+                    {t.common.loading}
                   </div>
                 ) : incidenciasDelFronton.length === 0 ? (
                   <div className="py-12 text-center space-y-2">
                     <div className="text-3xl">✅</div>
-                    <p className="text-sm font-bold text-stone-700">Sin incidencias registradas</p>
-                    <p className="text-xs text-stone-400">Este frontón no tiene desperfectos ni avisos pendientes.</p>
+                    <p className="text-sm font-bold text-stone-700">{t.reservas.no_incidents_recorded}</p>
+                    <p className="text-xs text-stone-400">{t.reservas.no_incidents_desc}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {incidenciasDelFronton.map((inc) => {
                       let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
-                      let estadoTexto = '⏳ Pendiente'
+                      let estadoTexto = t.reservas.status_pending_short
                       if (inc.estado === 'en_curso') {
                         badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
-                        estadoTexto = '🔧 En curso'
+                        estadoTexto = t.reservas.status_in_progress_short
                       } else if (inc.estado === 'resuelta') {
                         badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                        estadoTexto = '✅ Resuelta'
+                        estadoTexto = t.reservas.status_resolved_short
                       }
 
                       const historial = Array.isArray(inc.historial) ? inc.historial : []
@@ -2075,7 +2052,7 @@ export default function PortalReservas() {
                                 <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                               )}
                               <span className="text-[10px] text-stone-400 font-medium block">
-                                📅 Reportado el {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                📅 {t.reservas.reported_on} {new Date(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
 
@@ -2093,7 +2070,7 @@ export default function PortalReservas() {
                                 )}
                                 className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 transition"
                               >
-                                <span>💬 {estaAbierto ? 'Ocultar actuaciones' : `Ver actuaciones (${historial.length})`}</span>
+                                <span>💬 {estaAbierto ? `${t.reservas.hide_actions} (${historial.length})` : `${t.reservas.show_actions} (${historial.length})`}</span>
                                 <span className="text-[9px]">{estaAbierto ? '▲' : '▼'}</span>
                               </button>
 
@@ -2106,7 +2083,7 @@ export default function PortalReservas() {
                                           <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                         </span>
                                         <span className="text-[10px] text-stone-400">
-                                          {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                          {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                       </div>
                                       <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -2131,7 +2108,7 @@ export default function PortalReservas() {
                   onClick={() => setModalFrontonIncidencias(null)}
                   className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
                 >
-                  Cerrar
+                  {t.common.close}
                 </button>
               </div>
             </div>
@@ -2141,7 +2118,7 @@ export default function PortalReservas() {
 
       {/* FOOTER */}
       <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+        {t.home.footer}
       </footer>
     </div>
   )

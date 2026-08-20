@@ -1280,9 +1280,9 @@ export default function AdminDashboard() {
         <div className="flex justify-between items-center border-b border-stone-200 pb-4">
           <div className="flex items-center gap-4 flex-wrap">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Área de Gestión Municipal</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">{t.admin.dashboard_title}</span>
               <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
-                {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : 'Panel de Gestión'}
+                {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : t.admin.dashboard_title}
               </h1>
             </div>
             {(userProfile?.municipios?.imagen_url || imagenMunicipioUrl) && (
@@ -1301,19 +1301,19 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab('gestion')}
             className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'gestion' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
           >
-            Gestión de Horarios
+            {t.admin.schedule_tab}
           </button>
           <button 
             onClick={() => setActiveTab('frontones')}
             className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'frontones' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
           >
-            Frontones ({frontones.length}/5)
+            {t.admin.frontons_tab} ({frontones.length}/5)
           </button>
           <button 
             onClick={() => setActiveTab('incidencias')}
             className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap flex items-center gap-2 transition ${activeTab === 'incidencias' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
           >
-            Incidencias
+            {t.admin.incidents_tab}
             {incidencias.filter(i => i.estado === 'pendiente').length > 0 && (
               <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
                 {incidencias.filter(i => i.estado === 'pendiente').length}
@@ -1324,13 +1324,13 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab('ciudadanos')}
             className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'ciudadanos' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
           >
-            Ciudadanos
+            {t.admin.citizens_tab}
           </button>
           <button 
             onClick={() => setActiveTab('ajustes')}
             className={`py-3 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition ${activeTab === 'ajustes' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-stone-500 hover:text-stone-800'}`}
           >
-            Ajustes de Población
+            {t.admin.settings_tab}
           </button>
         </div>
 
@@ -1357,28 +1357,28 @@ export default function AdminDashboard() {
                           <h3 className="font-bold text-xl text-stone-900">{f.nombre}</h3>
                           {f.habilitado === false ? (
                             <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full">
-                              🚫 Deshabilitado
+                              🚫 {t.reservas.disabled}
                             </span>
                           ) : (
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${f.en_uso ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                              {f.en_uso ? 'En uso (IoT)' : 'Libre'}
+                              {f.en_uso ? `🔴 ${t.common.in_use} (IoT)` : `🟢 ${t.common.free}`}
                             </span>
                           )}
 
                           {/* CONTADORES DE INCIDENCIAS */}
                           {pendientes > 0 && (
                             <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                              ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                              ⏳ {pendientes} {t.common.pending}
                             </span>
                           )}
                           {enCurso > 0 && (
                             <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                              🔧 {enCurso} en curso
+                              🔧 {enCurso} {t.reservas.status_in_progress_short}
                             </span>
                           )}
                           {pendientes === 0 && enCurso === 0 && (
                             <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                              ✅ Sin incidencias
+                              ✅ {t.reservas.no_incidents_recorded}
                             </span>
                           )}
                         </div>
@@ -1388,7 +1388,7 @@ export default function AdminDashboard() {
                               onClick={() => abrirGraficaIoT(f)}
                               className="bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
                             >
-                              Ver utilización
+                              {t.admin.see_usage}
                             </button>
                           )}
                           <button 
@@ -1402,7 +1402,7 @@ export default function AdminDashboard() {
                             }}
                             className="bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-xs"
                           >
-                            Abrir Calendario Completo →
+                            {t.admin.open_full_calendar}
                           </button>
                         </div>
                       </div>
@@ -1410,7 +1410,7 @@ export default function AdminDashboard() {
                       {/* Vista previa 3 días */}
                       <div>
                         <div className="flex justify-between items-center mb-3">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">Próxima ocupación</h4>
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">{t.admin.next_occupation}</h4>
                           <div className="flex items-center gap-1.5 bg-stone-50 px-2 py-1 rounded-xl border border-stone-200 text-xs">
                             <button 
                               onClick={() => cambiarOffsetFronton(f.id, -1)}
