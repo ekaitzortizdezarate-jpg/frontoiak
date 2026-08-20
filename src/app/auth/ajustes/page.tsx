@@ -9,9 +9,11 @@ export default function AjustesUsuarioPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(false)
-  const [cambiandoPass, setCambiandoPass] = useState(false)
+  
+  // Estado para controlar si el perfil está en modo edición
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
 
-  // Control para mostrar el formulario de cambio de contraseña
+  // Control para el cambio de contraseña
   const [modoCambioPass, setModoCambioPass] = useState(false)
 
   // Campos del formulario de perfil
@@ -28,6 +30,7 @@ export default function AjustesUsuarioPage() {
   const [passwordActual, setPasswordActual] = useState('')
   const [nuevaPassword, setNuevaPassword] = useState('')
   const [confirmarPassword, setConfirmarPassword] = useState('')
+  const [cambiandoPass, setCambiandoPass] = useState(false)
 
   const router = useRouter()
 
@@ -86,7 +89,7 @@ export default function AjustesUsuarioPage() {
       alert('Error al actualizar perfil: ' + error.message)
     } else {
       alert('¡Datos de usuario actualizados correctamente!')
-      router.push('/reservas')
+      setEditandoPerfil(false)
     }
 
     setGuardando(false)
@@ -106,7 +109,6 @@ export default function AjustesUsuarioPage() {
 
     setCambiandoPass(true)
 
-    // 1. Verificamos la contraseña actual haciendo un signIn de prueba
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: email,
       password: passwordActual
@@ -118,7 +120,6 @@ export default function AjustesUsuarioPage() {
       return
     }
 
-    // 2. Si es correcta, actualizamos a la nueva contraseña
     const { error: updateError } = await supabase.auth.updateUser({
       password: nuevaPassword
     })
@@ -175,14 +176,25 @@ export default function AjustesUsuarioPage() {
         
         {/* TARJETA 1: INFORMACIÓN PERSONAL */}
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
-          <div className="flex items-center gap-4 border-b border-stone-100 pb-4">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
-              👤
+          <div className="flex justify-between items-center border-b border-stone-100 pb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
+                👤
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-stone-900">Mi Perfil y Datos Personales</h1>
+                <p className="text-xs text-stone-500 font-medium">Información de tu cuenta en la plataforma</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-black text-stone-900">Mi Perfil y Datos Personales</h1>
-              <p className="text-xs text-stone-500 font-medium">Modifica tu información cuando lo necesites</p>
-            </div>
+
+            {!editandoPerfil && (
+              <button 
+                onClick={() => setEditandoPerfil(true)}
+                className="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs"
+              >
+                Editar Datos
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleGuardarPerfil} className="space-y-4">
@@ -195,8 +207,9 @@ export default function AjustesUsuarioPage() {
                   type="text" 
                   value={nombre} 
                   onChange={(e) => setNombre(e.target.value)} 
+                  disabled={!editandoPerfil}
                   placeholder="Tu nombre"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
@@ -208,8 +221,9 @@ export default function AjustesUsuarioPage() {
                   type="text" 
                   value={apellidos} 
                   onChange={(e) => setApellidos(e.target.value)} 
+                  disabled={!editandoPerfil}
                   placeholder="Tus apellidos"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
             </div>
@@ -223,8 +237,9 @@ export default function AjustesUsuarioPage() {
                   type="text" 
                   value={dni} 
                   onChange={(e) => setDni(e.target.value)} 
+                  disabled={!editandoPerfil}
                   placeholder="00000000X"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
@@ -236,7 +251,8 @@ export default function AjustesUsuarioPage() {
                   type="date" 
                   value={fechaNacimiento} 
                   onChange={(e) => setFechaNacimiento(e.target.value)} 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  disabled={!editandoPerfil}
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
             </div>
@@ -249,8 +265,9 @@ export default function AjustesUsuarioPage() {
                 type="text" 
                 value={calle} 
                 onChange={(e) => setCalle(e.target.value)} 
+                disabled={!editandoPerfil}
                 placeholder="ej. Kale Nagusia, 12, 1º A"
-                className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
               />
             </div>
 
@@ -263,8 +280,9 @@ export default function AjustesUsuarioPage() {
                   type="text" 
                   value={localidad} 
                   onChange={(e) => setLocalidad(e.target.value)} 
+                  disabled={!editandoPerfil}
                   placeholder="ej. Donostia"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
@@ -276,8 +294,9 @@ export default function AjustesUsuarioPage() {
                   type="text" 
                   value={codigoPostal} 
                   onChange={(e) => setCodigoPostal(e.target.value)} 
+                  disabled={!editandoPerfil}
                   placeholder="ej. 20001"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-700 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                 />
               </div>
 
@@ -294,15 +313,27 @@ export default function AjustesUsuarioPage() {
               </div>
             </div>
 
-            <div className="pt-2">
-              <button 
-                type="submit" 
-                disabled={guardando}
-                className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
-              >
-                {guardando ? 'Guardando...' : 'Guardar Cambios de Perfil'}
-              </button>
-            </div>
+            {editandoPerfil && (
+              <div className="flex gap-3 pt-2">
+                <button 
+                  type="submit" 
+                  disabled={guardando}
+                  className="flex-1 bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                >
+                  {guardando ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setEditandoPerfil(false)
+                    cargarDatosUsuario() // Recarga los datos originales si cancela
+                  }}
+                  className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-4 py-3 rounded-2xl text-sm font-bold transition"
+                >
+                  Cancelar
+                </button>
+              </div>
+            )}
           </form>
         </div>
 
@@ -319,7 +350,7 @@ export default function AjustesUsuarioPage() {
           </div>
 
           {!modoCambioPass ? (
-            <div className="text-center py-4">
+            <div className="text-center py-2">
               <button 
                 onClick={() => setModoCambioPass(true)}
                 className="bg-stone-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-stone-800 transition shadow-sm active:scale-95"
