@@ -1201,30 +1201,6 @@ export default function PortalReservas() {
                       </span>
                     </div>
 
-                    {/* Fila 2: Contadores de incidencias debajo del nombre */}
-                    {(() => {
-                      const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
-                      return (
-                        <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                          {pendientes > 0 && (
-                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-2xs">
-                              ⏳ {pendientes} {pendientes === 1 ? 'incidencia pendiente' : 'incidencias pendientes'}
-                            </span>
-                          )}
-                          {enCurso > 0 && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-2xs">
-                              🔧 {enCurso} en curso
-                            </span>
-                          )}
-                          {pendientes === 0 && enCurso === 0 && (
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                              ✅ Sin incidencias activas
-                            </span>
-                          )}
-                        </div>
-                      )
-                    })()}
-
                     {/* Fila 3: Horario y características */}
                     <p className="text-xs text-stone-500 font-medium">
                       Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Mínimo: {frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) antelación
@@ -1232,10 +1208,10 @@ export default function PortalReservas() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
                   <button 
                     onClick={() => toggleFavorito(frontonSeleccionado.id)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 w-full sm:w-auto justify-center ${
                       esFavoritoActual 
                         ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100' 
                         : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-stone-100'
@@ -1243,6 +1219,28 @@ export default function PortalReservas() {
                   >
                     <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
                   </button>
+
+                  {/* CONTADORES DE INCIDENCIAS DEBAJO DEL BOTÓN DE FAVORITOS */}
+                  {(() => {
+                    const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
+                    return (
+                      <div className="flex flex-col items-start sm:items-end gap-1 text-xs w-full">
+                        <div className={`px-2.5 py-0.5 rounded-lg border flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs shadow-2xs ${
+                          pendientes > 0 ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-stone-50 text-stone-600 border-stone-200'
+                        }`}>
+                          <span className="font-semibold text-stone-600 text-[11px]">Pendientes:</span>
+                          <span className={`font-black ${pendientes > 0 ? 'text-rose-700' : 'text-stone-800'}`}>{pendientes}</span>
+                        </div>
+
+                        <div className={`px-2.5 py-0.5 rounded-lg border flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs shadow-2xs ${
+                          enCurso > 0 ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-stone-50 text-stone-600 border-stone-200'
+                        }`}>
+                          <span className="font-semibold text-stone-600 text-[11px]">En curso:</span>
+                          <span className={`font-black ${enCurso > 0 ? 'text-amber-800' : 'text-stone-800'}`}>{enCurso}</span>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
 
