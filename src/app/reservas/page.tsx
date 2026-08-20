@@ -1184,37 +1184,40 @@ export default function PortalReservas() {
                       F
                     </div>
                   )}
-                  <div>
+                  <div className="space-y-1.5">
+                    {/* Fila 1: Nombre del frontón y estado de ocupación */}
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
+                      
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
+                        frontonSeleccionado.en_uso
+                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                        }`}></span>
+                        {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
+                      </span>
+                    </div>
+
+                    {/* Fila 2: Contadores de incidencias debajo del nombre */}
                     {(() => {
                       const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
                       return (
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
-                          
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
-                            frontonSeleccionado.en_uso
-                              ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                          }`}>
-                            <span className={`w-2 h-2 rounded-full ${
-                              frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                            }`}></span>
-                            {frontonSeleccionado.en_uso ? 'En uso ahora mismo' : 'Libre en estos momentos'}
-                          </span>
-
-                          {/* CONTADORES DE INCIDENCIAS */}
+                        <div className="flex items-center gap-2 flex-wrap pt-0.5">
                           {pendientes > 0 && (
-                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-2xs">
                               ⏳ {pendientes} {pendientes === 1 ? 'incidencia pendiente' : 'incidencias pendientes'}
                             </span>
                           )}
                           {enCurso > 0 && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-2xs">
                               🔧 {enCurso} en curso
                             </span>
                           )}
                           {pendientes === 0 && enCurso === 0 && (
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                               ✅ Sin incidencias activas
                             </span>
                           )}
@@ -1222,7 +1225,8 @@ export default function PortalReservas() {
                       )
                     })()}
 
-                    <p className="text-xs text-stone-500 mt-1.5 font-medium">
+                    {/* Fila 3: Horario y características */}
+                    <p className="text-xs text-stone-500 font-medium">
                       Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Mínimo: {frontonSeleccionado.dias_antelacion_maxima ?? 1} día(s) antelación
                     </p>
                   </div>
@@ -1238,14 +1242,6 @@ export default function PortalReservas() {
                     }`}
                   >
                     <span>{esFavoritoActual ? '★ En Favoritos' : '☆ Marcar Favorito'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => abrirModalIncidencia(frontonSeleccionado)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center gap-1.5 transition active:scale-95 shadow-2xs"
-                    title="Avisar de rotura o desperfecto en este frontón"
-                  >
-                    <span>⚠️ Avisar Incidencia</span>
                   </button>
                 </div>
               </div>
