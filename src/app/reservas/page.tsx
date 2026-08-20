@@ -487,23 +487,36 @@ export default function PortalReservas() {
 
     const { data: fronts } = await supabase
       .from('frontones')
-      .select('*')
+      .select('*, municipios(*)')
       .eq('municipio_id', munId)
 
     setFrontones(fronts || [])
   }
 
   const seleccionarFronton = async (fronton: any) => {
-    setFrontonSeleccionado(fronton)
-    if (fronton.municipio_id) {
-      setMunicipioSeleccionado(fronton.municipio_id)
+    let frontonConMun = fronton
+    if (!frontonConMun.municipios && frontonConMun.municipio_id) {
+      const mun = municipios.find(m => m.id === frontonConMun.municipio_id)
+      if (mun) {
+        frontonConMun = { ...frontonConMun, municipios: mun }
+      } else {
+        const { data: munData } = await supabase.from('municipios').select('*').eq('id', frontonConMun.municipio_id).maybeSingle()
+        if (munData) {
+          frontonConMun = { ...frontonConMun, municipios: munData }
+        }
+      }
+    }
+
+    setFrontonSeleccionado(frontonConMun)
+    if (frontonConMun.municipio_id) {
+      setMunicipioSeleccionado(frontonConMun.municipio_id)
     }
     setOffsetSemanas(0)
     setOffsetDiasPreview(0)
     setCalendarioAbierto(false)
     const hoyStr = new Date().toISOString().split('T')[0]
     setFechaSeleccionada(hoyStr)
-    await cargarEventosFronton(fronton.id)
+    await cargarEventosFronton(frontonConMun.id)
 
     setTimeout(() => {
       if (frontonDetalleRef.current) {
@@ -599,6 +612,51 @@ export default function PortalReservas() {
     const noReservable = esPasado || bloqueadoPorAntelacion
 
     return { esPasado, bloqueadoPorAntelacion, noReservable, diasFaltantes: diffDias, antelacionMaxima }
+  }
+
+  const esUsuarioEmpadronado = (usuario: any, fronton: any): boolean => {
+    if (!fronton?.solo_empadronados) return true
+    if (!usuario) return false
+
+    const profile = usuario.profile || {}
+    const meta = usuario.user_metadata || {}
+
+    // 1. Superadmin tiene acceso a todos los frontones
+    if (profile.role === 'admin' || meta.role === 'admin') return true
+
+    // 2. Gestor municipal asignado a este municipio
+    if (profile.role === 'gestor_municipio' && (profile.municipio_id === fronton.municipio_id || meta.municipio_id === fronton.municipio_id)) {
+      return true
+    }
+
+    // 3. Coincidencia directa por municipio_id
+    if (profile.municipio_id && profile.municipio_id === fronton.municipio_id) {
+      return true
+    }
+    if (meta.municipio_id && meta.municipio_id === fronton.municipio_id) {
+      return true
+    }
+
+    // Obtener datos del municipio del frontón
+    const mun = fronton.municipios || municipios.find(m => m.id === fronton.municipio_id)
+
+    // 4. Coincidencia por Código Postal
+    const userCp = String(profile.codigo_postal || meta.codigo_postal || '').trim()
+    if (userCp && mun?.codigos_postales && Array.isArray(mun.codigos_postales)) {
+      const matchCp = mun.codigos_postales.some((cp: string) => String(cp).trim() === userCp)
+      if (matchCp) return true
+    }
+
+    // 5. Coincidencia por Localidad / Nombre del Municipio
+    const userLocalidad = String(profile.localidad || meta.localidad || '').trim().toLowerCase()
+    const munNombre = String(mun?.nombre || '').trim().toLowerCase()
+    if (userLocalidad && munNombre) {
+      if (munNombre.includes(userLocalidad) || userLocalidad.includes(munNombre)) {
+        return true
+      }
+    }
+
+    return false
   }
 
   const obtenerTextoVisibilidadEvento = (ev: any) => {
@@ -722,6 +780,12 @@ export default function PortalReservas() {
 
     if (frontonSeleccionado.habilitado === false) {
       alert('Este frontón está actualmente deshabilitado para reservas por decisión del municipio.')
+      return
+    }
+
+    if (frontonSeleccionado.solo_empadronados && !esUsuarioEmpadronado(user, frontonSeleccionado)) {
+      const munNombre = frontonSeleccionado.municipios?.nombre || 'este municipio'
+      alert(`Acceso restringido: Este frontón está reservado exclusivamente para personas empadronadas o residentes en ${munNombre}. Tu código postal o localidad de usuario no coincide con las autorizadas para este municipio.`)
       return
     }
 
@@ -1230,6 +1294,12 @@ export default function PortalReservas() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-2xl font-black text-stone-900">{frontonSeleccionado.nombre}</h3>
                       
+                      {frontonSeleccionado.solo_empadronados && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-amber-100 text-amber-900 border border-amber-300">
+                          👥 Solo Empadronados
+                        </span>
+                      )}
+
                       {frontonSeleccionado.habilitado === false ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 text-rose-800 border border-rose-200">
                           🚫 Deshabilitado para reservas
@@ -1326,6 +1396,21 @@ export default function PortalReservas() {
                   <div>
                     <p className="text-rose-900 font-extrabold text-xs uppercase tracking-wide">Frontón deshabilitado temporalmente</p>
                     <p className="text-rose-700 font-medium text-xs mt-0.5">El municipio ha deshabilitado este frontón para nuevas reservas.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* AVISO SI EL FRONTÓN ES SOLO PARA EMPADRONADOS Y EL USUARIO NO LO ES */}
+              {frontonSeleccionado.solo_empadronados && !esUsuarioEmpadronado(user, frontonSeleccionado) && (
+                <div className="bg-amber-50 border border-amber-300 text-amber-900 p-4 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-2xs">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <p className="text-amber-900 font-extrabold text-xs uppercase tracking-wide">
+                      Acceso Exclusivo para Empadronados
+                    </p>
+                    <p className="text-amber-800 font-medium text-xs mt-0.5 leading-relaxed">
+                      Este frontón requiere estar empadronado o residir en <strong className="text-amber-950">{frontonSeleccionado.municipios?.nombre || 'este municipio'}</strong>. Tu código postal o localidad de residencia no coincide con las autorizadas para este municipio.
+                    </p>
                   </div>
                 </div>
               )}
@@ -1575,12 +1660,16 @@ export default function PortalReservas() {
 
               <div className="space-y-2.5">
                 {slotsDelDiaSeleccionado.map((slot, idx) => {
+                  const noEsEmpadronado = frontonSeleccionado.solo_empadronados && !esUsuarioEmpadronado(user, frontonSeleccionado)
                   let badgeTexto = 'Disponible'
                   let descripcionTexto = 'Hueco libre para jugar'
 
                   if (frontonSeleccionado.habilitado === false) {
                     badgeTexto = 'Deshabilitado'
                     descripcionTexto = 'Frontón deshabilitado para reservas por el municipio'
+                  } else if (noEsEmpadronado) {
+                    badgeTexto = 'Solo Empadronados'
+                    descripcionTexto = `Restringido a personas empadronadas en ${frontonSeleccionado.municipios?.nombre || 'este municipio'}`
                   } else if (slot.ocupado) {
                     if (slot.esMunicipal) {
                       badgeTexto = 'Evento Municipal'
@@ -1594,7 +1683,7 @@ export default function PortalReservas() {
                     descripcionTexto = estadoFechaActual.esPasado ? 'Día pasado' : slot.esPasadoPorHora ? 'Hora ya pasada' : 'Supera la antelación máxima permitida'
                   }
 
-                  const estaBloqueado = frontonSeleccionado.habilitado === false || estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora
+                  const estaBloqueado = frontonSeleccionado.habilitado === false || noEsEmpadronado || estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora
 
                   return (
                     <div 
@@ -1619,9 +1708,11 @@ export default function PortalReservas() {
                               ? slot.esMunicipal
                                 ? 'bg-blue-200 text-blue-950'
                                 : 'bg-rose-200 text-rose-900' 
-                              : estaBloqueado
-                                ? 'bg-stone-200 text-stone-600'
-                                : 'bg-emerald-200 text-emerald-900'
+                              : noEsEmpadronado
+                                ? 'bg-amber-200 text-amber-950'
+                                : estaBloqueado
+                                  ? 'bg-stone-200 text-stone-600'
+                                  : 'bg-emerald-200 text-emerald-900'
                           }`}>
                             {badgeTexto}
                           </span>
@@ -1638,6 +1729,14 @@ export default function PortalReservas() {
                             className="bg-stone-300 text-stone-500 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
                           >
                             Frontón Deshabilitado
+                          </button>
+                        ) : noEsEmpadronado ? (
+                          <button 
+                            disabled
+                            className="bg-amber-100 text-amber-800 border border-amber-300 cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold shadow-none"
+                            title={`Solo personas empadronadas en ${frontonSeleccionado.municipios?.nombre || 'este municipio'}`}
+                          >
+                            🔒 Solo Empadronados
                           </button>
                         ) : (estadoFechaActual.esPasado || estadoFechaActual.bloqueadoPorAntelacion || slot.esPasadoPorHora) ? (
                           <button 
