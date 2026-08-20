@@ -34,7 +34,7 @@ export default function PortalReservas() {
   // Incidencias del usuario y globales activas
   const [misIncidencias, setMisIncidencias] = useState<any[]>([])
   const [todasIncidenciasActivas, setTodasIncidenciasActivas] = useState<any[]>([])
-  const [filtroEstadoIncidencia, setFiltroEstadoIncidencia] = useState<'todas' | 'pendiente' | 'en_curso' | 'resuelta'>('todas')
+  const [mostrarMisIncidencias, setMostrarMisIncidencias] = useState(false)
   const [mostrarModalIncidencia, setMostrarModalIncidencia] = useState(false)
   const [incidenciaVerHistoricoModal, setIncidenciaVerHistoricoModal] = useState<any | null>(null)
   const [modalFrontonIncidencias, setModalFrontonIncidencias] = useState<any | null>(null)
@@ -792,11 +792,6 @@ export default function PortalReservas() {
   const esFavoritoActual = frontonSeleccionado ? idsFavoritos.includes(frontonSeleccionado.id) : false
   const estadoFechaActual = calcularEstadoFechaReservable(fechaSeleccionada)
 
-  const misIncidenciasFiltradas = misIncidencias.filter(inc => {
-    if (filtroEstadoIncidencia === 'todas') return true
-    return inc.estado === filtroEstadoIncidencia
-  })
-
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
@@ -980,20 +975,25 @@ export default function PortalReservas() {
           )}
         </section>
 
-        {/* 3. SECCIÓN: MIS INCIDENCIAS Y AVISOS DE MANTENIMIENTO */}
+        {/* 3. SECCIÓN: MIS INCIDENCIAS Y MANTENIMIENTO */}
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-stone-100 pb-3">
-            <div>
-              <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <span className="text-rose-500 text-base">⚠️</span>
-                Mis Incidencias y Mantenimiento
-              </h2>
-              <p className="text-xs text-stone-500">
-                Avisos de roturas, luz o desperfectos comunicados a los ayuntamientos
-              </p>
-            </div>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+              <span className="text-rose-500 text-base">⚠️</span>
+              Mis Incidencias y Mantenimiento
+            </h2>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {misIncidencias.length > 0 && (
+                <button
+                  onClick={() => setMostrarMisIncidencias(!mostrarMisIncidencias)}
+                  className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
+                >
+                  <span>{mostrarMisIncidencias ? 'Ocultar mis incidencias' : `Mostrar mis incidencias (${misIncidencias.length})`}</span>
+                  <span className="text-[10px]">{mostrarMisIncidencias ? '▲' : '▼'}</span>
+                </button>
+              )}
+
               <button
                 onClick={() => abrirModalIncidencia()}
                 className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95"
@@ -1003,47 +1003,10 @@ export default function PortalReservas() {
             </div>
           </div>
 
-          {/* Filtros de estado */}
-          {misIncidencias.length > 0 && (
-            <div className="flex gap-1.5 text-xs font-bold flex-wrap">
-              <button 
-                onClick={() => setFiltroEstadoIncidencia('todas')}
-                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'todas' ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-50 text-stone-600 border-stone-200'}`}
-              >
-                Todas ({misIncidencias.length})
-              </button>
-              <button 
-                onClick={() => setFiltroEstadoIncidencia('pendiente')}
-                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'pendiente' ? 'bg-rose-600 text-white border-rose-600' : 'bg-rose-50 text-rose-700 border-rose-200'}`}
-              >
-                Pendientes ({misIncidencias.filter(i => i.estado === 'pendiente').length})
-              </button>
-              <button 
-                onClick={() => setFiltroEstadoIncidencia('en_curso')}
-                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'en_curso' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200'}`}
-              >
-                En curso ({misIncidencias.filter(i => i.estado === 'en_curso').length})
-              </button>
-              <button 
-                onClick={() => setFiltroEstadoIncidencia('resuelta')}
-                className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'resuelta' ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}
-              >
-                Resueltas ({misIncidencias.filter(i => i.estado === 'resuelta').length})
-              </button>
-            </div>
-          )}
-
-          {misIncidenciasFiltradas.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-sm text-stone-400 italic">
-                {misIncidencias.length === 0 
-                  ? 'No has reportado ninguna incidencia todavía. Si ves algún desperfecto o avería en un frontón, pulsa en "+ Reportar Incidencia" para avisar al ayuntamiento correspondiente.'
-                  : 'No tienes incidencias en esta categoría.'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {misIncidenciasFiltradas.map((inc) => {
+          {/* LISTA DE INCIDENCIAS (Sólo cuando se pulsa Mostrar mis incidencias) */}
+          {mostrarMisIncidencias && misIncidencias.length > 0 && (
+            <div className="space-y-3 pt-3 border-t border-stone-100">
+              {misIncidencias.map((inc) => {
                 let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
                 let estadoTexto = '⏳ Pendiente de revisión'
                 let descEstado = 'El municipio aún no ha comenzado la revisión'
