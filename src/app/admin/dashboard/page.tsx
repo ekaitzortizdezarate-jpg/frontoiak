@@ -5,12 +5,13 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import { parseSafeDate } from '@/lib/dateUtils'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'gestion' | 'frontones' | 'incidencias' | 'ciudadanos' | 'ajustes'>('gestion')
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   // Refs para scroll
   const calendarioCompletoRef = useRef<HTMLDivElement>(null)
@@ -1422,7 +1423,7 @@ export default function AdminDashboard() {
                               onClick={() => resetOffsetFronton(f.id)}
                               className="px-2 py-0.5 rounded-lg bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-[11px]"
                             >
-                              Hoy
+                              {t.reservas.today}
                             </button>
                             <button 
                               onClick={() => cambiarOffsetFronton(f.id, 1)}
@@ -1442,12 +1443,12 @@ export default function AdminDashboard() {
                             return (
                               <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${esHoy ? 'bg-emerald-50/40 border-emerald-300' : 'bg-stone-50 border-stone-200'}`}>
                                 <div className="font-bold text-stone-800 border-b border-stone-200 pb-1 mb-2 flex justify-between">
-                                  <span>{dia.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
-                                  {esHoy && <span className="text-emerald-700 font-extrabold">(Hoy)</span>}
+                                  <span>{dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                                  {esHoy && <span className="text-emerald-700 font-extrabold">({t.reservas.today})</span>}
                                 </div>
                                 
                                 {eventosDelDia.length === 0 ? (
-                                  <p className="text-stone-400 italic text-[11px]">Sin ocupaciones registradas</p>
+                                  <p className="text-stone-400 italic text-[11px]">{t.reservas.free_now}</p>
                                 ) : (
                                   <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
                                     {eventosDelDia.map(ev => (
@@ -1792,20 +1793,36 @@ export default function AdminDashboard() {
                       onClick={() => setOffsetSemanas(prev => prev - 1)}
                       className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
                     >
-                      ← Anteriores 4 semanas
+                      {t.reservas.prev_4_weeks}
                     </button>
                     <div className="text-center">
-                      <h3 className="text-sm font-bold text-stone-900">Parrilla de Ocupaciones (4 semanas)</h3>
+                      <h3 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h3>
                       <p className="text-xs text-stone-500">
-                        {diasCalendario[0]?.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {diasCalendario[0]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
                     <button 
                       onClick={() => setOffsetSemanas(prev => prev + 1)}
                       className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-3.5 py-1.5 rounded-xl text-xs transition"
                     >
-                      Siguientes 4 semanas →
+                      {t.reservas.next_4_weeks}
                     </button>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-2 min-w-[700px] mb-1">
+                    {[
+                      t.reservas.days_of_week.mon,
+                      t.reservas.days_of_week.tue,
+                      t.reservas.days_of_week.wed,
+                      t.reservas.days_of_week.thu,
+                      t.reservas.days_of_week.fri,
+                      t.reservas.days_of_week.sat,
+                      t.reservas.days_of_week.sun
+                    ].map((diaSemana, idx) => (
+                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 py-1 bg-stone-100/60 rounded-xl">
+                        {diaSemana}
+                      </div>
+                    ))}
                   </div>
 
                   <div className="grid grid-cols-7 gap-2 min-w-[700px]">
@@ -1816,8 +1833,9 @@ export default function AdminDashboard() {
 
                       return (
                         <div key={idx} className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col ${esHoy ? 'border-emerald-500 bg-emerald-50/40' : 'bg-stone-50 border-stone-200'}`}>
-                          <span className="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-1">
-                            {dia.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
+                          <span className="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-1 flex justify-between">
+                            <span>{dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                            {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
                           <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[100px] pr-1">
                             {eventosDia.map(ev => (
@@ -1849,18 +1867,18 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             {!puebloConfigurado ? (
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 text-center">
-                <p className="text-amber-700 font-bold text-sm">Debes guardar los datos de la población en la pestaña Ajustes.</p>
+                <p className="text-amber-700 font-bold text-sm">{t.admin.no_frontons}</p>
               </div>
             ) : (
               <>
                 {/* Listado */}
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-                    <h2 className="text-base font-bold text-stone-900">Frontones Registrados ({frontones.length}/5)</h2>
+                    <h2 className="text-base font-bold text-stone-900">{t.admin.frontons_title} ({frontones.length}/5)</h2>
                   </div>
 
                   {frontones.length === 0 ? (
-                    <p className="text-stone-400 italic text-sm py-4 text-center">No hay frontones dados de alta todavía.</p>
+                    <p className="text-stone-400 italic text-sm py-4 text-center">{t.admin.no_frontons}</p>
                   ) : (
                     <ul className="divide-y divide-stone-100">
                       {frontones.map((f) => {
@@ -1872,7 +1890,7 @@ export default function AdminDashboard() {
                                 <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200" />
                               ) : (
                                 <div className="w-16 h-16 bg-stone-100 rounded-2xl border border-stone-200 flex items-center justify-center text-xs text-stone-400 font-bold">
-                                  Sin foto
+                                  {t.admin.no_photo}
                                 </div>
                               )}
 
@@ -1883,34 +1901,34 @@ export default function AdminDashboard() {
                                   {/* BADGE HABILITADO / DESHABILITADO */}
                                   {f.habilitado === false ? (
                                     <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                                      🚫 Deshabilitado (Sin reservas)
+                                      {t.admin.disabled_no_booking}
                                     </span>
                                   ) : (
                                     <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                      🟢 Habilitado
+                                      {t.admin.enabled}
                                     </span>
                                   )}
 
                                   {/* CONTADORES DE INCIDENCIAS */}
                                   {pendientes > 0 && (
                                     <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                                      ⏳ {pendientes} {pendientes === 1 ? 'pendiente' : 'pendientes'}
+                                      ⏳ {pendientes} {t.common.pending}
                                     </span>
                                   )}
                                   {enCurso > 0 && (
                                     <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                                      🔧 {enCurso} en curso
+                                      🔧 {enCurso} {t.reservas.status_in_progress_short}
                                     </span>
                                   )}
                                   {pendientes === 0 && enCurso === 0 && (
                                     <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                      ✅ Sin incidencias
+                                      ✅ {t.reservas.no_incidents_recorded}
                                     </span>
                                   )}
                                 </div>
 
                                 <p className="text-xs text-stone-500 font-medium mt-0.5">
-                                  Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Máximo: {f.dias_antelacion_maxima ?? 7}d
+                                  {t.admin.schedule_info}: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | {t.admin.slot}: {f.duracion_slot_minutos || 60}m | {t.admin.max}: {f.dias_antelacion_maxima ?? 7} {t.admin.days}
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   {(f.largura || f.anchura || f.medidas) && (
@@ -1918,13 +1936,13 @@ export default function AdminDashboard() {
                                       📐 {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.largura ? `${f.largura}m` : f.anchura ? `${f.anchura}m` : f.medidas}
                                     </span>
                                   )}
-                                  {f.cuadros && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Cuadros: {f.cuadros}</span>}
+                                  {f.cuadros && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.courts}: {f.cuadros}</span>}
                                   {(f.labur || f.numero_labur) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
                                   {(f.luze || f.numero_luze) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
-                                  {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">Luz {f.luz_pago ? '(Pago)' : ''}</span>}
-                                  {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Vestuarios</span>}
-                                  {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Duchas</span>}
-                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Sensor IoT Activo</span>}
+                                  {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
+                                  {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
+                                  {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
+                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">{t.admin.iot_active}</span>}
                                 </div>
                               </div>
                             </div>
@@ -1935,7 +1953,7 @@ export default function AdminDashboard() {
                                 onClick={() => abrirGraficaIoT(f)}
                                 className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
                               >
-                                Telemetría IoT
+                                {t.admin.iot_telemetry}
                               </button>
                             )}
                             <button 
@@ -1946,13 +1964,13 @@ export default function AdminDashboard() {
                                   : 'bg-stone-100 text-stone-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border-stone-300'
                               }`}
                             >
-                              {f.habilitado === false ? '✓ Habilitar' : '🚫 Deshabilitar'}
+                              {f.habilitado === false ? t.admin.btn_enable : t.admin.btn_disable}
                             </button>
                             <button 
                               onClick={() => iniciarEdicion(f)}
                               className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 transition"
                             >
-                              Editar
+                              {t.common.edit}
                             </button>
                           </div>
                         </li>
@@ -1967,8 +1985,8 @@ export default function AdminDashboard() {
                   {!mostrarFormularioFronton ? (
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-base font-bold text-stone-900">Añadir nuevo frontón</h3>
-                        <p className="text-xs text-stone-500">Puedes registrar hasta 5 frontones en total.</p>
+                        <h3 className="text-base font-bold text-stone-900">{t.admin.add_new_fronton}</h3>
+                        <p className="text-xs text-stone-500">{t.admin.frontons_limit_desc}</p>
                       </div>
                       <button 
                         onClick={() => {
@@ -1991,19 +2009,19 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
                         <h3 className="text-lg font-bold text-stone-900">
-                          {frontonEnEdicion ? `Editando: ${frontonEnEdicion.nombre}` : 'Nuevo Frontón'}
+                          {frontonEnEdicion ? `${t.admin.editing_fronton}: ${frontonEnEdicion.nombre}` : t.admin.new_fronton}
                         </h3>
                         <button 
                           onClick={() => { setMostrarFormularioFronton(false); setFrontonEnEdicion(null); resetFormulario(); }}
                           className="text-stone-400 hover:text-stone-700 text-xs font-bold"
                         >
-                          Cancelar ✕
+                          {t.common.cancel} ✕
                         </button>
                       </div>
 
                       <form onSubmit={handleCreateOrUpdateFronton} className="space-y-4">
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nombre del Frontón</label>
+                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.fronton_name}</label>
                           <input 
                             type="text" 
                             value={nuevoFronton.nombre} 
@@ -2014,7 +2032,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Imagen (Opcional)</label>
+                          <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.image_optional}</label>
                           <input 
                             type="file" 
                             accept="image/*"
@@ -2030,7 +2048,7 @@ export default function AdminDashboard() {
                         {/* Fila 1: Anchura y Largura (opcionales) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Anchura (m) (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.width}</label>
                             <input 
                               type="number" 
                               step="any"
@@ -2042,7 +2060,7 @@ export default function AdminDashboard() {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Largura (m) (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.length}</label>
                             <input 
                               type="number" 
                               step="any"
@@ -2058,7 +2076,7 @@ export default function AdminDashboard() {
                         {/* Fila 2: Nº de cuadros, Nº Labur y Nº Luze (opcionales) */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº de cuadros (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.admin.num_courts}</label>
                             <input 
                               type="number" 
                               min="0"
@@ -2094,11 +2112,11 @@ export default function AdminDashboard() {
 
                         {/* Reglas de Horarios */}
                         <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-4">
-                          <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700">Reglas de Horario y Reservas</h4>
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700">{t.admin.schedule_rules}</h4>
                           
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Apertura</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.opening}</label>
                               <input 
                                 type="time" 
                                 value={nuevoFronton.hora_apertura} 
@@ -2108,7 +2126,7 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Cierre</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.closing}</label>
                               <input 
                                 type="time" 
                                 value={nuevoFronton.hora_cierre} 
@@ -2121,7 +2139,7 @@ export default function AdminDashboard() {
 
                           <div className="grid grid-cols-3 gap-3">
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Duración Slot</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.slot_duration}</label>
                               <select 
                                 value={nuevoFronton.duracion_slot_minutos} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, duracion_slot_minutos: Number(e.target.value)})}
@@ -2134,24 +2152,24 @@ export default function AdminDashboard() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Antelación Máx.</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.max_advance}</label>
                               <select 
                                 value={nuevoFronton.dias_antelacion_maxima} 
                                 onChange={(e) => setNuevoFronton({...nuevoFronton, dias_antelacion_maxima: Number(e.target.value)})}
                                 className="w-full p-2 border border-stone-300 rounded-xl text-sm bg-white"
                               >
-                                <option value="0">0 días (Solo hoy)</option>
-                                <option value="1">1 día</option>
-                                <option value="2">2 días</option>
-                                <option value="3">3 días</option>
-                                <option value="4">4 días</option>
-                                <option value="5">5 días</option>
-                                <option value="6">6 días</option>
-                                <option value="7">7 días</option>
+                                <option value="0">0 {t.admin.days} ({t.reservas.today})</option>
+                                <option value="1">1 {t.admin.days.slice(0,-1)}</option>
+                                <option value="2">2 {t.admin.days}</option>
+                                <option value="3">3 {t.admin.days}</option>
+                                <option value="4">4 {t.admin.days}</option>
+                                <option value="5">5 {t.admin.days}</option>
+                                <option value="6">6 {t.admin.days}</option>
+                                <option value="7">7 {t.admin.days}</option>
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-stone-600 mb-1">Max Reservas/Día</label>
+                              <label className="block text-xs font-bold text-stone-600 mb-1">{t.admin.max_bookings_day}</label>
                               <input 
                                 type="number" 
                                 min="1" 
@@ -2167,34 +2185,34 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-2 gap-3 pt-2">
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_luz} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_luz: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">Tiene Luz</span>
+                            <span className="text-xs font-bold text-stone-700">{t.admin.light}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.luz_pago} onChange={(e) => setNuevoFronton({...nuevoFronton, luz_pago: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">Luz de Pago</span>
+                            <span className="text-xs font-bold text-stone-700">{t.admin.light_paid}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_vestuarios} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_vestuarios: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">Vestuarios</span>
+                            <span className="text-xs font-bold text-stone-700">{t.admin.dressing_rooms}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_duchas} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_duchas: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-700">Duchas</span>
+                            <span className="text-xs font-bold text-stone-700">{t.admin.showers}</span>
                           </label>
                         </div>
 
                         <div className="pt-3 border-t border-stone-200 space-y-2">
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.habilitado} onChange={(e) => setNuevoFronton({...nuevoFronton, habilitado: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-bold text-stone-800">Frontón Habilitado (Permitir reservas de ciudadanos)</span>
+                            <span className="text-xs font-bold text-stone-800">{t.admin.allow_bookings}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.tiene_sensor_iot} onChange={(e) => setNuevoFronton({...nuevoFronton, tiene_sensor_iot: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-extrabold text-emerald-900">Dispositivo IoT Activo (Sensor de ocupación)</span>
+                            <span className="text-xs font-extrabold text-emerald-900">{t.admin.iot_device_active}</span>
                           </label>
                           <label className="flex items-center space-x-2">
                             <input type="checkbox" checked={nuevoFronton.solo_empadronados} onChange={(e) => setNuevoFronton({...nuevoFronton, solo_empadronados: e.target.checked})} className="rounded text-emerald-700"/>
-                            <span className="text-xs font-medium text-stone-600">Solo empadronados en el pueblo</span>
+                            <span className="text-xs font-medium text-stone-600">{t.admin.only_registered_residents}</span>
                           </label>
                         </div>
 
@@ -2203,7 +2221,7 @@ export default function AdminDashboard() {
                           disabled={uploadingImage}
                           className="w-full bg-emerald-700 text-white p-3 rounded-xl hover:bg-emerald-800 disabled:bg-stone-300 font-bold text-xs transition shadow-sm"
                         >
-                          {uploadingImage ? 'Subiendo imagen...' : frontonEnEdicion ? 'Actualizar Frontón' : 'Guardar Frontón'}
+                          {uploadingImage ? 'Subiendo imagen...' : frontonEnEdicion ? t.admin.update_fronton : t.admin.save_fronton}
                         </button>
                       </form>
                     </div>
@@ -2219,8 +2237,8 @@ export default function AdminDashboard() {
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-stone-100 pb-4">
               <div>
-                <h2 className="text-base font-bold text-stone-900">Buzón de Incidencias</h2>
-                <p className="text-xs text-stone-500">Avisos de roturas o mantenimiento enviados por usuarios</p>
+                <h2 className="text-base font-bold text-stone-900">{t.admin.incidents_mailbox}</h2>
+                <p className="text-xs text-stone-500">{t.admin.incidents_desc}</p>
               </div>
 
               <div className="flex gap-1.5 text-xs font-bold flex-wrap">
@@ -2228,31 +2246,31 @@ export default function AdminDashboard() {
                   onClick={() => setFiltroEstadoIncidencia('todas')}
                   className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'todas' ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-50 text-stone-600 border-stone-200'}`}
                 >
-                  Todas ({incidencias.length})
+                  {t.admin.filter_all} ({incidencias.length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('pendiente')}
                   className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'pendiente' ? 'bg-rose-600 text-white border-rose-600' : 'bg-rose-50 text-rose-700 border-rose-200'}`}
                 >
-                  Pendientes ({incidencias.filter(i => i.estado === 'pendiente').length})
+                  {t.admin.filter_pending} ({incidencias.filter(i => i.estado === 'pendiente').length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('en_curso')}
                   className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'en_curso' ? 'bg-amber-600 text-white border-amber-600' : 'bg-amber-50 text-amber-800 border-amber-200'}`}
                 >
-                  En curso ({incidencias.filter(i => i.estado === 'en_curso').length})
+                  {t.admin.filter_in_progress} ({incidencias.filter(i => i.estado === 'en_curso').length})
                 </button>
                 <button 
                   onClick={() => setFiltroEstadoIncidencia('resuelta')}
                   className={`px-3 py-1.5 rounded-xl border transition ${filtroEstadoIncidencia === 'resuelta' ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}
                 >
-                  Resueltas ({incidencias.filter(i => i.estado === 'resuelta').length})
+                  {t.admin.filter_resolved} ({incidencias.filter(i => i.estado === 'resuelta').length})
                 </button>
               </div>
             </div>
 
             {incidenciasFiltradas.length === 0 ? (
-              <p className="text-stone-400 italic text-center py-8 text-sm">No hay incidencias en esta categoría.</p>
+              <p className="text-stone-400 italic text-center py-8 text-sm">{t.admin.no_incidents_category}</p>
             ) : (
               <div className="space-y-3">
                 {incidenciasFiltradas.map((inc) => {
@@ -2263,13 +2281,13 @@ export default function AdminDashboard() {
                   const estaHistorialAbierto = incidenciasHistorialAbierto.includes(inc.id)
 
                   let badgeClass = 'bg-rose-100 text-rose-800 border-rose-200'
-                  let badgeTexto = '⏳ Pendiente'
+                  let badgeTexto = `⏳ ${t.reservas.status_pending_short}`
                   if (inc.estado === 'en_curso') {
                     badgeClass = 'bg-amber-100 text-amber-900 border-amber-300'
-                    badgeTexto = '🔧 En curso'
+                    badgeTexto = `🔧 ${t.reservas.status_in_progress_short}`
                   } else if (inc.estado === 'resuelta') {
                     badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                    badgeTexto = '✅ Resuelta'
+                    badgeTexto = `✅ ${t.reservas.status_resolved_short}`
                   }
 
                   return (
@@ -2292,7 +2310,7 @@ export default function AdminDashboard() {
 
                           <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
                             <span className="text-[11px] text-stone-400 font-medium mr-1">
-                              📅 Reportado: {new Date(inc.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                              📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                             </span>
 
                             {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
@@ -2308,7 +2326,7 @@ export default function AdminDashboard() {
 
                             {inc.profiles?.dni && (
                               <span className="text-stone-500 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">
-                                🪪 DNI: {inc.profiles.dni}
+                                🪪 {t.auth.dni}: {inc.profiles.dni}
                               </span>
                             )}
 
@@ -2325,17 +2343,17 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => abrirModalCambioEstado(inc)}
                             className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
-                            title="Cambiar estado e introducir comentario obligatorio"
+                            title={t.admin.change_status}
                           >
-                            <span>📝 Cambiar Estado</span>
+                            <span>📝 {t.admin.change_status}</span>
                           </button>
 
                           <button
                             onClick={() => handleBorrarIncidencia(inc.id, inc.titulo)}
                             className="bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
-                            title="Eliminar permanentemente esta incidencia"
+                            title={t.admin.delete_incident}
                           >
-                            <span>🗑️ Borrar</span>
+                            <span>🗑️ {t.admin.delete_incident}</span>
                           </button>
                         </div>
                       </div>
@@ -2347,14 +2365,14 @@ export default function AdminDashboard() {
                             onClick={() => toggleVerHistorialIncidencia(inc.id)}
                             className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition"
                           >
-                            <span>💬 {estaHistorialAbierto ? 'Ocultar historial de actuaciones' : `Ver histórico de actuaciones (${historial.length})`}</span>
+                            <span>💬 {estaHistorialAbierto ? t.admin.hide_actions_history : `${t.admin.view_actions_history} (${historial.length})`}</span>
                             <span className="text-[10px]">{estaHistorialAbierto ? '▲' : '▼'}</span>
                           </button>
 
                           {estaHistorialAbierto && (
                             <div className="mt-2.5 p-3.5 bg-white border border-stone-200 rounded-2xl space-y-2.5 text-xs shadow-2xs">
                               <h4 className="font-bold text-stone-800 border-b border-stone-100 pb-1.5 flex items-center gap-1.5">
-                                <span>📜 Historial cronológico de cambios de estado:</span>
+                                <span>📜 {t.admin.chronological_history}</span>
                               </h4>
                               <div className="space-y-2">
                                 {historial.map((h: any, hIdx: number) => (
@@ -2364,7 +2382,7 @@ export default function AdminDashboard() {
                                         Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                       </span>
                                       <span className="text-[10px] text-stone-400 font-medium">
-                                        📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                        📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                       </span>
                                     </div>
                                     <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -2388,49 +2406,49 @@ export default function AdminDashboard() {
         {activeTab === 'ciudadanos' && (
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
             <div className="border-b border-stone-100 pb-4">
-              <h2 className="text-base font-bold text-stone-900">Ciudadanos Registrados en {nombreMunicipioActual}</h2>
-              <p className="text-xs text-stone-500">Listado de usuarios registrados empadronados o residentes en la localidad</p>
+              <h2 className="text-base font-bold text-stone-900">{t.admin.citizens_title} {nombreMunicipioActual}</h2>
+              <p className="text-xs text-stone-500">{t.admin.citizens_desc}</p>
             </div>
 
             {ciudadanos.length === 0 ? (
-              <p className="text-stone-400 italic text-center py-8 text-sm">No hay ciudadanos registrados en este municipio todavía.</p>
+              <p className="text-stone-400 italic text-center py-8 text-sm">{t.admin.no_citizens}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-stone-200 bg-stone-50 text-xs font-bold text-stone-600 uppercase tracking-wider">
-                      <th className="p-3">Nombre y Apellidos</th>
-                      <th className="p-3">DNI</th>
-                      <th className="p-3">Dirección / Calle</th>
-                      <th className="p-3">Localidad / C.P.</th>
-                      <th className="p-3">Correo Electrónico</th>
-                      <th className="p-3 text-right">Acción</th>
+                      <th className="p-3">{t.admin.name_and_surname}</th>
+                      <th className="p-3">{t.auth.dni}</th>
+                      <th className="p-3">{t.admin.address_street}</th>
+                      <th className="p-3">{t.admin.town_cp}</th>
+                      <th className="p-3">{t.auth.email}</th>
+                      <th className="p-3 text-right">{t.admin.action}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100 text-xs">
                     {ciudadanos.map((c) => (
                       <tr key={c.id} className="hover:bg-stone-50/50 transition">
                         <td className="p-3 font-bold text-stone-900">
-                          {c.nombre_completo || 'Sin nombre'} {c.apellidos || ''}
+                          {c.nombre_completo || '-'} {c.apellidos || ''}
                         </td>
                         <td className="p-3 font-mono text-stone-700">
-                          {c.dni || 'No especificado'}
+                          {c.dni || '-'}
                         </td>
                         <td className="p-3 text-stone-600">
-                          {c.calle || 'No especificada'}
+                          {c.calle || '-'}
                         </td>
                         <td className="p-3 text-stone-600">
                           {c.localidad || '-'} ({c.codigo_postal || 'S/C'})
                         </td>
                         <td className="p-3 text-emerald-800 font-medium">
-                          {c.email || 'No disponible'}
+                          {c.email || '-'}
                         </td>
                         <td className="p-3 text-right">
                           <button
                             onClick={() => handleBorrarCiudadano(c.id, c.nombre_completo)}
                             className="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl font-bold transition shadow-2xs"
                           >
-                            Borrar
+                            {t.admin.delete_incident}
                           </button>
                         </td>
                       </tr>
@@ -2446,13 +2464,13 @@ export default function AdminDashboard() {
         {activeTab === 'ajustes' && (
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-6">
             <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <h2 className="text-base font-bold text-stone-900">Ajustes de Población</h2>
+              <h2 className="text-base font-bold text-stone-900">{t.admin.town_settings_title}</h2>
               {puebloConfigurado && !editandoAjustes && (
                 <button 
                   onClick={() => setEditandoAjustes(true)}
                   className="bg-stone-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition"
                 >
-                  Editar Configuración
+                  {t.admin.edit_config}
                 </button>
               )}
             </div>
@@ -2471,13 +2489,13 @@ export default function AdminDashboard() {
                     ) : (
                       <div className="w-20 h-20 bg-stone-200 rounded-2xl border border-stone-300 flex flex-col items-center justify-center text-stone-400 text-xs font-bold gap-1">
                         <span className="text-2xl">🏛️</span>
-                        <span>Sin imagen</span>
+                        <span>{t.admin.no_photo}</span>
                       </div>
                     )}
                     <div>
-                      <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Imagen / Escudo Municipal</span>
+                      <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.ajustes.municipality_logo}</span>
                       <p className="text-xs text-stone-600 font-medium mt-0.5">
-                        {imagenMunicipioUrl ? 'Imagen visible a la derecha del título de gestión' : 'No se ha configurado ninguna imagen todavía'}
+                        {imagenMunicipioUrl ? t.admin.town_logo_desc : t.admin.no_town_logo}
                       </p>
                     </div>
                   </div>
@@ -2487,31 +2505,31 @@ export default function AdminDashboard() {
                       onClick={() => setEditandoAjustes(true)}
                       className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                     >
-                      {imagenMunicipioUrl ? 'Cambiar imagen' : 'Añadir imagen'}
+                      {imagenMunicipioUrl ? t.admin.change_image : t.admin.add_image}
                     </button>
                     {imagenMunicipioUrl && (
                       <button 
                         onClick={handleBorrarImagenMunicipio}
                         className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                       >
-                        Borrar imagen
+                        {t.admin.delete_image}
                       </button>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Provincia</span>
+                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.auth.province}</span>
                   <p className="text-base font-bold text-stone-800 mt-0.5">{nombreProvinciaActual}</p>
                 </div>
 
                 <div>
-                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Población / Municipio</span>
+                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">{t.auth.municipality}</span>
                   <p className="text-base font-bold text-stone-800 mt-0.5">{nombreMunicipioActual}</p>
                 </div>
 
                 <div>
-                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">Códigos Postales</span>
+                  <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">{t.ajustes.postal_codes}</span>
                   <div className="flex flex-wrap gap-2">
                     {codigosPostales.map((cp) => (
                       <span key={cp} className="bg-white border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold text-stone-700 shadow-2xs">
@@ -2525,7 +2543,7 @@ export default function AdminDashboard() {
               <form onSubmit={handleSaveAjustes} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase mb-1.5">
-                    Imagen / Escudo de la Población (Opcional)
+                    {t.ajustes.municipality_logo}
                   </label>
                   
                   {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
@@ -2537,11 +2555,11 @@ export default function AdminDashboard() {
                       />
                       <div className="space-y-1.5">
                         <p className="text-xs font-bold text-stone-800">
-                          {archivoImagenMunicipio ? `Nueva imagen seleccionada: ${archivoImagenMunicipio.name}` : 'Imagen actual configurada'}
+                          {archivoImagenMunicipio ? `${t.common.save}: ${archivoImagenMunicipio.name}` : t.admin.town_logo_desc}
                         </p>
                         <div className="flex gap-2 flex-wrap">
-                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
-                            Cambiar imagen
+                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
+                            {t.admin.change_image}
                             <input 
                               type="file" 
                               accept="image/*"
@@ -2559,9 +2577,9 @@ export default function AdminDashboard() {
                               setImagenMunicipioUrl('')
                               setArchivoImagenMunicipio(null)
                             }} 
-                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                           >
-                            Borrar imagen
+                            {t.admin.delete_image}
                           </button>
                         </div>
                       </div>
@@ -2569,7 +2587,7 @@ export default function AdminDashboard() {
                   ) : (
                     <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
                       <span className="text-3xl mb-1 group-hover:scale-110 transition">🏛️</span>
-                      <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">Seleccionar imagen o escudo municipal</span>
+                      <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">{t.ajustes.upload_logo}</span>
                       <span className="text-[11px] text-stone-400 mt-0.5">PNG, JPG o WEBP</span>
                       <input 
                         type="file" 
@@ -2586,14 +2604,14 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Provincia</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.auth.province}</label>
                   <select 
                     value={selectedProvinciaId} 
                     onChange={(e) => handleProvinciaChange(e.target.value)}
                     required
                     className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white"
                   >
-                    <option value="">Selecciona provincia...</option>
+                    <option value="">{t.reservas.all_provinces}...</option>
                     {provincias.map(p => (
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
@@ -2601,7 +2619,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Población</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.auth.municipality}</label>
                   <select 
                     value={selectedMunicipioId} 
                     onChange={(e) => handleMunicipioChange(e.target.value)}
@@ -2609,7 +2627,7 @@ export default function AdminDashboard() {
                     disabled={!selectedProvinciaId}
                     className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white disabled:bg-stone-100"
                   >
-                    <option value="">Selecciona pueblo...</option>
+                    <option value="">{t.reservas.all_municipalities}...</option>
                     {municipiosDisponibles.map(m => (
                       <option key={m.id} value={m.id}>{m.nombre}</option>
                     ))}
@@ -2617,7 +2635,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Códigos Postales</label>
+                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">{t.ajustes.postal_codes}</label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {codigosPostales.map((cp) => (
                       <span key={cp} className="bg-stone-100 border border-stone-300 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2">
@@ -2629,20 +2647,20 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <input 
                       type="text" 
-                      placeholder="Añadir otro C.P." 
+                      placeholder={t.ajustes.add_cp_placeholder} 
                       value={nuevoCp}
                       onChange={(e) => setNuevoCp(e.target.value)}
                       className="p-2 border border-stone-300 rounded-xl flex-1 text-sm bg-white"
                     />
                     <button type="button" onClick={handleAddCp} className="bg-stone-200 text-stone-800 px-4 py-2 rounded-xl text-xs font-bold hover:bg-stone-300">
-                      Añadir C.P.
+                      {t.ajustes.add_cp}
                     </button>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
                   <button type="submit" className="flex-1 bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-emerald-800 transition">
-                    Guardar Configuración
+                    {t.admin.save_config}
                   </button>
                   {puebloConfigurado && (
                     <button 
@@ -2650,7 +2668,7 @@ export default function AdminDashboard() {
                       onClick={() => setEditandoAjustes(false)} 
                       className="bg-stone-200 text-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-stone-300"
                     >
-                      Cancelar
+                      {t.common.cancel}
                     </button>
                   )}
                 </div>
@@ -2775,7 +2793,7 @@ export default function AdminDashboard() {
                     📝
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">Actualizar Estado de Incidencia</h3>
+                    <h3 className="font-bold text-lg text-stone-900">{t.admin.update_incident_status}</h3>
                     <p className="text-xs text-stone-500">
                       {incidenciaCambioEstadoModal.frontones?.nombre} • {incidenciaCambioEstadoModal.titulo}
                     </p>
@@ -2792,7 +2810,7 @@ export default function AdminDashboard() {
               <form onSubmit={handleGuardarCambioEstadoConComentario} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                    1. Nuevo Estado de la Incidencia *
+                    {t.admin.new_status}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
@@ -2805,7 +2823,7 @@ export default function AdminDashboard() {
                       }`}
                     >
                       <span>⏳</span>
-                      <span>Pendiente</span>
+                      <span>{t.reservas.status_pending_short}</span>
                     </button>
 
                     <button
@@ -2818,7 +2836,7 @@ export default function AdminDashboard() {
                       }`}
                     >
                       <span>🔧</span>
-                      <span>En curso</span>
+                      <span>{t.reservas.status_in_progress_short}</span>
                     </button>
 
                     <button
@@ -2831,22 +2849,22 @@ export default function AdminDashboard() {
                       }`}
                     >
                       <span>✅</span>
-                      <span>Resuelta</span>
+                      <span>{t.reservas.status_resolved_short}</span>
                     </button>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
-                    2. Comentario de Actuación (Obligatorio) *
+                    {t.admin.action_comment}
                   </label>
                   <p className="text-[11px] text-stone-500 mb-2">
-                    Este comentario se registrará en el histórico cronológico y será visible para el ciudadano que reportó la incidencia.
+                    {t.admin.action_comment_desc}
                   </p>
                   <textarea
                     rows={4}
                     required
-                    placeholder="Describe qué se ha hecho o se va a hacer (ej. 'Se ha enviado al electricista municipal a revisar los focos', 'Material pedido al proveedor', 'Reparación completada y verificada')..."
+                    placeholder="Describe qué se ha hecho o se va a hacer..."
                     value={comentarioCambioEstado}
                     onChange={(e) => setComentarioCambioEstado(e.target.value)}
                     className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
@@ -2859,7 +2877,7 @@ export default function AdminDashboard() {
                     disabled={guardandoCambioEstado}
                     className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white p-3 rounded-2xl text-sm font-bold transition shadow-sm disabled:bg-stone-300 active:scale-98"
                   >
-                    {guardandoCambioEstado ? 'Guardando en histórico...' : 'Guardar y Registrar en Histórico'}
+                    {guardandoCambioEstado ? t.admin.saving_in_history : t.admin.save_in_history}
                   </button>
 
                   <button
@@ -2867,7 +2885,7 @@ export default function AdminDashboard() {
                     onClick={() => setIncidenciaCambioEstadoModal(null)}
                     className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-3 rounded-2xl text-sm font-bold transition"
                   >
-                    Cancelar
+                    {t.common.cancel}
                   </button>
                 </div>
               </form>
@@ -2887,7 +2905,7 @@ export default function AdminDashboard() {
                     📜
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-stone-900">Histórico de la Incidencia</h3>
+                    <h3 className="font-bold text-lg text-stone-900">{t.reservas.incident_history_modal_title}</h3>
                     <p className="text-xs text-stone-500">
                       {incidenciaVerHistoricoModal.frontones?.nombre} • {incidenciaVerHistoricoModal.titulo}
                     </p>
@@ -2915,7 +2933,7 @@ export default function AdminDashboard() {
                         ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
                         : 'bg-rose-100 text-rose-800 border-rose-200'
                     }`}>
-                      {incidenciaVerHistoricoModal.estado === 'en_curso' ? '🔧 En curso' : incidenciaVerHistoricoModal.estado === 'resuelta' ? '✅ Resuelta' : '⏳ Pendiente'}
+                      {incidenciaVerHistoricoModal.estado === 'en_curso' ? `🔧 ${t.reservas.status_in_progress_short}` : incidenciaVerHistoricoModal.estado === 'resuelta' ? `✅ ${t.reservas.status_resolved_short}` : `⏳ ${t.reservas.status_pending_short}`}
                     </span>
                   </div>
 
@@ -2928,7 +2946,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2 flex-wrap text-[11px] text-stone-500 pt-1">
                     <span>🏟️ Frontón: <strong>{incidenciaVerHistoricoModal.frontones?.nombre}</strong></span>
                     <span>•</span>
-                    <span>👤 Reportado por: <strong>{incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Usuario'} {incidenciaVerHistoricoModal.profiles?.apellidos || ''}</strong></span>
+                    <span>👤 {t.admin.reported_by}: <strong>{incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Usuario'} {incidenciaVerHistoricoModal.profiles?.apellidos || ''}</strong></span>
                     {incidenciaVerHistoricoModal.profiles?.email && (
                       <span>({incidenciaVerHistoricoModal.profiles.email})</span>
                     )}
@@ -2938,7 +2956,7 @@ export default function AdminDashboard() {
                 {/* TIMELINE / LÍNEA TEMPORAL */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>🕒 Cronología de actuaciones y cambios de estado</span>
+                    <span>🕒 {t.reservas.timeline_title}</span>
                   </h4>
 
                   <div className="relative pl-6 border-l-2 border-stone-200 space-y-6">
@@ -2949,17 +2967,17 @@ export default function AdminDashboard() {
                       <div className="p-3.5 bg-rose-50/60 border border-rose-200/80 rounded-2xl space-y-1 text-xs">
                         <div className="flex justify-between items-center flex-wrap gap-1">
                           <span className="font-bold text-rose-950 flex items-center gap-1.5">
-                            📋 Incidencia Registrada
+                            📋 {t.reservas.incident_registered}
                           </span>
                           <span className="text-[10px] text-rose-700 font-medium">
-                            {new Date(incidenciaVerHistoricoModal.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {parseSafeDate(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                         <p className="text-stone-600 text-[11px]">
-                          La incidencia fue comunicada al ayuntamiento en estado <strong>Pendiente de revisión</strong>.
+                          {t.reservas.incident_initial_status_text}
                         </p>
                         <span className="text-[10px] text-stone-400 font-semibold block">
-                          Por: {incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Ciudadano'}
+                          {t.reservas.by}: {incidenciaVerHistoricoModal.profiles?.nombre_completo || incidenciaVerHistoricoModal.profiles?.nombre || 'Ciudadano'}
                         </span>
                       </div>
                     </div>
@@ -2988,13 +3006,13 @@ export default function AdminDashboard() {
                               <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
                                 <div className="flex justify-between items-center flex-wrap gap-1">
                                   <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                                    <span>Cambio de Estado:</span>
+                                    <span>{t.reservas.status_change_label}:</span>
                                     <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
                                     <span>➔</span>
                                     <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
                                   </span>
                                   <span className="text-[10px] text-stone-500 font-medium">
-                                    📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
 
@@ -3011,7 +3029,7 @@ export default function AdminDashboard() {
                         })
                       ) : (
                         <div className="text-xs text-stone-400 italic py-2 pl-1">
-                          No hay actuaciones posteriores registradas todavía. El estado actual es el inicial.
+                          {t.reservas.no_subsequent_actions}
                         </div>
                       )
                     })()}
@@ -3030,7 +3048,7 @@ export default function AdminDashboard() {
                   }}
                   className="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95"
                 >
-                  <span>📝 Cambiar Estado / Añadir Comentario</span>
+                  <span>📝 {t.admin.change_status}</span>
                 </button>
 
                 <button
@@ -3038,7 +3056,7 @@ export default function AdminDashboard() {
                   onClick={() => setIncidenciaVerHistoricoModal(null)}
                   className="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-2.5 rounded-xl text-xs font-bold transition"
                 >
-                  Cerrar
+                  {t.common.close}
                 </button>
               </div>
             </div>

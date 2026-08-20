@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
+import { parseSafeDate } from '@/lib/dateUtils'
 
 export default function PortalReservas() {
   const [user, setUser] = useState<any>(null)
@@ -998,7 +999,7 @@ export default function PortalReservas() {
                       {res.frontones?.nombre} <span className="font-normal text-stone-500">({res.frontones?.municipios?.nombre})</span>
                     </span>
                     <span className="inline-block mt-1 text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-lg">
-                      📅 {new Date(res.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
+                      📅 {parseSafeDate(res.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
                     </span>
                   </div>
                   <button 
@@ -1150,7 +1151,7 @@ export default function PortalReservas() {
                           <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                         )}
                         <span className="text-[10px] text-stone-400 font-medium block">
-                          📅 {t.reservas.reported_on} {new Date(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
 
@@ -1187,7 +1188,7 @@ export default function PortalReservas() {
                                       {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                     </span>
                                     <span className="text-[10px] text-stone-400 font-medium">
-                                      📅 {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                      📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                   </div>
                                   <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -1566,6 +1567,22 @@ export default function PortalReservas() {
                     </button>
                   </div>
 
+                  <div className="grid grid-cols-7 gap-2 min-w-[800px] mb-1">
+                    {[
+                      t.reservas.days_of_week.mon,
+                      t.reservas.days_of_week.tue,
+                      t.reservas.days_of_week.wed,
+                      t.reservas.days_of_week.thu,
+                      t.reservas.days_of_week.fri,
+                      t.reservas.days_of_week.sat,
+                      t.reservas.days_of_week.sun
+                    ].map((diaSemana, idx) => (
+                      <div key={idx} className="text-center font-bold text-xs uppercase tracking-wider text-stone-500 py-1 bg-stone-100/60 rounded-xl">
+                        {diaSemana}
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="grid grid-cols-7 gap-2 min-w-[800px]">
                     {diasCalendario.map((dia, idx) => {
                       const fechaStr = dia.toISOString().split('T')[0]
@@ -1648,7 +1665,7 @@ export default function PortalReservas() {
             <div ref={franjasHorariasRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
               <div className="border-b border-stone-100 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h3 className="font-bold text-lg text-stone-900">
-                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{new Date(fechaSeleccionada).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{parseSafeDate(fechaSeleccionada).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                 </h3>
               </div>
 
@@ -1927,7 +1944,7 @@ export default function PortalReservas() {
                             📋 {t.reservas.incident_registered}
                           </span>
                           <span className="text-[10px] text-rose-700 font-medium">
-                            {new Date(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {parseSafeDate(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>
@@ -1962,7 +1979,7 @@ export default function PortalReservas() {
                                     <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
                                   </span>
                                   <span className="text-[10px] text-stone-500 font-medium">
-                                    📅 {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
 
@@ -2052,7 +2069,7 @@ export default function PortalReservas() {
                                 <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                               )}
                               <span className="text-[10px] text-stone-400 font-medium block">
-                                📅 {t.reservas.reported_on} {new Date(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
 
@@ -2083,7 +2100,7 @@ export default function PortalReservas() {
                                           <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                         </span>
                                         <span className="text-[10px] text-stone-400">
-                                          {new Date(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                          {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                       </div>
                                       <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
