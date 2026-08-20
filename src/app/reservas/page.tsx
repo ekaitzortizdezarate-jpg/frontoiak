@@ -182,6 +182,25 @@ export default function PortalReservas() {
     }
   }
 
+  const parseHistorial = (raw: any): any[] => {
+    if (!raw) return []
+    if (Array.isArray(raw)) return raw
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed
+      } catch {}
+    }
+    return []
+  }
+
+  const normalizarIncidencia = (inc: any) => {
+    return {
+      ...inc,
+      historial: parseHistorial(inc.historial)
+    }
+  }
+
   const cargarMisIncidencias = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -191,7 +210,7 @@ export default function PortalReservas() {
         .order('created_at', { ascending: false })
 
       if (!error && data) {
-        setMisIncidencias(data)
+        setMisIncidencias(data.map(normalizarIncidencia))
         return
       }
 
@@ -215,12 +234,12 @@ export default function PortalReservas() {
             return acc
           }, {})
 
-          setMisIncidencias(fallbackData.map((i: any) => ({
+          setMisIncidencias(fallbackData.map((i: any) => normalizarIncidencia({
             ...i,
             frontones: frontsMap[i.fronton_id]
           })))
         } else {
-          setMisIncidencias(fallbackData)
+          setMisIncidencias(fallbackData.map(normalizarIncidencia))
         }
       }
     } catch (err) {
@@ -1690,53 +1709,56 @@ export default function PortalReservas() {
                     </div>
 
                     {/* HITOS POSTERIORES: HISTÓRICO DE CAMBIOS */}
-                    {Array.isArray(incidenciaVerHistoricoModal.historial) && incidenciaVerHistoricoModal.historial.length > 0 ? (
-                      incidenciaVerHistoricoModal.historial.map((h: any, idx: number) => {
-                        let colorBadge = 'bg-stone-500'
-                        let bgCard = 'bg-stone-50/80 border-stone-200'
-                        if (h.estado_nuevo === 'en_curso') {
-                          colorBadge = 'bg-amber-500'
-                          bgCard = 'bg-amber-50/60 border-amber-200/80'
-                        } else if (h.estado_nuevo === 'resuelta') {
-                          colorBadge = 'bg-emerald-600'
-                          bgCard = 'bg-emerald-50/60 border-emerald-200/80'
-                        } else if (h.estado_nuevo === 'pendiente') {
-                          colorBadge = 'bg-rose-500'
-                          bgCard = 'bg-rose-50/60 border-rose-200/80'
-                        }
+                    {(() => {
+                      const listaHistorial = parseHistorial(incidenciaVerHistoricoModal.historial)
+                      return listaHistorial.length > 0 ? (
+                        listaHistorial.map((h: any, idx: number) => {
+                          let colorBadge = 'bg-stone-500'
+                          let bgCard = 'bg-stone-50/80 border-stone-200'
+                          if (h.estado_nuevo === 'en_curso') {
+                            colorBadge = 'bg-amber-500'
+                            bgCard = 'bg-amber-50/60 border-amber-200/80'
+                          } else if (h.estado_nuevo === 'resuelta') {
+                            colorBadge = 'bg-emerald-600'
+                            bgCard = 'bg-emerald-50/60 border-emerald-200/80'
+                          } else if (h.estado_nuevo === 'pendiente') {
+                            colorBadge = 'bg-rose-500'
+                            bgCard = 'bg-rose-50/60 border-rose-200/80'
+                          }
 
-                        return (
-                          <div key={idx} className="relative">
-                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
-                            <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
-                              <div className="flex justify-between items-center flex-wrap gap-1">
-                                <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                                  <span>Actualización:</span>
-                                  <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
-                                  <span>➔</span>
-                                  <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
-                                </span>
-                                <span className="text-[10px] text-stone-500 font-medium">
-                                  📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
+                          return (
+                            <div key={idx} className="relative">
+                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
+                              <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
+                                <div className="flex justify-between items-center flex-wrap gap-1">
+                                  <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
+                                    <span>Actualización:</span>
+                                    <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
+                                    <span>➔</span>
+                                    <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
+                                  </span>
+                                  <span className="text-[10px] text-stone-500 font-medium">
+                                    📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
 
-                              <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
-                                "{h.comentario}"
-                              </div>
+                                <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
+                                  "{h.comentario}"
+                                </div>
 
-                              <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
-                                <span>🏛️ Ayuntamiento ({h.autor || 'Gestor Municipal'})</span>
+                                <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
+                                  <span>🏛️ Ayuntamiento ({h.autor || 'Gestor Municipal'})</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      })
-                    ) : (
-                      <div className="text-xs text-stone-400 italic py-2 pl-1">
-                        El ayuntamiento aún no ha registrado actuaciones posteriores para esta incidencia.
-                      </div>
-                    )}
+                          )
+                        })
+                      ) : (
+                        <div className="text-xs text-stone-400 italic py-2 pl-1">
+                          El ayuntamiento aún no ha registrado actuaciones posteriores para esta incidencia.
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>

@@ -187,6 +187,25 @@ export default function AdminDashboard() {
     cargarTelemetriaFronton(f.id, fechaGraficaIoT)
   }
 
+  const parseHistorial = (raw: any): any[] => {
+    if (!raw) return []
+    if (Array.isArray(raw)) return raw
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed
+      } catch {}
+    }
+    return []
+  }
+
+  const normalizarIncidencia = (inc: any) => {
+    return {
+      ...inc,
+      historial: parseHistorial(inc.historial)
+    }
+  }
+
   const cargarIncidencias = async (municipioId: string) => {
     try {
       const { data, error } = await supabase
@@ -196,7 +215,7 @@ export default function AdminDashboard() {
         .order('created_at', { ascending: false })
 
       if (!error && data) {
-        setIncidencias(data)
+        setIncidencias(data.map(normalizarIncidencia))
         return
       }
 
@@ -220,12 +239,12 @@ export default function AdminDashboard() {
             return acc
           }, {})
 
-          setIncidencias(incData.map((i: any) => ({
+          setIncidencias(incData.map((i: any) => normalizarIncidencia({
             ...i,
             profiles: profsMap[i.user_id] || null
           })))
         } else {
-          setIncidencias(incData)
+          setIncidencias(incData.map(normalizarIncidencia))
         }
       }
     } catch (err) {
@@ -290,9 +309,7 @@ export default function AdminDashboard() {
 
     setGuardandoCambioEstado(true)
 
-    const historialPrevio = Array.isArray(incidenciaCambioEstadoModal.historial) 
-      ? incidenciaCambioEstadoModal.historial 
-      : []
+    const historialPrevio = parseHistorial(incidenciaCambioEstadoModal.historial)
 
     const entradaHistorial = {
       fecha: new Date().toISOString(),
@@ -315,15 +332,24 @@ export default function AdminDashboard() {
       .eq('id', incidenciaCambioEstadoModal.id)
 
     // Fallback si las columnas historial o respuesta_municipio aún no existen en la BD
-    if (error && (error.message?.includes('column') || error.message?.includes('schema'))) {
+    if (error && (error.message?.includes('column') || error.message?.includes('schema') || error.message?.includes('historial'))) {
+      console.warn('La columna historial no existe aún en la base de datos Supabase:', error.message)
       const retry = await supabase
         .from('incidencias_fronton')
         .update({ estado: nuevoEstadoSeleccionado })
         .eq('id', incidenciaCambioEstadoModal.id)
-      error = retry.error
-    }
 
-    if (error) {
+      if (retry.error) {
+        alert('Error al actualizar: ' + retry.error.message)
+      } else {
+        alert('⚠️ El estado se actualizó a "' + nuevoEstadoSeleccionado + '", pero para que los comentarios y el histórico se guarden permanentemente en Supabase debes ejecutar en el SQL Editor:\n\nALTER TABLE public.incidencias_fronton ADD COLUMN IF NOT EXISTS historial jsonb DEFAULT \'[]\'::jsonb;\nALTER TABLE public.incidencias_fronton ADD COLUMN IF NOT EXISTS respuesta_municipio text;')
+        setIncidenciaCambioEstadoModal(null)
+        setComentarioCambioEstado('')
+        if (userProfile?.municipio_id) {
+          await cargarIncidencias(userProfile.municipio_id)
+        }
+      }
+    } else if (error) {
       alert('Error al actualizar la incidencia: ' + error.message)
     } else {
       alert('¡Estado y comentario guardados correctamente en el histórico!')
@@ -2203,53 +2229,56 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* HITOS POSTERIORES: HISTÓRICO DE CAMBIOS */}
-                    {Array.isArray(incidenciaVerHistoricoModal.historial) && incidenciaVerHistoricoModal.historial.length > 0 ? (
-                      incidenciaVerHistoricoModal.historial.map((h: any, idx: number) => {
-                        let colorBadge = 'bg-stone-500'
-                        let bgCard = 'bg-stone-50/80 border-stone-200'
-                        if (h.estado_nuevo === 'en_curso') {
-                          colorBadge = 'bg-amber-500'
-                          bgCard = 'bg-amber-50/60 border-amber-200/80'
-                        } else if (h.estado_nuevo === 'resuelta') {
-                          colorBadge = 'bg-emerald-600'
-                          bgCard = 'bg-emerald-50/60 border-emerald-200/80'
-                        } else if (h.estado_nuevo === 'pendiente') {
-                          colorBadge = 'bg-rose-500'
-                          bgCard = 'bg-rose-50/60 border-rose-200/80'
-                        }
+                    {(() => {
+                      const listaHistorial = parseHistorial(incidenciaVerHistoricoModal.historial)
+                      return listaHistorial.length > 0 ? (
+                        listaHistorial.map((h: any, idx: number) => {
+                          let colorBadge = 'bg-stone-500'
+                          let bgCard = 'bg-stone-50/80 border-stone-200'
+                          if (h.estado_nuevo === 'en_curso') {
+                            colorBadge = 'bg-amber-500'
+                            bgCard = 'bg-amber-50/60 border-amber-200/80'
+                          } else if (h.estado_nuevo === 'resuelta') {
+                            colorBadge = 'bg-emerald-600'
+                            bgCard = 'bg-emerald-50/60 border-emerald-200/80'
+                          } else if (h.estado_nuevo === 'pendiente') {
+                            colorBadge = 'bg-rose-500'
+                            bgCard = 'bg-rose-50/60 border-rose-200/80'
+                          }
 
-                        return (
-                          <div key={idx} className="relative">
-                            <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
-                            <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
-                              <div className="flex justify-between items-center flex-wrap gap-1">
-                                <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                                  <span>Cambio de Estado:</span>
-                                  <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
-                                  <span>➔</span>
-                                  <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
-                                </span>
-                                <span className="text-[10px] text-stone-500 font-medium">
-                                  📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
+                          return (
+                            <div key={idx} className="relative">
+                              <div className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${colorBadge} border-2 border-white shadow-xs`}></div>
+                              <div className={`p-3.5 ${bgCard} border rounded-2xl space-y-2 text-xs shadow-2xs`}>
+                                <div className="flex justify-between items-center flex-wrap gap-1">
+                                  <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
+                                    <span>Cambio de Estado:</span>
+                                    <span className="capitalize font-semibold text-stone-600">{h.estado_anterior || 'Inicio'}</span>
+                                    <span>➔</span>
+                                    <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
+                                  </span>
+                                  <span className="text-[10px] text-stone-500 font-medium">
+                                    📅 {new Date(h.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
 
-                              <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
-                                "{h.comentario}"
-                              </div>
+                                <div className="bg-white p-2.5 rounded-xl border border-stone-150 text-stone-800 italic text-xs">
+                                  "{h.comentario}"
+                                </div>
 
-                              <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
-                                <span>🏛️ Gestor: {h.autor || 'Equipo Municipal'}</span>
+                                <div className="flex justify-between items-center text-[10px] text-stone-400 font-semibold pt-0.5">
+                                  <span>🏛️ Gestor: {h.autor || 'Equipo Municipal'}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      })
-                    ) : (
-                      <div className="text-xs text-stone-400 italic py-2 pl-1">
-                        No hay actuaciones posteriores registradas todavía. El estado actual es el inicial.
-                      </div>
-                    )}
+                          )
+                        })
+                      ) : (
+                        <div className="text-xs text-stone-400 italic py-2 pl-1">
+                          No hay actuaciones posteriores registradas todavía. El estado actual es el inicial.
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
