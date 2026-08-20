@@ -1822,7 +1822,7 @@ export default function PortalReservas() {
                     placeholder="ej. Luces de cuadro 4 fundidas, red rota, goteras..."
                     value={incidenciaTitulo}
                     onChange={(e) => setIncidenciaTitulo(e.target.value)}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
@@ -1835,7 +1835,7 @@ export default function PortalReservas() {
                     placeholder="Explica qué ocurre detalladamente para que el personal de mantenimiento municipal pueda revisarlo..."
                     value={incidenciaDescripcion}
                     onChange={(e) => setIncidenciaDescripcion(e.target.value)}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition resize-none font-medium"
                   />
                 </div>
 

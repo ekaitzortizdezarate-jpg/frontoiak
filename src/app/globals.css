@@ -24,3 +24,36 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ========================================================= */
+/* FIX CONTRASTE EN MÓVILES: INPUTS, SELECTS Y TEXTAREAS     */
+/* ========================================================= */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  color: #0c0a09 !important; /* Texto negro de alto contraste */
+  -webkit-text-fill-color: #0c0a09 !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"])::placeholder,
+textarea::placeholder {
+  color: #78716c !important; /* Placeholder visible stone-500 */
+  -webkit-text-fill-color: #78716c !important;
+  opacity: 1 !important;
+}
+
+select option {
+  background-color: #ffffff !important;
+  color: #0c0a09 !important;
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  color: #0c0a09 !important;
+  -webkit-text-fill-color: #0c0a09 !important;
+}

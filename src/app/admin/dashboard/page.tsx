@@ -1539,7 +1539,7 @@ export default function AdminDashboard() {
                               value={eventoSuelto.titulo} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, titulo: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -1549,7 +1549,7 @@ export default function AdminDashboard() {
                               value={eventoSuelto.fecha} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, fecha: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -1561,7 +1561,7 @@ export default function AdminDashboard() {
                               value={eventoSuelto.hora_inicio} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, hora_inicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -1571,7 +1571,7 @@ export default function AdminDashboard() {
                               value={eventoSuelto.hora_fin} 
                               onChange={(e) => setEventoSuelto({...eventoSuelto, hora_fin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -1610,7 +1610,7 @@ export default function AdminDashboard() {
                               value={eventoRepetitivo.titulo} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, titulo: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -1645,7 +1645,7 @@ export default function AdminDashboard() {
                               value={eventoRepetitivo.hora_inicio} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, hora_inicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -1655,7 +1655,7 @@ export default function AdminDashboard() {
                               value={eventoRepetitivo.hora_fin} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, hora_fin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -1668,7 +1668,7 @@ export default function AdminDashboard() {
                               value={eventoRepetitivo.fechaInicio} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, fechaInicio: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -1678,7 +1678,7 @@ export default function AdminDashboard() {
                               value={eventoRepetitivo.fechaFin} 
                               onChange={(e) => setEventoRepetitivo({...eventoRepetitivo, fechaFin: e.target.value})} 
                               required 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -2005,7 +2005,7 @@ export default function AdminDashboard() {
                             value={nuevoFronton.nombre} 
                             onChange={(e) => setNuevoFronton({...nuevoFronton, nombre: e.target.value})} 
                             required 
-                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                            className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                           />
                         </div>
 
@@ -2034,7 +2034,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 10"
                               value={nuevoFronton.anchura} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, anchura: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -2046,7 +2046,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 36"
                               value={nuevoFronton.largura} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, largura: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>
@@ -2061,7 +2061,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 7"
                               value={nuevoFronton.cuadros} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, cuadros: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -2072,7 +2072,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 4"
                               value={nuevoFronton.labur} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, labur: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                           <div>
@@ -2083,7 +2083,7 @@ export default function AdminDashboard() {
                               placeholder="ej. 7"
                               value={nuevoFronton.luze} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, luze: e.target.value})} 
-                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                             />
                           </div>
                         </div>

@@ -463,7 +463,7 @@ export default function AjustesUsuarioPage() {
                     onChange={(e) => setNombre(e.target.value)} 
                     disabled={!editandoPerfil}
                     placeholder="ej. Jon"
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
                 <div>
@@ -476,7 +476,7 @@ export default function AjustesUsuarioPage() {
                     onChange={(e) => setApellidos(e.target.value)} 
                     disabled={!editandoPerfil}
                     placeholder="ej. Pérez Gómez"
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
@@ -556,7 +556,7 @@ export default function AjustesUsuarioPage() {
                       value={selectedProvinciaId} 
                       onChange={(e) => handleProvinciaChange(e.target.value)}
                       required
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                     >
                       <option value="">Selecciona provincia...</option>
                       {provincias.map(p => (
@@ -724,7 +724,7 @@ export default function AjustesUsuarioPage() {
                     value={nombre} 
                     onChange={(e) => setNombre(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
@@ -735,7 +735,7 @@ export default function AjustesUsuarioPage() {
                     value={apellidos} 
                     onChange={(e) => setApellidos(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
@@ -748,7 +748,7 @@ export default function AjustesUsuarioPage() {
                     value={dni} 
                     onChange={(e) => setDni(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
@@ -759,7 +759,7 @@ export default function AjustesUsuarioPage() {
                     value={fechaNacimiento} 
                     onChange={(e) => setFechaNacimiento(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
               </div>
@@ -771,7 +771,7 @@ export default function AjustesUsuarioPage() {
                   value={calle} 
                   onChange={(e) => setCalle(e.target.value)} 
                   disabled={!editandoPerfil}
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                 />
               </div>
 
@@ -783,7 +783,7 @@ export default function AjustesUsuarioPage() {
                     value={localidad} 
                     onChange={(e) => setLocalidad(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
@@ -794,7 +794,7 @@ export default function AjustesUsuarioPage() {
                     value={codigoPostal} 
                     onChange={(e) => setCodigoPostal(e.target.value)} 
                     disabled={!editandoPerfil}
-                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 disabled:bg-stone-100 disabled:text-stone-700 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                   />
                 </div>
 
@@ -864,7 +864,7 @@ export default function AjustesUsuarioPage() {
                   value={passwordActual} 
                   onChange={(e) => setPasswordActual(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
                 />
               </div>
 
@@ -875,7 +875,7 @@ export default function AjustesUsuarioPage() {
                   value={nuevaPassword} 
                   onChange={(e) => setNuevaPassword(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
                 />
               </div>
 
@@ -886,7 +886,7 @@ export default function AjustesUsuarioPage() {
                   value={confirmarPassword} 
                   onChange={(e) => setConfirmarPassword(e.target.value)} 
                   required 
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-stone-800 focus:outline-none transition"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-stone-800 focus:outline-none transition font-medium"
                 />
               </div>
 
