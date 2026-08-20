@@ -1818,34 +1818,32 @@ export default function SuperAdminDashboard() {
                       </div>
                     </div>
 
-                    {/* CENTRO: MÉTRICAS RÁPIDAS (FRONTONES Y GESTORES) */}
-                    <div className="flex items-center gap-2.5 flex-wrap text-xs self-stretch sm:self-auto justify-start sm:justify-center">
+                    {/* CENTRO: MÉTRICAS RÁPIDAS (FRONTONES Y GESTORES EN LA MISMA LÍNEA) */}
+                    <div className="flex items-center gap-2 flex-nowrap text-xs self-stretch sm:self-auto justify-start sm:justify-center">
                       {/* BOTÓN VER FRONTONES (MODAL SOLO CERRAR) */}
                       <button
                         type="button"
                         onClick={() => setModalVerFrontonesMunicipio(mun)}
-                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-emerald-500/70 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn"
+                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-emerald-500/70 px-3 py-1.5 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn whitespace-nowrap"
                         title="Pulsar para ver la información de los frontones de este municipio"
                       >
                         <span className="text-stone-400 group-hover/btn:text-emerald-400 font-bold transition">🎾 Frontones:</span>
                         <span className="font-extrabold text-white bg-stone-900 group-hover/btn:bg-emerald-950/90 group-hover/btn:text-emerald-300 px-2 py-0.5 rounded-lg border border-stone-800 transition">
                           {frontonesDelMun.length}
                         </span>
-                        <span className="text-[11px] text-stone-500 group-hover/btn:text-emerald-400 transition">👁️</span>
                       </button>
 
                       {/* BOTÓN IR A GESTORES */}
                       <button
                         type="button"
                         onClick={() => handleNavegarAGestor(gestoresDelMun[0] || null, mun)}
-                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-teal-500/70 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn"
+                        className="bg-stone-950 hover:bg-stone-800/90 hover:border-teal-500/70 px-3 py-1.5 rounded-xl border border-stone-800 flex items-center gap-2 transition cursor-pointer active:scale-95 shadow-2xs group/btn whitespace-nowrap"
                         title={gestoresDelMun.length > 0 ? `Pulsar para ver la información de los gestores de ${mun.nombre} en la pestaña de gestores` : `Pulsar para ir a gestores y asignar uno a ${mun.nombre}`}
                       >
                         <span className="text-stone-400 group-hover/btn:text-teal-400 font-bold transition">👤 Gestores:</span>
                         <span className="font-extrabold text-white bg-stone-900 group-hover/btn:bg-teal-950/90 group-hover/btn:text-teal-300 px-2 py-0.5 rounded-lg border border-stone-800 transition">
                           {gestoresDelMun.length}
                         </span>
-                        <span className="text-[11px] text-stone-500 group-hover/btn:text-teal-400 transition">→</span>
                       </button>
                     </div>
 
