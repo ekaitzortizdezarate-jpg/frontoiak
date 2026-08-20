@@ -54,7 +54,7 @@ export default function AjustesUsuarioPage() {
     const meta = user.user_metadata || {}
 
     // Combinamos datos de la tabla profiles y de user_metadata como respaldo seguro
-    const nombreVal = profile?.nombre_completo || profile?.nombre || meta.nombre_completo || meta.nombre || meta.full_name || ''
+    const nombreVal = profile?.nombre || profile?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || (user.email ? user.email.split('@')[0] : 'Usuario')
     const apellidosVal = profile?.apellidos || meta.apellidos || ''
     const dniVal = profile?.dni || meta.dni || ''
     const calleVal = profile?.calle || meta.calle || ''
@@ -71,7 +71,7 @@ export default function AjustesUsuarioPage() {
     setCodigoPostal(cpVal)
 
     // Si la tabla profiles no existía o estaba incompleta, la sincronizamos para que quede persistida en BD
-    if (!profile || !profile.nombre_completo || !profile.nombre || !profile.dni || !profile.localidad) {
+    if (!profile || !profile.nombre || !profile.dni || !profile.localidad) {
       if (nombreVal || apellidosVal || dniVal || localidadVal || cpVal) {
         await supabase.from('profiles').upsert({
           id: user.id,
@@ -96,7 +96,9 @@ export default function AjustesUsuarioPage() {
     e.preventDefault()
     if (!user) return
 
-    const nombreLimpio = nombre.trim() || user?.user_metadata?.nombre || user?.user_metadata?.nombre_completo || 'Usuario'
+    const nombreLimpio = (nombre && nombre.trim().length > 0)
+      ? nombre.trim()
+      : (user?.profile?.nombre || user?.user_metadata?.nombre || user?.user_metadata?.nombre_completo || (user.email ? user.email.split('@')[0] : 'Usuario'))
 
     setGuardando(true)
 
@@ -108,12 +110,12 @@ export default function AjustesUsuarioPage() {
         email: email || user.email,
         nombre: nombreLimpio,
         nombre_completo: nombreLimpio,
-        apellidos: apellidos.trim() || '',
-        dni: dni.trim() || '',
-        calle: calle.trim() || '',
+        apellidos: apellidos ? apellidos.trim() : '',
+        dni: dni ? dni.trim() : '',
+        calle: calle ? calle.trim() : '',
         fecha_nacimiento: fechaNacimiento || null,
-        localidad: localidad.trim() || '',
-        codigo_postal: codigoPostal.trim() || ''
+        localidad: localidad ? localidad.trim() : '',
+        codigo_postal: codigoPostal ? codigoPostal.trim() : ''
       })
 
     if (error) {
@@ -122,19 +124,26 @@ export default function AjustesUsuarioPage() {
       return
     }
 
+    // Actualizamos el estado con el nombre guardado
+    setNombre(nombreLimpio)
+
     // 2. Sincronizamos también los metadatos de autenticación en Supabase Auth
-    await supabase.auth.updateUser({
-      data: {
-        nombre_completo: nombreLimpio,
-        nombre: nombreLimpio,
-        apellidos: apellidos.trim() || '',
-        dni: dni.trim() || '',
-        calle: calle.trim() || '',
-        fecha_nacimiento: fechaNacimiento || null,
-        localidad: localidad.trim() || '',
-        codigo_postal: codigoPostal.trim() || ''
-      }
-    })
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          nombre: nombreLimpio,
+          nombre_completo: nombreLimpio,
+          apellidos: apellidos ? apellidos.trim() : '',
+          dni: dni ? dni.trim() : '',
+          calle: calle ? calle.trim() : '',
+          fecha_nacimiento: fechaNacimiento || null,
+          localidad: localidad ? localidad.trim() : '',
+          codigo_postal: codigoPostal ? codigoPostal.trim() : ''
+        }
+      })
+    } catch (authErr) {
+      console.warn('No se pudieron actualizar metadatos de Auth:', authErr)
+    }
 
     alert('¡Datos actualizados correctamente!')
     setEditandoPerfil(false)
