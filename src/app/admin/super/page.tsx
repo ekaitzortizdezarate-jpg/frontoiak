@@ -1466,83 +1466,94 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            {/* LISTADO DE HARDWARE IOT */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {frontonesIotFiltrados.map((f) => {
-                const token = f.hardware_token || f.iot_token || `esp32-${f.id.slice(0, 8)}`
-                return (
-                  <div 
-                    key={f.id}
-                    className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm flex flex-col justify-between gap-4"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-bold text-base text-white">{f.nombre}</h4>
-                            <span className="text-xs text-stone-400">({f.municipios?.nombre || 'Sin municipio'})</span>
+            {/* LISTADO DE HARDWARE IOT (ANCHO COMPLETO) */}
+            <div className="space-y-3 w-full">
+              {frontonesIotFiltrados.length === 0 ? (
+                <div className="bg-stone-900 p-8 rounded-3xl border border-stone-800 text-center text-stone-500 italic">
+                  No se encontraron frontones con sensor IoT con los filtros actuales.
+                </div>
+              ) : (
+                frontonesIotFiltrados.map((f) => {
+                  const token = f.hardware_token || f.iot_token || `esp32-${f.id.slice(0, 8)}`
+                  return (
+                    <div 
+                      key={f.id}
+                      className="bg-stone-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-stone-800/80 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 hover:border-stone-700 transition w-full group"
+                    >
+                      {/* IZQUIERDA: DATOS DEL FRONTÓN Y ESTADO */}
+                      <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-stone-800 border border-stone-700 flex items-center justify-center text-xl flex-shrink-0">
+                          📡
+                        </div>
+
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <h4 className="font-bold text-base sm:text-lg text-white group-hover:text-emerald-400 transition tracking-tight">
+                              {f.nombre}
+                            </h4>
+                            <span className="text-xs text-stone-400 font-semibold bg-stone-950 px-2.5 py-0.5 rounded-lg border border-stone-800">
+                              🏛️ {f.municipios?.nombre || 'Sin municipio'}
+                            </span>
+                            {/* ESTADO TIEMPO REAL */}
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 border ${
+                              f.en_uso
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                            }`}>
+                              <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-rose-400 animate-ping' : 'bg-emerald-400'}`}></span>
+                              {f.en_uso ? 'En uso (Presencia detectada)' : 'Libre'}
+                            </span>
                           </div>
-                          <p className="text-xs text-stone-500 mt-0.5">
-                            Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)}
+
+                          <p className="text-xs text-stone-500">
+                            Horario de apertura: <span className="text-stone-300 font-bold">{f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)}</span>
                           </p>
                         </div>
-
-                        {/* ESTADO TIEMPO REAL */}
-                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 border ${
-                          f.en_uso
-                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                            : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                        }`}>
-                          <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-rose-400 animate-ping' : 'bg-emerald-400'}`}></span>
-                          {f.en_uso ? 'En uso (Presencia detectada)' : 'Libre'}
-                        </span>
                       </div>
 
-                      {/* TOKEN ESP32 */}
-                      <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 space-y-1.5">
-                        <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
-                          Token de Autenticación de Hardware (ESP32)
+                      {/* CENTRO: TOKEN ESP32 */}
+                      <div className="bg-stone-950 px-3.5 py-2 rounded-2xl border border-stone-800 flex items-center gap-2 w-full lg:w-auto min-w-[280px]">
+                        <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">
+                          ESP32:
                         </span>
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="text" 
-                            readOnly 
-                            value={token}
-                            className="bg-stone-900 border border-stone-800 text-stone-300 font-mono text-xs p-2 rounded-xl flex-1 select-all"
-                          />
-                          <button 
-                            onClick={() => {
-                              navigator.clipboard.writeText(token)
-                              alert('Token copiado al portapapeles.')
-                            }}
-                            className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3 py-2 rounded-xl text-xs font-bold transition"
-                            title="Copiar token"
-                          >
-                            📋 Copiar
-                          </button>
-                        </div>
+                        <input 
+                          type="text" 
+                          readOnly 
+                          value={token}
+                          className="bg-stone-900 border border-stone-800 text-stone-300 font-mono text-xs px-2.5 py-1 rounded-xl flex-1 select-all"
+                        />
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(token)
+                            alert('Token copiado al portapapeles.')
+                          }}
+                          className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-2.5 py-1 rounded-xl text-xs font-bold transition flex-shrink-0"
+                          title="Copiar token"
+                        >
+                          📋 Copiar
+                        </button>
+                      </div>
+
+                      {/* DERECHA: BOTONES DE ACCIÓN */}
+                      <div className="flex items-center justify-between sm:justify-end gap-2 w-full lg:w-auto pt-2 lg:pt-0 border-t lg:border-t-0 border-stone-800/80 flex-shrink-0">
+                        <button 
+                          onClick={() => abrirGraficaIoT(f)}
+                          className="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
+                        >
+                          📊 Telemetría por Franjas
+                        </button>
+
+                        <button 
+                          onClick={() => handleRegenerarHardwareToken(f)}
+                          className="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                        >
+                          🔄 Regenerar Token
+                        </button>
                       </div>
                     </div>
-
-                    {/* BOTONERA ACCIONES IOT */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-800">
-                      <button 
-                        onClick={() => abrirGraficaIoT(f)}
-                        className="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
-                      >
-                        📊 Telemetría por Franjas
-                      </button>
-
-                      <button 
-                        onClick={() => handleRegenerarHardwareToken(f)}
-                        className="bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition"
-                      >
-                        🔄 Regenerar Token
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </div>
           </div>
         )}
