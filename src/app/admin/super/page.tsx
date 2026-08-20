@@ -624,6 +624,46 @@ export default function SuperAdminDashboard() {
     setGuardandoProvincia(false)
   }
 
+  const handleEliminarProvincia = async (prov: any) => {
+    const munDeProv = municipios.filter(m => m.provincia_id === prov.id)
+    const munIds = munDeProv.map(m => m.id)
+
+    let aviso = `¿Estás seguro de que deseas eliminar la provincia "${prov.nombre}"?`
+    if (munDeProv.length > 0) {
+      aviso += `\n\n⚠️ ¡ATENCIÓN!: Se eliminarán también los ${munDeProv.length} municipio(s) asociados a esta provincia y todos sus frontones, y se desvincularán los gestores.`
+    }
+
+    if (!confirm(aviso)) return
+
+    if (munIds.length > 0) {
+      // 1. Desvincular gestores
+      await supabase.from('profiles').update({ municipio_id: null }).in('municipio_id', munIds)
+
+      // 2. Eliminar frontones asociados
+      await supabase.from('frontones').delete().in('municipio_id', munIds)
+
+      // 3. Eliminar municipios asociados
+      const { error: munErr } = await supabase.from('municipios').delete().in('id', munIds)
+      if (munErr) {
+        alert('Error al eliminar los municipios de la provincia: ' + munErr.message)
+        return
+      }
+    }
+
+    // 4. Eliminar la provincia
+    const { error: provErr } = await supabase
+      .from('provincias')
+      .delete()
+      .eq('id', prov.id)
+
+    if (provErr) {
+      alert('Error al eliminar provincia: ' + provErr.message)
+    } else {
+      alert(`Provincia "${prov.nombre}" y sus municipios asociados eliminados correctamente.`)
+      await cargarDatosGlobales()
+    }
+  }
+
   // Filtros aplicados
   const municipiosFiltrados = municipios.filter(m => {
     const coincideTexto = m.nombre?.toLowerCase().includes(busquedaMunicipio.toLowerCase())
@@ -1603,20 +1643,35 @@ export default function SuperAdminDashboard() {
               </form>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {provincias.map((p) => {
-                const munDeProv = municipios.filter(m => m.provincia_id === p.id)
-                return (
-                  <div key={p.id} className="bg-stone-900 p-5 rounded-3xl border border-stone-800 shadow-sm space-y-2">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-base text-white">{p.nombre}</h4>
-                      <span className="bg-stone-800 text-stone-300 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                        {munDeProv.length} municipio(s)
-                      </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {provincias.length === 0 ? (
+                <div className="col-span-full bg-stone-900 p-8 rounded-3xl border border-stone-800 text-center text-stone-500 italic">
+                  No hay provincias registradas.
+                </div>
+              ) : (
+                provincias.map((p) => {
+                  const munDeProv = municipios.filter(m => m.provincia_id === p.id)
+                  return (
+                    <div key={p.id} className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm flex items-center justify-between gap-3 hover:border-stone-700 transition group">
+                      <div className="space-y-1 min-w-0">
+                        <h4 className="font-bold text-base text-white group-hover:text-emerald-400 transition truncate">{p.nombre}</h4>
+                        <span className="bg-stone-950 text-stone-300 text-xs font-bold px-2.5 py-0.5 rounded-lg border border-stone-800 inline-block">
+                          {munDeProv.length} municipio(s)
+                        </span>
+                      </div>
+
+                      <button 
+                        onClick={() => handleEliminarProvincia(p)}
+                        className="bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/60 p-2.5 rounded-2xl text-xs font-bold transition shadow-2xs flex-shrink-0 flex items-center gap-1"
+                        title="Eliminar provincia y sus municipios"
+                      >
+                        <span>🗑️</span>
+                        <span className="hidden sm:inline">Eliminar</span>
+                      </button>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </div>
           </div>
         )}
