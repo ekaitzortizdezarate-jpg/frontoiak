@@ -71,6 +71,22 @@ export default function PortalReservas() {
 
     setUser({ ...user, profile: finalProfile })
 
+    // Si la fila en la tabla profiles no existía, la creamos para que no fallen las foreign keys de favoritos y reservas
+    if (!profile) {
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        nombre_completo: finalProfile.nombre_completo,
+        apellidos: finalProfile.apellidos,
+        role: finalProfile.role || 'usuario',
+        dni: meta.dni || '',
+        calle: meta.calle || '',
+        fecha_nacimiento: meta.fecha_nacimiento || null,
+        localidad: meta.localidad || '',
+        codigo_postal: meta.codigo_postal || ''
+      })
+    }
+
     const { data: provs } = await supabase.from('provincias').select('*')
     setProvincias(provs || [])
 
@@ -188,9 +204,31 @@ export default function PortalReservas() {
           await cargarMisFavoritos(currentUserId)
         }
       } else {
-        const { error } = await supabase
+        let { error } = await supabase
           .from('frontones_favoritos')
           .insert([{ user_id: currentUserId, fronton_id: frontonId }])
+
+        // Si falló por clave foránea (el perfil no existía en profiles), lo creamos y reintentamos
+        if (error && error.message?.includes('foreign key')) {
+          const meta = user?.user_metadata || (await supabase.auth.getUser()).data.user?.user_metadata || {}
+          await supabase.from('profiles').upsert({
+            id: currentUserId,
+            email: user?.email,
+            nombre_completo: user?.profile?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+            apellidos: user?.profile?.apellidos || meta.apellidos || '',
+            role: user?.profile?.role || meta.role || 'usuario',
+            dni: meta.dni || '',
+            calle: meta.calle || '',
+            fecha_nacimiento: meta.fecha_nacimiento || null,
+            localidad: meta.localidad || '',
+            codigo_postal: meta.codigo_postal || ''
+          })
+
+          const retry = await supabase
+            .from('frontones_favoritos')
+            .insert([{ user_id: currentUserId, fronton_id: frontonId }])
+          error = retry.error
+        }
 
         if (error) {
           console.error('Error al guardar favorito:', error)
@@ -457,7 +495,7 @@ export default function PortalReservas() {
       return
     }
 
-    const { error } = await supabase.from('eventos_fronton').insert([{
+    let { error } = await supabase.from('eventos_fronton').insert([{
       fronton_id: frontonSeleccionado.id,
       user_id: user.id,
       titulo: user.profile?.nombre_completo || user.email,
@@ -466,6 +504,34 @@ export default function PortalReservas() {
       hora_fin: horaFin,
       tipo: 'reserva_usuario'
     }])
+
+    // Si falló por clave foránea (el perfil no existía en profiles), lo creamos y reintentamos
+    if (error && error.message?.includes('foreign key')) {
+      const meta = user?.user_metadata || {}
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        nombre_completo: user.profile?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+        apellidos: user.profile?.apellidos || meta.apellidos || '',
+        role: user.profile?.role || meta.role || 'usuario',
+        dni: meta.dni || '',
+        calle: meta.calle || '',
+        fecha_nacimiento: meta.fecha_nacimiento || null,
+        localidad: meta.localidad || '',
+        codigo_postal: meta.codigo_postal || ''
+      })
+
+      const retry = await supabase.from('eventos_fronton').insert([{
+        fronton_id: frontonSeleccionado.id,
+        user_id: user.id,
+        titulo: user.profile?.nombre_completo || user.email,
+        fecha: fechaSeleccionada,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        tipo: 'reserva_usuario'
+      }])
+      error = retry.error
+    }
 
     if (error) {
       alert('Error al realizar la reserva: ' + error.message)
