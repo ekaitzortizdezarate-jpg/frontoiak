@@ -5,7 +5,16 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
-import { parseSafeDate } from '@/lib/dateUtils'
+import { 
+  parseSafeDate, 
+  formatFullDateWithWeekday, 
+  formatWeekdayAndDayMonth, 
+  formatPreviewDay, 
+  formatCalendarCellDay, 
+  formatShortMonthDay, 
+  formatShortDateWithTime, 
+  formatLongDateWithTime 
+} from '@/lib/dateUtils'
 
 export default function PortalReservas() {
   const [user, setUser] = useState<any>(null)
@@ -999,7 +1008,7 @@ export default function PortalReservas() {
                       {res.frontones?.nombre} <span className="font-normal text-stone-500">({res.frontones?.municipios?.nombre})</span>
                     </span>
                     <span className="inline-block mt-1 text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-lg">
-                      📅 {parseSafeDate(res.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
+                      📅 {formatFullDateWithWeekday(res.fecha, lang)} • ⏰ {res.hora_inicio?.slice(0,5)} - {res.hora_fin?.slice(0,5)}
                     </span>
                   </div>
                   <button 
@@ -1151,7 +1160,7 @@ export default function PortalReservas() {
                           <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                         )}
                         <span className="text-[10px] text-stone-400 font-medium block">
-                          📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
                         </span>
                       </div>
 
@@ -1188,7 +1197,7 @@ export default function PortalReservas() {
                                       {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                     </span>
                                     <span className="text-[10px] text-stone-400 font-medium">
-                                      📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                      📅 {formatShortDateWithTime(h.fecha, lang)}
                                     </span>
                                   </div>
                                   <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -1477,7 +1486,7 @@ export default function PortalReservas() {
                           noReservable ? 'border-stone-300 text-stone-600' : 'text-stone-800 border-stone-200/80'
                         }`}>
                           <span className={`capitalize ${noReservable ? 'line-through' : ''}`}>
-                            {dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}
+                            {formatPreviewDay(dia, lang)}
                           </span>
                           {esHoy && <span className="text-emerald-700 font-extrabold no-underline">({t.reservas.today})</span>}
                         </div>
@@ -1556,7 +1565,7 @@ export default function PortalReservas() {
                     <div className="text-center">
                       <h4 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h4>
                       <p className="text-xs text-stone-500">
-                        {diasCalendario[0]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {diasCalendario[0] && formatShortMonthDay(diasCalendario[0], lang)} — {diasCalendario[27] && formatShortMonthDay(diasCalendario[27], lang, true)}
                       </p>
                     </div>
                     <button 
@@ -1610,7 +1619,7 @@ export default function PortalReservas() {
                             noReservable ? 'border-stone-200 text-stone-400' : 'text-stone-800 border-stone-200'
                           }`}>
                             <span className={noReservable ? 'line-through' : ''}>
-                              {dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
+                              {formatCalendarCellDay(dia, lang)}
                             </span>
                             {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
@@ -1665,7 +1674,7 @@ export default function PortalReservas() {
             <div ref={franjasHorariasRef} className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200 space-y-4 scroll-mt-24">
               <div className="border-b border-stone-100 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h3 className="font-bold text-lg text-stone-900">
-                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{parseSafeDate(fechaSeleccionada).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                  {t.reservas.schedules_for} <span className="text-emerald-700 font-extrabold">{formatWeekdayAndDayMonth(fechaSeleccionada, lang)}</span>
                 </h3>
               </div>
 
@@ -1944,7 +1953,7 @@ export default function PortalReservas() {
                             📋 {t.reservas.incident_registered}
                           </span>
                           <span className="text-[10px] text-rose-700 font-medium">
-                            {parseSafeDate(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {formatLongDateWithTime(incidenciaVerHistoricoModal.created_at, lang)}
                           </span>
                         </div>
                       </div>
@@ -1979,7 +1988,7 @@ export default function PortalReservas() {
                                     <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
                                   </span>
                                   <span className="text-[10px] text-stone-500 font-medium">
-                                    📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    📅 {formatShortDateWithTime(h.fecha, lang)}
                                   </span>
                                 </div>
 
@@ -2069,7 +2078,7 @@ export default function PortalReservas() {
                                 <p className="text-xs text-stone-600 leading-relaxed">{inc.descripcion}</p>
                               )}
                               <span className="text-[10px] text-stone-400 font-medium block">
-                                📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
                               </span>
                             </div>
 
@@ -2100,7 +2109,7 @@ export default function PortalReservas() {
                                           <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                         </span>
                                         <span className="text-[10px] text-stone-400">
-                                          {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                          {formatShortDateWithTime(h.fecha, lang)}
                                         </span>
                                       </div>
                                       <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>

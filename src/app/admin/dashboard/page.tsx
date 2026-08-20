@@ -5,7 +5,16 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
-import { parseSafeDate } from '@/lib/dateUtils'
+import { 
+  parseSafeDate, 
+  formatFullDateWithWeekday, 
+  formatWeekdayAndDayMonth, 
+  formatPreviewDay, 
+  formatCalendarCellDay, 
+  formatShortMonthDay, 
+  formatShortDateWithTime, 
+  formatLongDateWithTime 
+} from '@/lib/dateUtils'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'gestion' | 'frontones' | 'incidencias' | 'ciudadanos' | 'ajustes'>('gestion')
@@ -1443,7 +1452,7 @@ export default function AdminDashboard() {
                             return (
                               <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${esHoy ? 'bg-emerald-50/40 border-emerald-300' : 'bg-stone-50 border-stone-200'}`}>
                                 <div className="font-bold text-stone-800 border-b border-stone-200 pb-1 mb-2 flex justify-between">
-                                  <span>{dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                                  <span>{formatPreviewDay(dia, lang)}</span>
                                   {esHoy && <span className="text-emerald-700 font-extrabold">({t.reservas.today})</span>}
                                 </div>
                                 
@@ -1798,7 +1807,7 @@ export default function AdminDashboard() {
                     <div className="text-center">
                       <h3 className="text-sm font-bold text-stone-900">{t.reservas.monthly_grid}</h3>
                       <p className="text-xs text-stone-500">
-                        {diasCalendario[0]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short' })} — {diasCalendario[27]?.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {diasCalendario[0] && formatShortMonthDay(diasCalendario[0], lang)} — {diasCalendario[27] && formatShortMonthDay(diasCalendario[27], lang, true)}
                       </p>
                     </div>
                     <button 
@@ -1834,7 +1843,7 @@ export default function AdminDashboard() {
                       return (
                         <div key={idx} className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col ${esHoy ? 'border-emerald-500 bg-emerald-50/40' : 'bg-stone-50 border-stone-200'}`}>
                           <span className="font-bold text-stone-800 mb-1 border-b border-stone-200 pb-1 flex justify-between">
-                            <span>{dia.toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                            <span>{formatCalendarCellDay(dia, lang)}</span>
                             {esHoy && <span className="text-emerald-700 font-black text-[10px]">({t.reservas.today})</span>}
                           </span>
                           <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[100px] pr-1">
@@ -2310,7 +2319,7 @@ export default function AdminDashboard() {
 
                           <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
                             <span className="text-[11px] text-stone-400 font-medium mr-1">
-                              📅 {t.reservas.reported_on} {parseSafeDate(inc.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                              📅 {t.reservas.reported_on} {formatShortDateWithTime(inc.created_at, lang)}
                             </span>
 
                             {/* INFORMACIÓN DEL USUARIO REPORTADOR */}
@@ -2382,7 +2391,7 @@ export default function AdminDashboard() {
                                         Estado: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 font-extrabold">{h.estado_nuevo}</span>
                                       </span>
                                       <span className="text-[10px] text-stone-400 font-medium">
-                                        📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                        📅 {formatShortDateWithTime(h.fecha, lang)}
                                       </span>
                                     </div>
                                     <p className="text-stone-700 italic text-xs">"{h.comentario}"</p>
@@ -2970,7 +2979,7 @@ export default function AdminDashboard() {
                             📋 {t.reservas.incident_registered}
                           </span>
                           <span className="text-[10px] text-rose-700 font-medium">
-                            {parseSafeDate(incidenciaVerHistoricoModal.created_at).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {formatLongDateWithTime(incidenciaVerHistoricoModal.created_at, lang)}
                           </span>
                         </div>
                         <p className="text-stone-600 text-[11px]">
@@ -3012,7 +3021,7 @@ export default function AdminDashboard() {
                                     <span className="capitalize font-black text-emerald-800">{h.estado_nuevo}</span>
                                   </span>
                                   <span className="text-[10px] text-stone-500 font-medium">
-                                    📅 {parseSafeDate(h.fecha).toLocaleDateString(lang === 'eu' ? 'eu-ES' : lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    📅 {formatShortDateWithTime(h.fecha, lang)}
                                   </span>
                                 </div>
 
