@@ -26,7 +26,13 @@ export default function LoginPage() {
     })
 
     if (error || !authData.user) {
-      setErrorMsg(error?.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos.' : (error?.message || 'Error al iniciar sesión.'))
+      if (error?.message === 'Invalid login credentials') {
+        setErrorMsg('Correo o contraseña incorrectos.')
+      } else if (error?.message?.toLowerCase().includes('email not confirmed')) {
+        setErrorMsg('El correo electrónico aún no ha sido confirmado. Revisa tu bandeja de entrada o solicita al administrador su activación.')
+      } else {
+        setErrorMsg(error?.message || 'Error al iniciar sesión.')
+      }
       setLoading(false)
       return
     }
