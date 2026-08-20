@@ -64,6 +64,7 @@ export default function PortalReservas() {
 
   // Búsqueda de frontones libres por fecha y hora
   const hoyInicialStr = new Date().toISOString().split('T')[0]
+  const [busquedaLibresDesplegada, setBusquedaLibresDesplegada] = useState(false)
   const [busquedaLibresProvincia, setBusquedaLibresProvincia] = useState('')
   const [busquedaLibresFecha, setBusquedaLibresFecha] = useState(hoyInicialStr)
   const [busquedaLibresHoraInicio, setBusquedaLibresHoraInicio] = useState('17:00')
@@ -534,6 +535,7 @@ export default function PortalReservas() {
 
     setBuscandoLibres(true)
     setBusquedaLibresRealizada(true)
+    setBusquedaLibresDesplegada(true)
 
     try {
       // 1. Consultar todos los frontones con sus municipios y provincias
@@ -1380,270 +1382,294 @@ export default function PortalReservas() {
         </section>
 
         {/* SECCIÓN: BÚSQUEDA DE FRONTONES LIBRES POR FECHA Y HORA */}
-        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-5">
-          <div className="border-b border-stone-100 dark:border-stone-800 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <span className="text-emerald-600 dark:text-emerald-400 text-lg">🔍</span>
-                {t.reservas.search_free_frontons_title || 'Búsqueda de Frontones Libres'}
-              </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                {t.reservas.search_free_frontons_subtitle || 'Selecciona provincia, día y franja horaria para encontrar pistas activas y libres al instante'}
-              </p>
-            </div>
-          </div>
-
-          {/* FORMULARIO DE FILTROS */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              ejecutarBusquedaFrontonesLibres()
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
+        <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-200">
+          {/* CABECERA CLICABLE PARA DESPLEGAR / RECOGER */}
+          <button
+            type="button"
+            onClick={() => setBusquedaLibresDesplegada(!busquedaLibresDesplegada)}
+            className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
           >
-            {/* 1. Provincia */}
-            <div>
-              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
-                {t.reservas.all_provinces ? t.reservas.all_provinces.replace('Todas las ', '') : 'Provincia'}
-              </label>
-              <select
-                value={busquedaLibresProvincia}
-                onChange={(e) => setBusquedaLibresProvincia(e.target.value)}
-                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
+                🔍
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  {t.reservas.search_free_frontons_title || 'Búsqueda de Frontones Libres'}
+                </h2>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                  {t.reservas.search_free_frontons_subtitle || 'Selecciona provincia, día y franja horaria para encontrar pistas activas y libres al instante'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                busquedaLibresDesplegada
+                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+              }`}>
+                <span>{busquedaLibresDesplegada ? (t.reservas.search_free_toggle_close || 'Recoger búsqueda') : (t.reservas.search_free_toggle_open || 'Desplegar búsqueda')}</span>
+                <span className={`text-[10px] transform transition-transform duration-200 ${busquedaLibresDesplegada ? 'rotate-180' : ''}`}>▼</span>
+              </span>
+            </div>
+          </button>
+
+          {/* CONTENIDO DESPLEGABLE */}
+          {busquedaLibresDesplegada && (
+            <div className="p-6 pt-0 space-y-5 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
+              {/* FORMULARIO DE FILTROS */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  ejecutarBusquedaFrontonesLibres()
+                }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
               >
-                <option value="">{t.reservas.all_provinces || 'Todas las provincias'}</option>
-                {provincias.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 2. Día / Fecha */}
-            <div>
-              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
-                {t.reservas.filter_date || 'Día / Fecha'}
-              </label>
-              <input
-                type="date"
-                min={new Date().toISOString().split('T')[0]}
-                value={busquedaLibresFecha}
-                onChange={(e) => setBusquedaLibresFecha(e.target.value)}
-                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
-              />
-            </div>
-
-            {/* 3. Hora Inicial */}
-            <div>
-              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
-                {t.reservas.filter_start_time || 'Hora inicial'}
-              </label>
-              <select
-                value={busquedaLibresHoraInicio}
-                onChange={(e) => setBusquedaLibresHoraInicio(e.target.value)}
-                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
-              >
-                {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'].map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 4. Hora Final */}
-            <div>
-              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
-                {t.reservas.filter_end_time || 'Hora final'}
-              </label>
-              <select
-                value={busquedaLibresHoraFin}
-                onChange={(e) => setBusquedaLibresHoraFin(e.target.value)}
-                className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
-              >
-                {['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00'].map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 5. Botón de Búsqueda */}
-            <div>
-              <button
-                type="submit"
-                disabled={buscandoLibres}
-                className="w-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold transition shadow-xs active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
-              >
-                <span>{buscandoLibres ? '⏳' : '🔎'}</span>
-                <span>{buscandoLibres ? (t.reservas.searching_free || 'Buscando...') : (t.reservas.search_free_btn || 'Buscar Libres')}</span>
-              </button>
-            </div>
-          </form>
-
-          {/* RESULTADOS DE LA BÚSQUEDA */}
-          {busquedaLibresRealizada && (() => {
-            const frontonesAMostrar = busquedaLibresSoloFavoritos
-              ? frontonesLibresResultados.filter((f) => idsFavoritos.includes(f.id))
-              : frontonesLibresResultados
-
-            return (
-              <div className="space-y-4 pt-1">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <span className="font-bold text-stone-700 dark:text-stone-300">
-                    {frontonesAMostrar.length} {t.reservas.free_frontons_found || 'frontón(es) libre(s) encontrado(s)'} (📅 {formatFullDateWithWeekday(busquedaLibresFecha, lang)} • ⏰ {busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
-                  </span>
-
-                  {/* TOGGLE MIS FAVORITOS */}
-                  <button
-                    type="button"
-                    onClick={() => setBusquedaLibresSoloFavoritos(!busquedaLibresSoloFavoritos)}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer select-none self-start sm:self-auto ${
-                      busquedaLibresSoloFavoritos
-                        ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-2xs'
-                        : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300'
-                    }`}
+                {/* 1. Provincia */}
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                    {t.reservas.all_provinces ? t.reservas.all_provinces.replace('Todas las ', '') : 'Provincia'}
+                  </label>
+                  <select
+                    value={busquedaLibresProvincia}
+                    onChange={(e) => setBusquedaLibresProvincia(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
                   >
-                    <span className={busquedaLibresSoloFavoritos ? 'text-amber-500 text-sm' : 'text-stone-400 text-sm'}>★</span>
-                    <span>{t.reservas.filter_favorites || 'Mis favoritos'}</span>
-                    {/* Switch visual */}
-                    <div
-                      className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors duration-200 ${
-                        busquedaLibresSoloFavoritos ? 'bg-amber-500' : 'bg-stone-300 dark:bg-stone-600'
-                      }`}
-                    >
-                      <div
-                        className={`w-3 h-3 rounded-full bg-white shadow-xs transform transition-transform duration-200 ${
-                          busquedaLibresSoloFavoritos ? 'translate-x-3' : 'translate-x-0'
-                        }`}
-                      />
-                    </div>
-                  </button>
+                    <option value="">{t.reservas.all_provinces || 'Todas las provincias'}</option>
+                    {provincias.map((p) => (
+                      <option key={p.id} value={p.id}>{p.nombre}</option>
+                    ))}
+                  </select>
                 </div>
 
-                {frontonesAMostrar.length === 0 ? (
-                  <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200 dark:border-stone-800 text-center space-y-1">
-                    <span className="text-2xl">{busquedaLibresSoloFavoritos ? '⭐' : '🏟️'}</span>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                      {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0
-                        ? 'Ninguno de tus frontones favoritos está libre en esta fecha y horario.'
-                        : (t.reservas.no_free_frontons_found || 'No se han encontrado frontones activos y libres para la fecha, horario y provincia seleccionados.')}
-                    </p>
-                    {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0 && (
+                {/* 2. Día / Fecha */}
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                    {t.reservas.filter_date || 'Día / Fecha'}
+                  </label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={busquedaLibresFecha}
+                    onChange={(e) => setBusquedaLibresFecha(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium dark:[color-scheme:dark] [color-scheme:light] cursor-pointer"
+                  />
+                </div>
+
+                {/* 3. Hora Inicial */}
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                    {t.reservas.filter_start_time || 'Hora inicial'}
+                  </label>
+                  <select
+                    value={busquedaLibresHoraInicio}
+                    onChange={(e) => setBusquedaLibresHoraInicio(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                  >
+                    {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'].map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 4. Hora Final */}
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-1">
+                    {t.reservas.filter_end_time || 'Hora final'}
+                  </label>
+                  <select
+                    value={busquedaLibresHoraFin}
+                    onChange={(e) => setBusquedaLibresHoraFin(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium"
+                  >
+                    {['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30','23:00'].map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 5. Botón de Búsqueda */}
+                <div>
+                  <button
+                    type="submit"
+                    disabled={buscandoLibres}
+                    className="w-full bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white p-2.5 rounded-xl text-xs font-bold transition shadow-xs active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
+                  >
+                    <span>{buscandoLibres ? '⏳' : '🔎'}</span>
+                    <span>{buscandoLibres ? (t.reservas.searching_free || 'Buscando...') : (t.reservas.search_free_btn || 'Buscar Libres')}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* RESULTADOS DE LA BÚSQUEDA */}
+              {busquedaLibresRealizada && (() => {
+                const frontonesAMostrar = busquedaLibresSoloFavoritos
+                  ? frontonesLibresResultados.filter((f) => idsFavoritos.includes(f.id))
+                  : frontonesLibresResultados
+
+                return (
+                  <div className="space-y-4 pt-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <span className="font-bold text-stone-700 dark:text-stone-300">
+                        {frontonesAMostrar.length} {t.reservas.free_frontons_found || 'frontón(es) libre(s) encontrado(s)'} (📅 {formatFullDateWithWeekday(busquedaLibresFecha, lang)} • ⏰ {busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
+                      </span>
+
+                      {/* TOGGLE MIS FAVORITOS */}
                       <button
                         type="button"
-                        onClick={() => setBusquedaLibresSoloFavoritos(false)}
-                        className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
+                        onClick={() => setBusquedaLibresSoloFavoritos(!busquedaLibresSoloFavoritos)}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer select-none self-start sm:self-auto ${
+                          busquedaLibresSoloFavoritos
+                            ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-2xs'
+                            : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300'
+                        }`}
                       >
-                        Ver todos los {frontonesLibresResultados.length} frontones libres disponibles
+                        <span className={busquedaLibresSoloFavoritos ? 'text-amber-500 text-sm' : 'text-stone-400 text-sm'}>★</span>
+                        <span>{t.reservas.filter_favorites || 'Mis favoritos'}</span>
+                        <span
+                          className={`w-7 h-4 rounded-full transition-colors relative inline-flex items-center p-0.5 ${
+                            busquedaLibresSoloFavoritos ? 'bg-amber-500' : 'bg-stone-300 dark:bg-stone-600'
+                          }`}
+                        >
+                          <span
+                            className={`w-3 h-3 rounded-full bg-white transition-transform ${
+                              busquedaLibresSoloFavoritos ? 'translate-x-3' : 'translate-x-0'
+                            }`}
+                          />
+                        </span>
                       </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {frontonesAMostrar.map((f) => {
-                    const esEmpadronado = esUsuarioEmpadronado(user, f)
-                    const puedeReservar = !f.solo_empadronados || esEmpadronado
+                    </div>
 
-                    return (
-                      <div
-                        key={f.id}
-                        className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:border-emerald-300 dark:hover:border-emerald-700 transition flex flex-col justify-between gap-3 shadow-2xs group"
-                      >
-                        <div className="space-y-2.5">
-                          {/* Fila superior: Imagen y Nombre */}
-                          <div className="flex items-start gap-3">
-                            {f.imagen_url ? (
-                              <img
-                                src={f.imagen_url}
-                                alt=""
-                                className="w-14 h-14 object-cover rounded-xl border border-stone-200 dark:border-stone-700 flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-emerald-200/50 dark:border-emerald-800/50">
-                                🎾
-                              </div>
-                            )}
-
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 truncate">
-                                {f.nombre}
-                              </h3>
-                              <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
-                                🏛️ {f.municipios?.nombre} {f.municipios?.provincias?.nombre ? `(${f.municipios.provincias.nombre})` : ''}
-                              </span>
-                              <span className="text-[11px] text-stone-400 dark:text-stone-500 block">
-                                ⏰ {f.hora_apertura?.slice(0,5) || '08:00'} - {f.hora_cierre?.slice(0,5) || '22:00'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Medidas y badges */}
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {f.medidas && (
-                              <span className="bg-stone-200/60 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                📏 {f.medidas}
-                              </span>
-                            )}
-                            {f.luz_disponible && (
-                              <span className="bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                💡 {t.admin?.light || 'Luz'}
-                              </span>
-                            )}
-                            {f.vestuarios && (
-                              <span className="bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                🚪 {t.admin?.dressing_rooms || 'Vestuarios'}
-                              </span>
-                            )}
-                            {f.duchas && (
-                              <span className="bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                🚿 {t.admin?.showers || 'Duchas'}
-                              </span>
-                            )}
-                            {f.sensor_iot_disponible && (
-                              <span className="bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                📡 IoT
-                              </span>
-                            )}
-                            {f.solo_empadronados && (
-                              <span className="bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                🔒 {t.common?.solo_empadronados || 'Solo Empadronados'}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Estado de libre en la franja */}
-                          <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl flex items-center justify-between text-xs">
-                            <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-[11px]">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                              {t.reservas.free_in_selected_slot || 'Libre en esta franja'}
-                            </span>
-                            <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-[11px]">
-                              {busquedaLibresHoraInicio} - {busquedaLibresHoraFin}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Botón de acción: Reservar esta franja */}
-                        <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800">
+                    {frontonesAMostrar.length === 0 ? (
+                      <div className="p-6 bg-stone-50 dark:bg-stone-950/40 rounded-2xl border border-stone-200 dark:border-stone-800 text-center space-y-1">
+                        <span className="text-2xl">{busquedaLibresSoloFavoritos ? '⭐' : '🏟️'}</span>
+                        <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                          {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0
+                            ? 'Ninguno de tus frontones favoritos está libre en esta fecha y horario.'
+                            : (t.reservas.no_free_frontons_found || 'No se han encontrado frontones activos y libres para la fecha, horario y provincia seleccionados.')}
+                        </p>
+                        {busquedaLibresSoloFavoritos && frontonesLibresResultados.length > 0 && (
                           <button
                             type="button"
-                            disabled={!puedeReservar}
-                            onClick={() => handleIrAReservarSlotDesdeBusqueda(f)}
-                            className="w-full px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer group-hover:scale-[1.01]"
+                            onClick={() => setBusquedaLibresSoloFavoritos(false)}
+                            className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
                           >
-                            <span>📅</span>
-                            <span>{t.reservas.book_this_slot || 'Reservar esta Franja'}</span>
-                            <span className="text-emerald-200 dark:text-emerald-300 font-mono text-[11px]">
-                              ({busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
-                            </span>
-                            <span className="text-xs">↓</span>
+                            Ver todos los {frontonesLibresResultados.length} frontones libres disponibles
                           </button>
-                        </div>
+                        )}
                       </div>
-                    )
-                  })}
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {frontonesAMostrar.map((f) => {
+                          const esEmpadronado = esUsuarioEmpadronado(user, f)
+                          const puedeReservar = !f.solo_empadronados || esEmpadronado
+
+                          return (
+                            <div
+                              key={f.id}
+                              className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950/60 hover:border-emerald-300 dark:hover:border-emerald-700 transition flex flex-col justify-between gap-3 shadow-2xs group"
+                            >
+                              <div className="space-y-2.5">
+                                {/* Fila superior: Imagen y Nombre */}
+                                <div className="flex items-start gap-3">
+                                  {f.imagen_url ? (
+                                    <img
+                                      src={f.imagen_url}
+                                      alt=""
+                                      className="w-14 h-14 object-cover rounded-xl border border-stone-200 dark:border-stone-700 flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-xl flex items-center justify-center text-lg font-bold flex-shrink-0 border border-emerald-200/50 dark:border-emerald-800/50">
+                                      🎾
+                                    </div>
+                                  )}
+
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 truncate">
+                                      {f.nombre}
+                                    </h3>
+                                    <span className="text-xs text-stone-500 dark:text-stone-400 block truncate">
+                                      🏛️ {f.municipios?.nombre} {f.municipios?.provincias?.nombre ? `(${f.municipios.provincias.nombre})` : ''}
+                                    </span>
+                                    <span className="text-[11px] text-stone-400 dark:text-stone-500 block">
+                                      ⏰ {f.hora_apertura?.slice(0,5) || '08:00'} - {f.hora_cierre?.slice(0,5) || '22:00'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Medidas y badges */}
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  {f.medidas && (
+                                    <span className="bg-stone-200/60 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      📏 {f.medidas}
+                                    </span>
+                                  )}
+                                  {f.luz_disponible && (
+                                    <span className="bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      💡 {t.admin?.light || 'Luz'}
+                                    </span>
+                                  )}
+                                  {f.vestuarios && (
+                                    <span className="bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      🚪 {t.admin?.dressing_rooms || 'Vestuarios'}
+                                    </span>
+                                  )}
+                                  {f.duchas && (
+                                    <span className="bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      🚿 {t.admin?.showers || 'Duchas'}
+                                    </span>
+                                  )}
+                                  {f.sensor_iot_disponible && (
+                                    <span className="bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      📡 IoT
+                                    </span>
+                                  )}
+                                  {f.solo_empadronados && (
+                                    <span className="bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      🔒 {t.common?.solo_empadronados || 'Solo Empadronados'}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Estado de libre en la franja */}
+                                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl flex items-center justify-between text-xs">
+                                  <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-[11px]">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    {t.reservas.free_in_selected_slot || 'Libre en esta franja'}
+                                  </span>
+                                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-[11px]">
+                                    {busquedaLibresHoraInicio} - {busquedaLibresHoraFin}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Botón de acción: Reservar esta franja */}
+                              <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800">
+                                <button
+                                  type="button"
+                                  disabled={!puedeReservar}
+                                  onClick={() => handleIrAReservarSlotDesdeBusqueda(f)}
+                                  className="w-full px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer group-hover:scale-[1.01]"
+                                >
+                                  <span>📅</span>
+                                  <span>{t.reservas.book_this_slot || 'Reservar esta Franja'}</span>
+                                  <span className="text-emerald-200 dark:text-emerald-300 font-mono text-[11px]">
+                                    ({busquedaLibresHoraInicio} - {busquedaLibresHoraFin})
+                                  </span>
+                                  <span className="text-xs">↓</span>
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )
-          })()}
+                )
+              })()}
+            </div>
+          )}
         </section>
 
         {/* 3. SECCIÓN: MIS INCIDENCIAS Y MANTENIMIENTO */}

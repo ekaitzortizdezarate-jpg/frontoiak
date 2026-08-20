@@ -5,11 +5,13 @@
 :root {
   --background: #fafaf9;
   --foreground: #1c1917;
+  color-scheme: light;
 }
 
 .dark {
   --background: #0c0a09;
   --foreground: #f5f5f4;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -98,4 +100,23 @@ html:not(.dark) input:not(.bg-stone-900):not(.bg-stone-950):-webkit-autofill:act
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
   -webkit-text-fill-color: #0c0a09 !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ========================================================= */
+/* FIX ICONO DEL CALENDARIO / DATEPICKER */
+/* ========================================================= */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+html:not(.dark) input[type="date"]:not(.bg-stone-900):not(.bg-stone-950)::-webkit-calendar-picker-indicator {
+  filter: invert(0.2);
+  opacity: 0.85;
+}
+
+html.dark input[type="date"]::-webkit-calendar-picker-indicator,
+input.bg-stone-900[type="date"]::-webkit-calendar-picker-indicator,
+input.bg-stone-950[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85) brightness(1.2);
+  opacity: 0.9;
 }

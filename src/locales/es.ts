@@ -74,6 +74,8 @@ export const es = {
     no_frontons_found: 'No se han encontrado frontones con los filtros seleccionados.',
     search_free_frontons_title: 'Búsqueda de Frontones Libres',
     search_free_frontons_subtitle: 'Selecciona provincia, día y franja horaria para encontrar pistas activas y libres al instante',
+    search_free_toggle_open: 'Desplegar búsqueda',
+    search_free_toggle_close: 'Recoger búsqueda',
     filter_date: 'Día / Fecha',
     filter_start_time: 'Hora inicial',
     filter_end_time: 'Hora final',

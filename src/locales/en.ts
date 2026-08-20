@@ -74,6 +74,8 @@ export const en = {
     no_frontons_found: 'No frontons found with the selected filters.',
     search_free_frontons_title: 'Search Free Frontons',
     search_free_frontons_subtitle: 'Select province, day, and time slot to instantly find active and available courts',
+    search_free_toggle_open: 'Expand search',
+    search_free_toggle_close: 'Collapse search',
     filter_date: 'Day / Date',
     filter_start_time: 'Start time',
     filter_end_time: 'End time',

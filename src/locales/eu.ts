@@ -74,6 +74,8 @@ export const eu = {
     no_frontons_found: 'Ez da frontoirik aurkitu aukeratutako iragazkiekin.',
     search_free_frontons_title: 'Frontoi Libreen Bilaketa',
     search_free_frontons_subtitle: 'Aukeratu probintzia, eguna eta ordu-tartea pista aktibo eta libreak berehala aurkitzeko',
+    search_free_toggle_open: 'Bilaketa zabaldu',
+    search_free_toggle_close: 'Bilaketa tolestu',
     filter_date: 'Eguna / Data',
     filter_start_time: 'Hasiera ordua',
     filter_end_time: 'Amaiera ordua',
