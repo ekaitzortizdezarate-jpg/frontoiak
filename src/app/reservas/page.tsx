@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
+import { useTheme } from '@/context/ThemeContext'
 import LanguageSelector from '@/components/LanguageSelector'
 import ThemeToggle from '@/components/ThemeToggle'
 import Footer from '@/components/Footer'
@@ -22,6 +23,7 @@ import {
 export default function PortalReservas() {
   const [user, setUser] = useState<any>(null)
   const { t, lang } = useLanguage()
+  const { isDark } = useTheme()
   const [provincias, setProvincias] = useState<any[]>([])
   const [municipios, setMunicipios] = useState<any[]>([])
   const [frontones, setFrontones] = useState<any[]>([])
@@ -1387,29 +1389,29 @@ export default function PortalReservas() {
           <button
             type="button"
             onClick={() => setBusquedaLibresDesplegada(!busquedaLibresDesplegada)}
-            className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
+            className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition cursor-pointer"
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-base sm:text-lg font-black shadow-inner border border-emerald-200/50 dark:border-emerald-800/50 flex-shrink-0">
                 🔍
               </div>
-              <div>
-                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 truncate">
                   {t.reservas.search_free_frontons_title || 'Búsqueda de Frontones Libres'}
                 </h2>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                   {t.reservas.search_free_frontons_subtitle || 'Selecciona provincia, día y franja horaria para encontrar pistas activas y libres al instante'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
                 busquedaLibresDesplegada
                   ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                   : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
               }`}>
-                <span>{busquedaLibresDesplegada ? (t.reservas.search_free_toggle_close || 'Recoger búsqueda') : (t.reservas.search_free_toggle_open || 'Desplegar búsqueda')}</span>
+                <span>{busquedaLibresDesplegada ? (t.reservas.search_free_toggle_close || 'Recoger') : (t.reservas.search_free_toggle_open || 'Desplegar')}</span>
                 <span className={`text-[10px] transform transition-transform duration-200 ${busquedaLibresDesplegada ? 'rotate-180' : ''}`}>▼</span>
               </span>
             </div>
@@ -1417,14 +1419,14 @@ export default function PortalReservas() {
 
           {/* CONTENIDO DESPLEGABLE */}
           {busquedaLibresDesplegada && (
-            <div className="p-6 pt-0 space-y-5 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
+            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5 border-t border-stone-100 dark:border-stone-800/80 animate-in fade-in duration-200">
               {/* FORMULARIO DE FILTROS */}
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
                   ejecutarBusquedaFrontonesLibres()
                 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-stone-50 dark:bg-stone-950/60 p-3 sm:p-4 rounded-2xl border border-stone-200/80 dark:border-stone-800 items-end"
               >
                 {/* 1. Provincia */}
                 <div>
@@ -1453,6 +1455,7 @@ export default function PortalReservas() {
                     min={new Date().toISOString().split('T')[0]}
                     value={busquedaLibresFecha}
                     onChange={(e) => setBusquedaLibresFecha(e.target.value)}
+                    style={{ colorScheme: isDark ? 'dark' : 'light' }}
                     className="w-full p-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium dark:[color-scheme:dark] [color-scheme:light] cursor-pointer"
                   />
                 </div>
@@ -1672,120 +1675,7 @@ export default function PortalReservas() {
           )}
         </section>
 
-        {/* 3. SECCIÓN: MIS INCIDENCIAS Y MANTENIMIENTO */}
-        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <span className="text-rose-500 text-base">⚠️</span>
-              {t.reservas.my_incidents}
-            </h2>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              {misIncidencias.length > 0 && (
-                <button
-                  onClick={() => setMostrarMisIncidencias(!mostrarMisIncidencias)}
-                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
-                >
-                  <span>{mostrarMisIncidencias ? t.reservas.hide_my_incidents : `${t.reservas.show_my_incidents} (${misIncidencias.length})`}</span>
-                  <span className="text-[10px]">{mostrarMisIncidencias ? '▲' : '▼'}</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => abrirModalIncidencia()}
-                className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
-              >
-                <span>{t.reservas.report_incident_btn}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* LISTA DE INCIDENCIAS (Sólo cuando se pulsa Mostrar mis incidencias) */}
-          {mostrarMisIncidencias && misIncidencias.length > 0 && (
-            <div className="space-y-3 pt-3 border-t border-stone-100 dark:border-stone-800">
-              {misIncidencias.map((inc) => {
-                let badgeClass = 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
-                let estadoTexto = t.reservas.status_pending_review
-
-                if (inc.estado === 'en_curso') {
-                  badgeClass = 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
-                  estadoTexto = t.reservas.status_in_progress
-                } else if (inc.estado === 'resuelta') {
-                  badgeClass = 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
-                  estadoTexto = t.reservas.status_resolved
-                }
-
-                return (
-                  <div key={inc.id} className="p-5 border border-stone-200 dark:border-stone-800 rounded-3xl bg-stone-50/70 dark:bg-stone-950/60 space-y-3 shadow-2xs">
-                    <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-stone-900 dark:text-stone-100 text-base">{inc.titulo}</span>
-                          <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60">
-                            🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
-                          </span>
-                        </div>
-                        {inc.descripcion && (
-                          <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{inc.descripcion}</p>
-                        )}
-                        <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium block">
-                          📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
-                          {estadoTexto}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* HISTÓRICO DE ACTUACIONES */}
-                    {Array.isArray(inc.historial) && inc.historial.length > 0 && (
-                      <div className="pt-1">
-                        <button
-                          onClick={() => setIncidenciasHistorialAbierto(prev => 
-                            prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
-                          )}
-                          className="text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
-                        >
-                          <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? `${t.reservas.hide_actions} (${inc.historial.length})` : `${t.reservas.show_actions} (${inc.historial.length})`}</span>
-                          <span className="text-[10px]">{incidenciasHistorialAbierto.includes(inc.id) ? '▲' : '▼'}</span>
-                        </button>
-
-                        {incidenciasHistorialAbierto.includes(inc.id) && (
-                          <div className="mt-2.5 p-3.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2 text-xs shadow-2xs">
-                            <h4 className="font-bold text-stone-800 dark:text-stone-200 border-b border-stone-100 dark:border-stone-800 pb-1.5 flex items-center gap-1.5">
-                              <span>📜 {t.reservas.actions_timeline}:</span>
-                            </h4>
-                            <div className="space-y-2">
-                              {inc.historial.map((h: any, hIdx: number) => (
-                                <div key={hIdx} className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-150 dark:border-stone-800 space-y-1">
-                                  <div className="flex justify-between items-center flex-wrap gap-1">
-                                    <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">
-                                      {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 dark:text-emerald-400 font-extrabold">{h.estado_nuevo}</span>
-                                    </span>
-                                    <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
-                                      📅 {formatShortDateWithTime(h.fecha, lang)}
-                                    </span>
-                                  </div>
-                                  <p className="text-stone-700 dark:text-stone-300 italic text-xs">"{h.comentario}"</p>
-                                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* 4. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
+        {/* 3. SECCIÓN: BUSCADOR POR MUNICIPIO (COLAPSABLE) */}
         <section className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden transition-all duration-300">
           <div 
             onClick={() => setBuscadorAbierto(!buscadorAbierto)}
@@ -2375,6 +2265,120 @@ export default function PortalReservas() {
             </div>
           </div>
         )}
+
+        {/* 4. SECCIÓN: MIS INCIDENCIAS */}
+        <section className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+              <span className="text-rose-500 text-base">⚠️</span>
+              {t.reservas.my_incidents}
+            </h2>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {misIncidencias.length > 0 && (
+                <button
+                  onClick={() => setMostrarMisIncidencias(!mostrarMisIncidencias)}
+                  className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer"
+                >
+                  <span>{mostrarMisIncidencias ? t.reservas.hide_my_incidents : `${t.reservas.show_my_incidents} (${misIncidencias.length})`}</span>
+                  <span className="text-[10px]">{mostrarMisIncidencias ? '▲' : '▼'}</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => abrirModalIncidencia()}
+                className="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
+              >
+                <span>{t.reservas.report_incident_btn}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* LISTA DE INCIDENCIAS (Sólo cuando se pulsa Mostrar mis incidencias) */}
+          {mostrarMisIncidencias && misIncidencias.length > 0 && (
+            <div className="space-y-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+              {misIncidencias.map((inc) => {
+                let badgeClass = 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                let estadoTexto = t.reservas.status_pending_review
+
+                if (inc.estado === 'en_curso') {
+                  badgeClass = 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                  estadoTexto = t.reservas.status_in_progress
+                } else if (inc.estado === 'resuelta') {
+                  badgeClass = 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                  estadoTexto = t.reservas.status_resolved
+                }
+
+                return (
+                  <div key={inc.id} className="p-5 border border-stone-200 dark:border-stone-800 rounded-3xl bg-stone-50/70 dark:bg-stone-950/60 space-y-3 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-stone-900 dark:text-stone-100 text-base">{inc.titulo}</span>
+                          <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60">
+                            🏟️ {inc.frontones?.nombre || 'Frontón'} {inc.frontones?.municipios?.nombre ? `(${inc.frontones.municipios.nombre})` : ''}
+                          </span>
+                        </div>
+                        {inc.descripcion && (
+                          <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{inc.descripcion}</p>
+                        )}
+                        <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium block">
+                          📅 {t.reservas.reported_on} {formatLongDateWithTime(inc.created_at, lang)}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
+                          {estadoTexto}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* HISTÓRICO DE ACTUACIONES */}
+                    {Array.isArray(inc.historial) && inc.historial.length > 0 && (
+                      <div className="pt-1">
+                        <button
+                          onClick={() => setIncidenciasHistorialAbierto(prev => 
+                            prev.includes(inc.id) ? prev.filter(id => id !== inc.id) : [...prev, inc.id]
+                          )}
+                          className="text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-200 flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <span>💬 {incidenciasHistorialAbierto.includes(inc.id) ? `${t.reservas.hide_actions} (${inc.historial.length})` : `${t.reservas.show_actions} (${inc.historial.length})`}</span>
+                          <span className="text-[10px]">{incidenciasHistorialAbierto.includes(inc.id) ? '▲' : '▼'}</span>
+                        </button>
+
+                        {incidenciasHistorialAbierto.includes(inc.id) && (
+                          <div className="mt-2.5 p-3.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2 text-xs shadow-2xs">
+                            <h4 className="font-bold text-stone-800 dark:text-stone-200 border-b border-stone-100 dark:border-stone-800 pb-1.5 flex items-center gap-1.5">
+                              <span>📜 {t.reservas.actions_timeline}:</span>
+                            </h4>
+                            <div className="space-y-2">
+                              {inc.historial.map((h: any, hIdx: number) => (
+                                <div key={hIdx} className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-150 dark:border-stone-800 space-y-1">
+                                  <div className="flex justify-between items-center flex-wrap gap-1">
+                                    <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">
+                                      {t.common.active}: <span className="capitalize">{h.estado_anterior || 'Inicio'}</span> ➔ <span className="capitalize text-emerald-800 dark:text-emerald-400 font-extrabold">{h.estado_nuevo}</span>
+                                    </span>
+                                    <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
+                                      📅 {formatShortDateWithTime(h.fecha, lang)}
+                                    </span>
+                                  </div>
+                                  <p className="text-stone-700 dark:text-stone-300 italic text-xs">"{h.comentario}"</p>
+                                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold block">Por: {h.autor || 'Gestor Municipal'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
         {/* MODAL CREAR INCIDENCIA */}
         {mostrarModalIncidencia && (
           <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">

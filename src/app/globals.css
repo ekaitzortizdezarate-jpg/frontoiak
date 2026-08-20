@@ -110,13 +110,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 html:not(.dark) input[type="date"]:not(.bg-stone-900):not(.bg-stone-950)::-webkit-calendar-picker-indicator {
-  filter: invert(0.2);
-  opacity: 0.85;
+  filter: invert(0.2) !important;
+  opacity: 0.85 !important;
 }
 
 html.dark input[type="date"]::-webkit-calendar-picker-indicator,
 input.bg-stone-900[type="date"]::-webkit-calendar-picker-indicator,
-input.bg-stone-950[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.85) brightness(1.2);
-  opacity: 0.9;
+input.bg-stone-950[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(200%) contrast(100%) !important;
+  opacity: 1 !important;
 }
