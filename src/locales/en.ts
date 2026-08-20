@@ -44,9 +44,9 @@ export const en = {
     language: 'Language'
   },
   home: {
-    badge: 'Basque Frontons Network',
-    hero_title: 'Smart fronton management in the Basque Country',
-    hero_subtitle: 'Check real-time availability, book your slot or manage your municipality frontons from one single place.',
+    badge: 'Basque Fronton Network',
+    hero_title: 'Basque Country Fronton Management',
+    hero_subtitle: 'Manage your bookings and favorite frontons',
     card_player_title: 'I am a Player / User',
     card_player_desc: 'Find your fronton, check live sensor availability and book your slot easily.',
     card_player_btn: 'Go to Bookings →',

@@ -3,12 +3,17 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const router = useRouter()
   const { t } = useLanguage()
 
@@ -30,7 +35,6 @@ export default function Home() {
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError) {
-        console.warn('Error al obtener usuario en Home:', userError)
         setLoading(false)
         return
       }
@@ -95,6 +99,75 @@ export default function Home() {
     }
   }
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoginLoading(true)
+    setErrorMsg('')
+
+    // 1. Iniciar sesión con Supabase Auth
+    const { data: { user: loggedUser }, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        setErrorMsg(t.auth.email + ' / ' + t.auth.password + ' ' + t.common.error)
+      } else if (error.message.includes('Email not confirmed')) {
+        setErrorMsg(t.auth.gestor_notice_desc)
+      } else {
+        setErrorMsg(error.message)
+      }
+      setLoginLoading(false)
+      return
+    }
+
+    if (!loggedUser) {
+      setErrorMsg('Error')
+      setLoginLoading(false)
+      return
+    }
+
+    // 2. Comprobar perfil y rol en la tabla profiles
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', loggedUser.id)
+      .maybeSingle()
+
+    let userRole = profileData?.role || loggedUser.user_metadata?.role || 'usuario'
+
+    if (!profileData || !profileData.nombre_completo || !profileData.nombre) {
+      const meta = loggedUser.user_metadata || {}
+      userRole = profileData?.role || meta.role || 'usuario'
+      const nombreFinal = profileData?.nombre || profileData?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || ''
+      await supabase.from('profiles').upsert({
+        id: loggedUser.id,
+        email: loggedUser.email,
+        nombre: nombreFinal,
+        nombre_completo: nombreFinal,
+        apellidos: profileData?.apellidos || meta.apellidos || '',
+        dni: profileData?.dni || meta.dni || '',
+        calle: profileData?.calle || meta.calle || '',
+        fecha_nacimiento: profileData?.fecha_nacimiento || meta.fecha_nacimiento || null,
+        localidad: profileData?.localidad || meta.localidad || '',
+        codigo_postal: profileData?.codigo_postal || meta.codigo_postal || '',
+        role: userRole
+      })
+    }
+
+    setLoginLoading(false)
+
+    // 3. Redirigir según el rol
+    if (userRole === 'admin') {
+      router.push('/admin/super')
+    } else if (userRole === 'gestor_municipio') {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/reservas')
+    }
+  }
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
@@ -110,7 +183,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2 sm:gap-4">
@@ -148,80 +221,94 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button 
-                  onClick={() => router.push('/auth/login')}
-                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
-                >
-                  {t.common.login}
-                </button>
-                <button 
-                  onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
+                <Link 
+                  href="/auth/register"
+                  className="bg-emerald-700 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
                 >
                   {t.common.register}
-                </button>
+                </Link>
               </div>
             )}
           </div>
         </div>
       </header>
 
-      {/* HERO / SELECTOR DE ACCESO */}
-      <main className="flex-1 max-w-5xl mx-auto px-6 py-12 flex flex-col justify-center items-center text-center space-y-10">
-        <div className="space-y-4 max-w-2xl">
-          <span className="inline-block bg-emerald-100/80 text-emerald-900 text-xs font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200">
+      {/* CONTENIDO PRINCIPAL: LOGIN CENTRADO */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-14 flex flex-col justify-center items-center">
+        {/* TEXTOS PRINCIPALES DE CABECERA */}
+        <div className="text-center space-y-3 max-w-xl mx-auto mb-8">
+          <span className="inline-block bg-emerald-100/80 text-emerald-900 text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200 shadow-2xs">
             {t.home.badge}
           </span>
-          <h2 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-tight">
             {t.home.hero_title}
-          </h2>
-          <p className="text-stone-600 text-base md:text-lg leading-relaxed">
-            {t.home.hero_subtitle}
-          </p>
+          </h1>
         </div>
 
-        {/* TARJETAS DE ROL */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-          {/* Jugador */}
-          <div 
-            onClick={() => router.push('/reservas')}
-            className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-xl hover:border-emerald-600 cursor-pointer transition-all duration-200 flex flex-col items-center text-center space-y-4 group relative overflow-hidden"
-          >
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-emerald-700 group-hover:text-white transition-all duration-200 shadow-inner">
-              ⚾
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-stone-900 group-hover:text-emerald-800 transition">
-                {t.home.card_player_title}
-              </h3>
-              <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
-                {t.home.card_player_desc}
+        {/* TARJETA DE LOGIN */}
+        <div className="w-full max-w-md">
+          <div className="bg-white py-8 px-6 sm:px-8 shadow-sm border border-stone-200 rounded-3xl space-y-6">
+            <div className="text-center space-y-1">
+              <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                {t.auth.login_title}
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-500 font-medium">
+                {t.auth.login_subtitle}
               </p>
             </div>
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl group-hover:bg-emerald-700 group-hover:text-white transition">
-              {t.home.card_player_btn}
-            </span>
-          </div>
 
-          {/* Municipio */}
-          <div 
-            onClick={() => router.push('/admin/dashboard')}
-            className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-xl hover:border-stone-800 cursor-pointer transition-all duration-200 flex flex-col items-center text-center space-y-4 group relative overflow-hidden"
-          >
-            <div className="w-16 h-16 bg-stone-100 text-stone-800 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-stone-900 group-hover:text-white transition-all duration-200 shadow-inner">
-              🏛️
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-stone-900 group-hover:text-stone-800 transition">
-                {t.home.card_municipio_title}
-              </h3>
-              <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
-                {t.home.card_municipio_desc}
-              </p>
-            </div>
-            <span className="text-xs font-bold text-stone-800 bg-stone-100 px-4 py-2 rounded-xl group-hover:bg-stone-900 group-hover:text-white transition">
-              {t.home.card_municipio_btn}
-            </span>
+            {errorMsg && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-medium">
+                {errorMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  {t.auth.email}
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="posta@adibidea.eus"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
+                  {t.auth.password}
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 disabled:bg-stone-300 cursor-pointer"
+                >
+                  {loginLoading ? t.auth.logging_in : t.auth.login_btn}
+                </button>
+              </div>
+
+              <div className="text-center pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-center items-center gap-1.5 text-xs text-stone-500 font-medium">
+                <span>{t.auth.no_account}</span>
+                <Link href="/auth/register" className="font-bold text-emerald-700 hover:text-emerald-900 hover:underline">
+                  {t.auth.register_free}
+                </Link>
+              </div>
+            </form>
           </div>
         </div>
       </main>

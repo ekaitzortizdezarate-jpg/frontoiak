@@ -44,16 +44,16 @@ export const eu = {
     language: 'Hizkuntza'
   },
   home: {
-    badge: 'Euskal Frontoiak Sarea',
-    hero_title: 'Euskadiko frontoien kudeaketa adimenduna',
-    hero_subtitle: 'Kontsultatu erabilgarritasuna denbora errealean, erreserbatu zure ordua edo kudeatu zure udalerriko frontoiak leku bakarretik.',
+    badge: 'Euskal Frontoi sareak',
+    hero_title: 'Euskal Herriko Frontoien kudeaketa',
+    hero_subtitle: 'Kudeatu zure erreserba eta gogoko frontoiak',
     card_player_title: 'Pelotaria / Erabiltzailea naiz',
     card_player_desc: 'Aurkitu zure frontoia, ikusi libre dagoen sentsoreekin eta erreserbatu zure lekua.',
     card_player_btn: 'Erreserbetara sartu →',
     card_municipio_title: 'Udalerria naiz',
     card_municipio_desc: 'Konfiguratu frontoiak, blokeatu orduak eskola edo ekitaldietarako eta monitorizatu IoT erabilera.',
     card_municipio_btn: 'Kontrol Panela →',
-    footer: 'Frontoiak — Euskadiko frontoiak kudeatzeko eta gozatzeko plataforma.'
+    footer: 'Frontoiak — Euskal Herriko frontoiak kudeatzeko eta gozatzeko plataforma.'
   },
   reservas: {
     title: 'Frontoien Erreserbak',

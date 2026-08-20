@@ -44,16 +44,16 @@ export const es = {
     language: 'Idioma'
   },
   home: {
-    badge: 'Euskal Frontoiak Sarea',
-    hero_title: 'Gestión inteligente de frontones en Euskadi',
-    hero_subtitle: 'Consulta la disponibilidad en tiempo real, reserva tu hora o gestiona los frontones de tu municipio desde un único lugar.',
+    badge: 'Red de Frontones de Euskadi',
+    hero_title: 'Gestión de Frontones de Euskal Herria',
+    hero_subtitle: 'Gestiona tus reservas y frontones favoritos',
     card_player_title: 'Soy Pelotari / Usuario',
     card_player_desc: 'Encuentra tu frontón, mira si está libre con sensores en vivo y reserva tu plaza.',
     card_player_btn: 'Entrar a Reservas →',
     card_municipio_title: 'Soy un Municipio',
     card_municipio_desc: 'Configura frontones, bloquea franjas para escuelas o eventos y monitoriza el uso IoT.',
     card_municipio_btn: 'Panel de Control →',
-    footer: 'Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.'
+    footer: 'Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskal Herria.'
   },
   reservas: {
     title: 'Reservas de Frontones',
