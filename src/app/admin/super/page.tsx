@@ -867,8 +867,8 @@ export default function SuperAdminDashboard() {
               </div>
             )}
 
-            {/* LISTADO DE MUNICIPIOS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* LISTADO DE MUNICIPIOS (ANCHO COMPLETO) */}
+            <div className="space-y-3 w-full">
               {municipiosFiltrados.map((mun) => {
                 const estado = mun.estado || 'activo'
                 const frontonesDelMun = frontones.filter(f => f.municipio_id === mun.id)
@@ -877,86 +877,89 @@ export default function SuperAdminDashboard() {
                 return (
                   <div 
                     key={mun.id} 
-                    className="bg-stone-900 p-5 rounded-3xl border border-stone-800/80 shadow-sm flex flex-col justify-between gap-4 hover:border-stone-700 transition group"
+                    className="bg-stone-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-stone-800/80 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 hover:border-stone-700 transition w-full group"
                   >
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex items-center gap-3">
-                          {mun.imagen_url ? (
-                            <img src={mun.imagen_url} alt="" className="w-12 h-12 object-cover rounded-2xl border border-stone-800 bg-stone-950" />
-                          ) : (
-                            <div className="w-12 h-12 rounded-2xl bg-stone-800 border border-stone-700 flex items-center justify-center text-lg">
-                              🏛️
-                            </div>
-                          )}
-                          <div>
-                            <h4 className="font-bold text-base text-white group-hover:text-emerald-400 transition">{mun.nombre}</h4>
-                            <p className="text-xs text-stone-400 font-medium">{mun.provincias?.nombre || 'Sin provincia'}</p>
-                          </div>
-                        </div>
-
-                        {/* BADGE DE ESTADO */}
-                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border ${
-                          estado === 'activo'
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                            : estado === 'en_pruebas'
-                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                              : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                        }`}>
-                          {estado === 'activo' ? '🟢 Activo' : estado === 'en_pruebas' ? '🟡 En pruebas' : '🔴 Inactivo'}
-                        </span>
-                      </div>
-
-                      {/* DATOS RÁPIDOS */}
-                      <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-stone-800/60">
-                        <div className="bg-stone-950/60 p-2 rounded-xl border border-stone-800">
-                          <span className="text-stone-500 block text-[10px] font-bold">FRONTONES</span>
-                          <span className="font-bold text-stone-200">{frontonesDelMun.length} frontón(es)</span>
-                        </div>
-                        <div className="bg-stone-950/60 p-2 rounded-xl border border-stone-800">
-                          <span className="text-stone-500 block text-[10px] font-bold">GESTORES</span>
-                          <span className="font-bold text-stone-200">{gestoresDelMun.length} asignado(s)</span>
-                        </div>
-                      </div>
-
-                      {mun.codigos_postales && mun.codigos_postales.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {mun.codigos_postales.map((cp: string) => (
-                            <span key={cp} className="bg-stone-800 text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                              {cp}
-                            </span>
-                          ))}
+                    {/* IZQUIERDA: ESCUDO + DATOS PRINCIPALES */}
+                    <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                      {mun.imagen_url ? (
+                        <img src={mun.imagen_url} alt="" className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-2xl border border-stone-800 bg-stone-950 flex-shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-stone-800 border border-stone-700 flex items-center justify-center text-xl flex-shrink-0">
+                          🏛️
                         </div>
                       )}
+                      
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h4 className="font-bold text-base sm:text-lg text-white group-hover:text-emerald-400 transition tracking-tight">
+                            {mun.nombre}
+                          </h4>
+                          <span className="text-xs text-stone-400 font-semibold bg-stone-950 px-2.5 py-0.5 rounded-lg border border-stone-800">
+                            {mun.provincias?.nombre || 'Sin provincia'}
+                          </span>
+                        </div>
+
+                        {/* CÓDIGOS POSTALES */}
+                        {mun.codigos_postales && mun.codigos_postales.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5 pt-0.5">
+                            {mun.codigos_postales.map((cp: string) => (
+                              <span key={cp} className="bg-stone-800/80 text-stone-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border border-stone-700/50">
+                                {cp}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-stone-500 italic block">Sin códigos postales configurados</span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* BOTONES DE ACCIÓN */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-800/80">
+                    {/* CENTRO: MÉTRICAS RÁPIDAS (FRONTONES Y GESTORES) */}
+                    <div className="flex items-center gap-3 flex-wrap text-xs self-stretch sm:self-auto justify-start sm:justify-center">
+                      <div className="bg-stone-950 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2">
+                        <span className="text-stone-400 font-bold">🎾 Frontones:</span>
+                        <span className="font-extrabold text-white">{frontonesDelMun.length}</span>
+                      </div>
+                      <div className="bg-stone-950 px-3.5 py-2 rounded-xl border border-stone-800 flex items-center gap-2">
+                        <span className="text-stone-400 font-bold">👤 Gestores:</span>
+                        <span className="font-extrabold text-white">{gestoresDelMun.length}</span>
+                      </div>
+                    </div>
+
+                    {/* DERECHA: ESTADO + BOTONES DE ACCIÓN */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full lg:w-auto pt-2 lg:pt-0 border-t lg:border-t-0 border-stone-800/80">
+                      {/* SELECTOR RÁPIDO DE ESTADO */}
+                      <select 
+                        value={estado}
+                        onChange={(e) => handleCambiarEstadoMunicipio(mun, e.target.value as any)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl border focus:outline-none transition cursor-pointer ${
+                          estado === 'activo'
+                            ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
+                            : estado === 'en_pruebas'
+                              ? 'bg-amber-950/60 text-amber-300 border-amber-800'
+                              : 'bg-rose-950/60 text-rose-300 border-rose-800'
+                        }`}
+                      >
+                        <option value="activo">🟢 Activo</option>
+                        <option value="en_pruebas">🟡 En pruebas</option>
+                        <option value="inactivo">🔴 Inactivo</option>
+                      </select>
+
                       <div className="flex items-center gap-1.5">
                         <button 
                           onClick={() => handleIniciarEdicionMunicipio(mun)}
-                          className="bg-stone-800 hover:bg-stone-700 text-stone-200 px-3 py-1.5 rounded-xl text-xs font-bold transition"
+                          className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                         >
                           Editar
                         </button>
                         <button 
                           onClick={() => handleEliminarMunicipio(mun)}
-                          className="bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/60 px-2.5 py-1.5 rounded-xl text-xs font-bold transition"
+                          className="bg-rose-950/50 hover:bg-rose-900 text-rose-300 border border-rose-800/60 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
                           title="Eliminar municipio"
                         >
                           🗑️
                         </button>
                       </div>
-
-                      <select 
-                        value={estado}
-                        onChange={(e) => handleCambiarEstadoMunicipio(mun, e.target.value as any)}
-                        className="bg-stone-950 border border-stone-800 text-[11px] font-bold text-stone-300 rounded-xl px-2 py-1 focus:outline-none"
-                      >
-                        <option value="activo">Activo</option>
-                        <option value="en_pruebas">En pruebas</option>
-                        <option value="inactivo">Inactivo</option>
-                      </select>
                     </div>
                   </div>
                 )
