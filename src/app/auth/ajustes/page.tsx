@@ -306,7 +306,7 @@ export default function AjustesUsuarioPage() {
           </form>
         </div>
 
-        {/* TARJETA 2: SEGURIDAD / CAMBIAR CONTRASEÑA SEGURO */}
+        {/* TARJETA 2: SEGURIDAD / CAMBIAR CONTRASEÑA */}
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200 space-y-6">
           <div className="flex items-center gap-4 border-b border-stone-100 pb-4">
             <div className="w-12 h-12 bg-stone-100 text-stone-800 font-black text-xl rounded-2xl flex items-center justify-center shadow-inner">
