@@ -72,8 +72,11 @@ export default function AdminDashboard() {
 
   const [nuevoFronton, setNuevoFronton] = useState({
     nombre: '',
-    medidas: '',
+    anchura: '' as string | number,
+    largura: '' as string | number,
     cuadros: '' as string | number,
+    labur: '' as string | number,
+    luze: '' as string | number,
     tiene_luz: false,
     luz_pago: false,
     tiene_vestuarios: false,
@@ -505,11 +508,17 @@ export default function AdminDashboard() {
       if (subida) finalImageUrl = subida
     }
 
-    const datosFronton = {
+    const datosFronton: any = {
       municipio_id: userProfile.municipio_id,
       nombre: nuevoFronton.nombre,
-      medidas: nuevoFronton.medidas || null,
+      anchura: nuevoFronton.anchura !== '' ? Number(nuevoFronton.anchura) : null,
+      largura: nuevoFronton.largura !== '' ? Number(nuevoFronton.largura) : null,
       cuadros: nuevoFronton.cuadros !== '' ? Number(nuevoFronton.cuadros) : null,
+      labur: nuevoFronton.labur !== '' ? Number(nuevoFronton.labur) : null,
+      luze: nuevoFronton.luze !== '' ? Number(nuevoFronton.luze) : null,
+      medidas: nuevoFronton.largura && nuevoFronton.anchura 
+        ? `${nuevoFronton.largura}x${nuevoFronton.anchura} m` 
+        : nuevoFronton.largura ? `${nuevoFronton.largura} m` : nuevoFronton.anchura ? `${nuevoFronton.anchura} m` : null,
       tiene_luz: nuevoFronton.tiene_luz,
       luz_pago: nuevoFronton.luz_pago,
       tiene_vestuarios: nuevoFronton.tiene_vestuarios,
@@ -524,15 +533,38 @@ export default function AdminDashboard() {
       max_reservas_activas: Number(nuevoFronton.max_reservas_activas)
     }
 
+    let res
     if (frontonEnEdicion) {
-      await supabase.from('frontones').update(datosFronton).eq('id', frontonEnEdicion.id)
-      setFrontonEnEdicion(null)
+      res = await supabase.from('frontones').update(datosFronton).eq('id', frontonEnEdicion.id)
     } else {
       if (frontones.length >= 5) {
         alert('Límite de 5 frontones alcanzado.')
         return
       }
-      await supabase.from('frontones').insert([datosFronton])
+      res = await supabase.from('frontones').insert([datosFronton])
+    }
+
+    if (res.error) {
+      console.warn('Aviso al guardar frontón con nuevos campos:', res.error)
+      if (res.error.message?.includes('column') || res.error.code === 'PGRST204') {
+        const fallbackDatos = { ...datosFronton }
+        delete fallbackDatos.anchura
+        delete fallbackDatos.largura
+        delete fallbackDatos.labur
+        delete fallbackDatos.luze
+        if (frontonEnEdicion) {
+          await supabase.from('frontones').update(fallbackDatos).eq('id', frontonEnEdicion.id)
+        } else {
+          await supabase.from('frontones').insert([fallbackDatos])
+        }
+      } else {
+        alert('Error al guardar frontón: ' + res.error.message)
+        return
+      }
+    }
+
+    if (frontonEnEdicion) {
+      setFrontonEnEdicion(null)
     }
     resetFormulario()
     setMostrarFormularioFronton(false)
@@ -541,21 +573,53 @@ export default function AdminDashboard() {
 
   const resetFormulario = () => {
     setNuevoFronton({
-      nombre: '', medidas: '', cuadros: '', tiene_luz: false, luz_pago: false,
-      tiene_vestuarios: false, tiene_duchas: false, solo_empadronados: true, tiene_sensor_iot: false,
-      imagen_url: '', hora_apertura: '08:00', hora_cierre: '22:00', duracion_slot_minutos: 60,
-      dias_antelacion_maxima: 7, max_reservas_activas: 2
+      nombre: '',
+      anchura: '',
+      largura: '',
+      cuadros: '',
+      labur: '',
+      luze: '',
+      tiene_luz: false,
+      luz_pago: false,
+      tiene_vestuarios: false,
+      tiene_duchas: false,
+      solo_empadronados: true,
+      tiene_sensor_iot: false,
+      imagen_url: '',
+      hora_apertura: '08:00',
+      hora_cierre: '22:00',
+      duracion_slot_minutos: 60,
+      dias_antelacion_maxima: 7,
+      max_reservas_activas: 2
     })
     setArchivoImagen(null)
   }
 
   const iniciarEdicion = (f: any) => {
+    let anchura = f.anchura ?? ''
+    let largura = f.largura ?? ''
+    if (!anchura && !largura && f.medidas) {
+      const match = f.medidas.match(/(\d+(?:[.,]\d+)?)\s*[xX*]\s*(\d+(?:[.,]\d+)?)/)
+      if (match) {
+        largura = match[1]
+        anchura = match[2]
+      }
+    }
+
     setFrontonEnEdicion(f)
     setNuevoFronton({
-      nombre: f.nombre || '', medidas: f.medidas || '', cuadros: f.cuadros ?? '',
-      tiene_luz: f.tiene_luz || false, luz_pago: f.luz_pago || false,
-      tiene_vestuarios: f.tiene_vestuarios || false, tiene_duchas: f.tiene_duchas || false,
-      solo_empadronados: f.solo_empadronados ?? true, tiene_sensor_iot: f.tiene_sensor_iot || false,
+      nombre: f.nombre || '',
+      anchura: anchura,
+      largura: largura,
+      cuadros: f.cuadros ?? '',
+      labur: f.labur ?? f.numero_labur ?? '',
+      luze: f.luze ?? f.numero_luze ?? '',
+      tiene_luz: f.tiene_luz || false,
+      luz_pago: f.luz_pago || false,
+      tiene_vestuarios: f.tiene_vestuarios || false,
+      tiene_duchas: f.tiene_duchas || false,
+      solo_empadronados: f.solo_empadronados ?? true,
+      tiene_sensor_iot: f.tiene_sensor_iot || false,
       imagen_url: f.imagen_url || '',
       hora_apertura: f.hora_apertura || '08:00',
       hora_cierre: f.hora_cierre || '22:00',
@@ -1520,6 +1584,14 @@ export default function AdminDashboard() {
                                   Horario: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | Slot: {f.duracion_slot_minutos || 60}m | Máximo: {f.dias_antelacion_maxima ?? 7}d
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 mt-2">
+                                  {(f.largura || f.anchura || f.medidas) && (
+                                    <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                      📐 {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.largura ? `${f.largura}m` : f.anchura ? `${f.anchura}m` : f.medidas}
+                                    </span>
+                                  )}
+                                  {f.cuadros && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Cuadros: {f.cuadros}</span>}
+                                  {(f.labur || f.numero_labur) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
+                                  {(f.luze || f.numero_luze) && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
                                   {f.tiene_luz && <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">Luz {f.luz_pago ? '(Pago)' : ''}</span>}
                                   {f.tiene_vestuarios && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Vestuarios</span>}
                                   {f.tiene_duchas && <span className="bg-stone-100 text-stone-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Duchas</span>}
@@ -1624,24 +1696,66 @@ export default function AdminDashboard() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Fila 1: Anchura y Largura (opcionales) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Medidas (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Anchura (m) (opcional)</label>
                             <input 
-                              type="text" 
-                              placeholder="ej. 30x10 m"
-                              value={nuevoFronton.medidas} 
-                              onChange={(e) => setNuevoFronton({...nuevoFronton, medidas: e.target.value})} 
+                              type="number" 
+                              step="any"
+                              min="0"
+                              placeholder="ej. 10"
+                              value={nuevoFronton.anchura} 
+                              onChange={(e) => setNuevoFronton({...nuevoFronton, anchura: e.target.value})} 
                               className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Cuadros (opcional)</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Largura (m) (opcional)</label>
                             <input 
                               type="number" 
-                              placeholder="ej. 4"
+                              step="any"
+                              min="0"
+                              placeholder="ej. 36"
+                              value={nuevoFronton.largura} 
+                              onChange={(e) => setNuevoFronton({...nuevoFronton, largura: e.target.value})} 
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Fila 2: Nº de cuadros, Nº Labur y Nº Luze (opcionales) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº de cuadros (opcional)</label>
+                            <input 
+                              type="number" 
+                              min="0"
+                              placeholder="ej. 7"
                               value={nuevoFronton.cuadros} 
                               onChange={(e) => setNuevoFronton({...nuevoFronton, cuadros: e.target.value})} 
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº Labur (opcional)</label>
+                            <input 
+                              type="number" 
+                              min="0"
+                              placeholder="ej. 4"
+                              value={nuevoFronton.labur} 
+                              onChange={(e) => setNuevoFronton({...nuevoFronton, labur: e.target.value})} 
+                              className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Nº Luze (opcional)</label>
+                            <input 
+                              type="number" 
+                              min="0"
+                              placeholder="ej. 7"
+                              value={nuevoFronton.luze} 
+                              onChange={(e) => setNuevoFronton({...nuevoFronton, luze: e.target.value})} 
                               className="w-full p-2.5 border border-stone-300 rounded-xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none"
                             />
                           </div>

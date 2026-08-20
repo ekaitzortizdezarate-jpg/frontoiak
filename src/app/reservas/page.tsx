@@ -1218,6 +1218,12 @@ export default function PortalReservas() {
                     {/* Fila 2: Horario y características */}
                     <p className="text-xs text-stone-500 font-medium">
                       Horario: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | Máximo: {frontonSeleccionado.dias_antelacion_maxima ?? 7} día(s) antelación
+                      {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
+                        <> | Medidas: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
+                      )}
+                      {frontonSeleccionado.cuadros && <> | Cuadros: {frontonSeleccionado.cuadros}</>}
+                      {(frontonSeleccionado.labur || frontonSeleccionado.numero_labur) && <> | Labur: {frontonSeleccionado.labur || frontonSeleccionado.numero_labur}</>}
+                      {(frontonSeleccionado.luze || frontonSeleccionado.numero_luze) && <> | Luze: {frontonSeleccionado.luze || frontonSeleccionado.numero_luze}</>}
                     </p>
 
                     {/* Fila 3: 'Incidencias', 'Pendientes: X' y 'En curso: Y' todo seguido en la misma fila */}
