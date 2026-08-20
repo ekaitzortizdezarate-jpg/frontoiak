@@ -476,34 +476,67 @@ export default function AjustesUsuarioPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1.5">
                   Imagen / Escudo del Municipio (Opcional)
                 </label>
-                {imagenMunicipioUrl && !archivoImagenMunicipio && (
-                  <div className="flex items-center gap-3 mb-2">
-                    <img src={imagenMunicipioUrl} alt="Escudo/Imagen del municipio" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs" />
-                    {editandoPerfil && (
-                      <button 
-                        type="button" 
-                        onClick={() => setImagenMunicipioUrl('')} 
-                        className="text-xs text-rose-600 hover:text-rose-800 font-bold"
-                      >
-                        Quitar imagen
-                      </button>
-                    )}
+                {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                    <img 
+                      src={archivoImagenMunicipio ? URL.createObjectURL(archivoImagenMunicipio) : imagenMunicipioUrl} 
+                      alt="Escudo/Imagen del municipio" 
+                      className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white" 
+                    />
+                    <div className="space-y-1.5">
+                      <p className="text-xs font-bold text-stone-800">
+                        {archivoImagenMunicipio ? `Nueva imagen seleccionada: ${archivoImagenMunicipio.name}` : 'Imagen actual guardada'}
+                      </p>
+                      {editandoPerfil && (
+                        <div className="flex gap-2 flex-wrap">
+                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
+                            Cambiar imagen
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setArchivoImagenMunicipio(e.target.files[0])
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setImagenMunicipioUrl('')
+                              setArchivoImagenMunicipio(null)
+                            }} 
+                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                          >
+                            Borrar imagen
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-                {editandoPerfil && (
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setArchivoImagenMunicipio(e.target.files[0])
-                      }
-                    }}
-                    className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 transition cursor-pointer"
-                  />
+                ) : editandoPerfil ? (
+                  <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
+                    <span className="text-2xl mb-1 group-hover:scale-110 transition">🏛️</span>
+                    <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">Seleccionar imagen o escudo municipal</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">PNG, JPG o WEBP</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setArchivoImagenMunicipio(e.target.files[0])
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <p className="text-xs text-stone-400 italic">Sin imagen configurada</p>
                 )}
               </div>
 

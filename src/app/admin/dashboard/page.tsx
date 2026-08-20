@@ -519,6 +519,28 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleBorrarImagenMunicipio = async () => {
+    if (!confirm('¿Estás seguro de que deseas eliminar la imagen/escudo de la población?')) {
+      return
+    }
+
+    if (selectedMunicipioId) {
+      const { error } = await supabase
+        .from('municipios')
+        .update({ imagen_url: null })
+        .eq('id', selectedMunicipioId)
+
+      if (error) {
+        console.warn('Aviso al borrar imagen de municipio:', error)
+      }
+    }
+
+    setImagenMunicipioUrl('')
+    setArchivoImagenMunicipio(null)
+    alert('Imagen del municipio eliminada.')
+    await loadInitialData()
+  }
+
   const handleSaveAjustes = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedMunicipioId) return
@@ -1095,7 +1117,13 @@ export default function AdminDashboard() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8 space-y-6">
         <div className="flex justify-between items-center border-b border-stone-200 pb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Área de Gestión Municipal</span>
+              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
+                {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : 'Panel de Gestión'}
+              </h1>
+            </div>
             {(userProfile?.municipios?.imagen_url || imagenMunicipioUrl) && (
               <img 
                 src={userProfile?.municipios?.imagen_url || imagenMunicipioUrl} 
@@ -1103,12 +1131,6 @@ export default function AdminDashboard() {
                 className="w-14 h-14 object-cover rounded-2xl border border-stone-200 shadow-sm"
               />
             )}
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Área de Gestión Municipal</span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
-                {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : 'Panel de Gestión'}
-              </h1>
-            </div>
           </div>
         </div>
 
@@ -2275,20 +2297,47 @@ export default function AdminDashboard() {
             </div>
 
             {puebloConfigurado && !editandoAjustes ? (
-              <div className="space-y-4 bg-stone-50 p-6 rounded-2xl border border-stone-200">
-                {imagenMunicipioUrl && (
-                  <div className="flex items-center gap-4 border-b border-stone-200 pb-4">
-                    <img 
-                      src={imagenMunicipioUrl} 
-                      alt="Imagen del municipio" 
-                      className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs"
-                    />
+              <div className="space-y-5 bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                {/* IMAGEN DEL MUNICIPIO */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
+                  <div className="flex items-center gap-4">
+                    {imagenMunicipioUrl ? (
+                      <img 
+                        src={imagenMunicipioUrl} 
+                        alt="Imagen/Escudo del municipio" 
+                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-stone-200 rounded-2xl border border-stone-300 flex flex-col items-center justify-center text-stone-400 text-xs font-bold gap-1">
+                        <span className="text-2xl">🏛️</span>
+                        <span>Sin imagen</span>
+                      </div>
+                    )}
                     <div>
                       <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Imagen / Escudo Municipal</span>
-                      <p className="text-xs text-stone-600 font-medium mt-0.5">Imagen configurada para el municipio</p>
+                      <p className="text-xs text-stone-600 font-medium mt-0.5">
+                        {imagenMunicipioUrl ? 'Imagen visible a la derecha del título de gestión' : 'No se ha configurado ninguna imagen todavía'}
+                      </p>
                     </div>
                   </div>
-                )}
+
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setEditandoAjustes(true)}
+                      className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                    >
+                      {imagenMunicipioUrl ? 'Cambiar imagen' : 'Añadir imagen'}
+                    </button>
+                    {imagenMunicipioUrl && (
+                      <button 
+                        onClick={handleBorrarImagenMunicipio}
+                        className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                      >
+                        Borrar imagen
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 <div>
                   <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Provincia</span>
@@ -2314,31 +2363,65 @@ export default function AdminDashboard() {
             ) : (
               <form onSubmit={handleSaveAjustes} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">
+                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1.5">
                     Imagen / Escudo de la Población (Opcional)
                   </label>
-                  {imagenMunicipioUrl && !archivoImagenMunicipio && (
-                    <div className="flex items-center gap-3 mb-2">
-                      <img src={imagenMunicipioUrl} alt="Escudo/Imagen del municipio" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs" />
-                      <button 
-                        type="button" 
-                        onClick={() => setImagenMunicipioUrl('')} 
-                        className="text-xs text-rose-600 hover:text-rose-800 font-bold"
-                      >
-                        Quitar imagen actual
-                      </button>
+                  
+                  {(archivoImagenMunicipio || imagenMunicipioUrl) ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                      <img 
+                        src={archivoImagenMunicipio ? URL.createObjectURL(archivoImagenMunicipio) : imagenMunicipioUrl} 
+                        alt="Escudo/Imagen del municipio" 
+                        className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs bg-white" 
+                      />
+                      <div className="space-y-1.5">
+                        <p className="text-xs font-bold text-stone-800">
+                          {archivoImagenMunicipio ? `Nueva imagen seleccionada: ${archivoImagenMunicipio.name}` : 'Imagen actual configurada'}
+                        </p>
+                        <div className="flex gap-2 flex-wrap">
+                          <label className="bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer">
+                            Cambiar imagen
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setArchivoImagenMunicipio(e.target.files[0])
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setImagenMunicipioUrl('')
+                              setArchivoImagenMunicipio(null)
+                            }} 
+                            className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
+                          >
+                            Borrar imagen
+                          </button>
+                        </div>
+                      </div>
                     </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-stone-300 rounded-2xl hover:border-emerald-500 bg-stone-50/50 hover:bg-emerald-50/30 transition cursor-pointer group">
+                      <span className="text-3xl mb-1 group-hover:scale-110 transition">🏛️</span>
+                      <span className="text-xs font-bold text-stone-700 group-hover:text-emerald-800">Seleccionar imagen o escudo municipal</span>
+                      <span className="text-[11px] text-stone-400 mt-0.5">PNG, JPG o WEBP</span>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setArchivoImagenMunicipio(e.target.files[0])
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
                   )}
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setArchivoImagenMunicipio(e.target.files[0])
-                      }
-                    }}
-                    className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 transition cursor-pointer"
-                  />
                 </div>
 
                 <div>
