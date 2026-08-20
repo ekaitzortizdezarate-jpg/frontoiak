@@ -494,15 +494,20 @@ export default function AdminDashboard() {
 
     try {
       setUploadingImageMunicipio(true)
-      const extension = archivoImagenMunicipio.name.split('.').pop()
-      const nombreArchivo = `municipio-${selectedMunicipioId || userProfile.id}-${Date.now()}.${extension}`
+      const extension = archivoImagenMunicipio.name.split('.').pop() || 'jpg'
+      const nombreArchivo = `municipio-${selectedMunicipioId || userProfile?.id || Date.now()}-${Date.now()}.${extension}`
 
       const { data, error } = await supabase.storage
         .from('frontones-fotos')
-        .upload(nombreArchivo, archivoImagenMunicipio)
+        .upload(nombreArchivo, archivoImagenMunicipio, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: archivoImagenMunicipio.type || 'image/jpeg'
+        })
 
       if (error) {
-        alert('Error al subir imagen del municipio: ' + error.message)
+        console.error('Error detallado al subir imagen a Supabase Storage:', error)
+        alert(`Error al subir imagen al Storage: ${error.message}\n\nAsegúrate de haber ejecutado las políticas RLS para el bucket "frontones-fotos" en Supabase.`)
         return imagenMunicipioUrl || null
       }
 
@@ -511,8 +516,9 @@ export default function AdminDashboard() {
         .getPublicUrl(data.path)
 
       return publicUrlData.publicUrl
-    } catch (err) {
-      console.error(err)
+    } catch (err: any) {
+      console.error('Excepción al subir imagen:', err)
+      alert('Error inesperado al subir imagen: ' + (err?.message || err))
       return imagenMunicipioUrl || null
     } finally {
       setUploadingImageMunicipio(false)
@@ -581,15 +587,20 @@ export default function AdminDashboard() {
 
     try {
       setUploadingImage(true)
-      const extension = archivoImagen.name.split('.').pop()
-      const nombreArchivo = `${userProfile.id}-${Date.now()}.${extension}`
+      const extension = archivoImagen.name.split('.').pop() || 'jpg'
+      const nombreArchivo = `fronton-${userProfile?.id || Date.now()}-${Date.now()}.${extension}`
 
       const { data, error } = await supabase.storage
         .from('frontones-fotos')
-        .upload(nombreArchivo, archivoImagen)
+        .upload(nombreArchivo, archivoImagen, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: archivoImagen.type || 'image/jpeg'
+        })
 
       if (error) {
-        alert('Error al subir imagen: ' + error.message)
+        console.error('Error al subir imagen de frontón a Supabase Storage:', error)
+        alert(`Error al subir imagen: ${error.message}\n\nAsegúrate de haber ejecutado las políticas RLS para el bucket "frontones-fotos" en Supabase.`)
         return nuevoFronton.imagen_url || null
       }
 
@@ -598,8 +609,9 @@ export default function AdminDashboard() {
         .getPublicUrl(data.path)
 
       return publicUrlData.publicUrl
-    } catch (err) {
-      console.error(err)
+    } catch (err: any) {
+      console.error('Excepción al subir imagen:', err)
+      alert('Error inesperado al subir imagen: ' + (err?.message || err))
       return nuevoFronton.imagen_url || null
     } finally {
       setUploadingImage(false)

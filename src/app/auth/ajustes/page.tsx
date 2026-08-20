@@ -166,15 +166,20 @@ export default function AjustesUsuarioPage() {
 
     try {
       setUploadingImageMunicipio(true)
-      const extension = archivoImagenMunicipio.name.split('.').pop()
+      const extension = archivoImagenMunicipio.name.split('.').pop() || 'jpg'
       const nombreArchivo = `municipio-${selectedMunicipioId || user.id}-${Date.now()}.${extension}`
 
       const { data, error } = await supabase.storage
         .from('frontones-fotos')
-        .upload(nombreArchivo, archivoImagenMunicipio)
+        .upload(nombreArchivo, archivoImagenMunicipio, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: archivoImagenMunicipio.type || 'image/jpeg'
+        })
 
       if (error) {
-        alert('Error al subir imagen del municipio: ' + error.message)
+        console.error('Error al subir imagen a Supabase Storage:', error)
+        alert(`Error al subir imagen del municipio: ${error.message}\n\nVerifica las políticas RLS del bucket "frontones-fotos" en Supabase.`)
         return imagenMunicipioUrl || null
       }
 
@@ -183,8 +188,9 @@ export default function AjustesUsuarioPage() {
         .getPublicUrl(data.path)
 
       return publicUrlData.publicUrl
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
+      alert('Error inesperado al subir imagen: ' + (err?.message || err))
       return imagenMunicipioUrl || null
     } finally {
       setUploadingImageMunicipio(false)
