@@ -57,6 +57,7 @@ export default function RegisterPage() {
         await supabase.from('profiles').upsert({
           id: authData.user.id,
           email,
+          nombre: nombre,
           nombre_completo: nombre,
           apellidos,
           dni,

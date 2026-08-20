@@ -73,10 +73,12 @@ export default function PortalReservas() {
 
     // Si la fila en la tabla profiles no existía, la creamos para que no fallen las foreign keys de favoritos y reservas
     if (!profile) {
+      const nombreFinal = finalProfile.nombre || finalProfile.nombre_completo || meta.nombre || meta.nombre_completo || 'Usuario'
       await supabase.from('profiles').upsert({
         id: user.id,
         email: user.email,
-        nombre_completo: finalProfile.nombre_completo,
+        nombre: nombreFinal,
+        nombre_completo: nombreFinal,
         apellidos: finalProfile.apellidos,
         role: finalProfile.role || 'usuario',
         dni: meta.dni || '',
@@ -211,10 +213,12 @@ export default function PortalReservas() {
         // Si falló por clave foránea (el perfil no existía en profiles), lo creamos y reintentamos
         if (error && error.message?.includes('foreign key')) {
           const meta = user?.user_metadata || (await supabase.auth.getUser()).data.user?.user_metadata || {}
+          const nombreFinal = user?.profile?.nombre || user?.profile?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || 'Usuario'
           await supabase.from('profiles').upsert({
             id: currentUserId,
             email: user?.email,
-            nombre_completo: user?.profile?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+            nombre: nombreFinal,
+            nombre_completo: nombreFinal,
             apellidos: user?.profile?.apellidos || meta.apellidos || '',
             role: user?.profile?.role || meta.role || 'usuario',
             dni: meta.dni || '',
@@ -508,10 +512,12 @@ export default function PortalReservas() {
     // Si falló por clave foránea (el perfil no existía en profiles), lo creamos y reintentamos
     if (error && error.message?.includes('foreign key')) {
       const meta = user?.user_metadata || {}
+      const nombreFinal = user.profile?.nombre || user.profile?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || 'Usuario'
       await supabase.from('profiles').upsert({
         id: user.id,
         email: user.email,
-        nombre_completo: user.profile?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+        nombre: nombreFinal,
+        nombre_completo: nombreFinal,
         apellidos: user.profile?.apellidos || meta.apellidos || '',
         role: user.profile?.role || meta.role || 'usuario',
         dni: meta.dni || '',

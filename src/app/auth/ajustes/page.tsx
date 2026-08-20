@@ -71,11 +71,12 @@ export default function AjustesUsuarioPage() {
     setCodigoPostal(cpVal)
 
     // Si la tabla profiles no existía o estaba incompleta, la sincronizamos para que quede persistida en BD
-    if (!profile || !profile.nombre_completo || !profile.dni || !profile.localidad) {
+    if (!profile || !profile.nombre_completo || !profile.nombre || !profile.dni || !profile.localidad) {
       if (nombreVal || apellidosVal || dniVal || localidadVal || cpVal) {
         await supabase.from('profiles').upsert({
           id: user.id,
           email: user.email || '',
+          nombre: nombreVal,
           nombre_completo: nombreVal,
           apellidos: apellidosVal,
           dni: dniVal,
@@ -95,6 +96,8 @@ export default function AjustesUsuarioPage() {
     e.preventDefault()
     if (!user) return
 
+    const nombreLimpio = nombre.trim() || user?.user_metadata?.nombre || user?.user_metadata?.nombre_completo || 'Usuario'
+
     setGuardando(true)
 
     // 1. Guardamos en la base de datos (tabla profiles)
@@ -103,13 +106,14 @@ export default function AjustesUsuarioPage() {
       .upsert({
         id: user.id,
         email: email || user.email,
-        nombre_completo: nombre,
-        apellidos,
-        dni,
-        calle,
+        nombre: nombreLimpio,
+        nombre_completo: nombreLimpio,
+        apellidos: apellidos.trim() || '',
+        dni: dni.trim() || '',
+        calle: calle.trim() || '',
         fecha_nacimiento: fechaNacimiento || null,
-        localidad,
-        codigo_postal: codigoPostal
+        localidad: localidad.trim() || '',
+        codigo_postal: codigoPostal.trim() || ''
       })
 
     if (error) {
@@ -121,14 +125,14 @@ export default function AjustesUsuarioPage() {
     // 2. Sincronizamos también los metadatos de autenticación en Supabase Auth
     await supabase.auth.updateUser({
       data: {
-        nombre_completo: nombre,
-        nombre: nombre,
-        apellidos,
-        dni,
-        calle,
+        nombre_completo: nombreLimpio,
+        nombre: nombreLimpio,
+        apellidos: apellidos.trim() || '',
+        dni: dni.trim() || '',
+        calle: calle.trim() || '',
         fecha_nacimiento: fechaNacimiento || null,
-        localidad,
-        codigo_postal: codigoPostal
+        localidad: localidad.trim() || '',
+        codigo_postal: codigoPostal.trim() || ''
       }
     })
 
@@ -240,9 +244,10 @@ export default function AjustesUsuarioPage() {
           <form onSubmit={handleGuardarPerfil} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nombre</label>
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">Nombre *</label>
                 <input 
                   type="text" 
+                  required
                   value={nombre} 
                   onChange={(e) => setNombre(e.target.value)} 
                   disabled={!editandoPerfil}

@@ -43,13 +43,15 @@ export default function LoginPage() {
     let userRole = profileData?.role
 
     // Si el perfil no existe o no tiene datos, lo creamos/sincronizamos desde los metadatos de Auth
-    if (!profileData || !profileData.nombre_completo) {
+    if (!profileData || !profileData.nombre_completo || !profileData.nombre) {
       const meta = user.user_metadata || {}
       userRole = profileData?.role || meta.role || 'usuario'
+      const nombreFinal = profileData?.nombre || profileData?.nombre_completo || meta.nombre || meta.nombre_completo || meta.full_name || ''
       await supabase.from('profiles').upsert({
         id: user.id,
         email: user.email,
-        nombre_completo: profileData?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+        nombre: nombreFinal,
+        nombre_completo: nombreFinal,
         apellidos: profileData?.apellidos || meta.apellidos || '',
         dni: profileData?.dni || meta.dni || '',
         calle: profileData?.calle || meta.calle || '',
