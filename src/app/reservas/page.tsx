@@ -1005,21 +1005,11 @@ export default function PortalReservas() {
                         </span>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
-                        <div className="flex flex-col items-start sm:items-end gap-1">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
-                            {estadoTexto}
-                          </span>
-                          <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
-                        </div>
-
-                        <button
-                          onClick={() => setIncidenciaVerHistoricoModal(inc)}
-                          className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
-                          title="Ver histórico cronológico de actuaciones"
-                        >
-                          <span>📜 Ver Histórico</span>
-                        </button>
+                      <div className="flex flex-col items-start sm:items-end gap-1 flex-shrink-0">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${badgeClass}`}>
+                          {estadoTexto}
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-medium">{descEstado}</span>
                       </div>
                     </div>
 

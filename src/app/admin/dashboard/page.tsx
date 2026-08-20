@@ -1689,14 +1689,6 @@ export default function AdminDashboard() {
                         {/* BOTONES DE ACCIÓN PARA EL GESTOR */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full md:w-auto">
                           <button
-                            onClick={() => setIncidenciaVerHistoricoModal(inc)}
-                            className="bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-300 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
-                            title="Consultar cronología y comentarios de esta incidencia"
-                          >
-                            <span>📜 Ver Histórico</span>
-                          </button>
-
-                          <button
                             onClick={() => abrirModalCambioEstado(inc)}
                             className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                             title="Cambiar estado e introducir comentario obligatorio"
@@ -1713,16 +1705,6 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       </div>
-
-                      {/* ÚLTIMO COMENTARIO REGISTRADO */}
-                      {inc.respuesta_municipio && (
-                        <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl text-xs text-emerald-950 space-y-1">
-                          <span className="font-bold flex items-center gap-1 text-emerald-900">
-                            🏛️ Última actuación municipal:
-                          </span>
-                          <p className="text-stone-700 italic font-medium">"{inc.respuesta_municipio}"</p>
-                        </div>
-                      )}
 
                       {/* HISTÓRICO DE ACTUACIONES */}
                       {historial.length > 0 && (
