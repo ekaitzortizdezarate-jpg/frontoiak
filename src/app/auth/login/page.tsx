@@ -26,7 +26,7 @@ export default function LoginPage() {
     })
 
     if (error || !authData.user) {
-      setErrorMsg('Correo o contraseña incorrectos.')
+      setErrorMsg(error?.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos.' : (error?.message || 'Error al iniciar sesión.'))
       setLoading(false)
       return
     }
@@ -38,7 +38,7 @@ export default function LoginPage() {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
     let userRole = profileData?.role
 

@@ -25,60 +25,72 @@ export default function Home() {
   }, [])
 
   const checkUserSession = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      const meta = user.user_metadata || {}
-      const finalProfile = profile ? {
-        ...profile,
-        nombre_completo: profile.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
-        apellidos: profile.apellidos || meta.apellidos || '',
-        role: profile.role || meta.role || 'usuario'
-      } : {
-        nombre_completo: meta.nombre_completo || meta.nombre || meta.full_name || '',
-        apellidos: meta.apellidos || '',
-        role: meta.role || 'usuario',
-        email: user.email
-      }
-
-      // Si el perfil no existía aún en la tabla profiles (ej. recién confirmado por correo), sincronizarlo
-      if (!profile) {
-        const nombreFinal = finalProfile.nombre_completo || meta.nombre || 'Usuario'
-        await supabase.from('profiles').upsert({
-          id: user.id,
-          email: user.email,
-          nombre: nombreFinal,
-          nombre_completo: nombreFinal,
-          apellidos: finalProfile.apellidos || '',
-          role: finalProfile.role || 'usuario',
-          ...(meta.municipio_id ? { municipio_id: meta.municipio_id } : {}),
-          ...(meta.dni ? { dni: meta.dni } : {}),
-          ...(meta.calle ? { calle: meta.calle } : {}),
-          ...(meta.fecha_nacimiento ? { fecha_nacimiento: meta.fecha_nacimiento } : {}),
-          ...(meta.localidad ? { localidad: meta.localidad } : {}),
-          ...(meta.codigo_postal ? { codigo_postal: meta.codigo_postal } : {})
-        })
-      }
-
-      setUser({ ...user, profile: finalProfile })
-
-      // Redirigir automáticamente según el rol del usuario
-      if (finalProfile.role === 'admin') {
-        router.replace('/admin/super')
-        return
-      } else if (finalProfile.role === 'gestor_municipio') {
-        router.replace('/admin/dashboard')
-        return
-      } else {
-        router.replace('/reservas')
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError) {
+        console.warn('Error al obtener usuario en Home:', userError)
+        setLoading(false)
         return
       }
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        const meta = user.user_metadata || {}
+        const finalProfile = profile ? {
+          ...profile,
+          nombre_completo: profile.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+          apellidos: profile.apellidos || meta.apellidos || '',
+          role: profile.role || meta.role || 'usuario'
+        } : {
+          nombre_completo: meta.nombre_completo || meta.nombre || meta.full_name || '',
+          apellidos: meta.apellidos || '',
+          role: meta.role || 'usuario',
+          email: user.email
+        }
+
+        // Si el perfil no existía aún en la tabla profiles, sincronizarlo
+        if (!profile) {
+          const nombreFinal = finalProfile.nombre_completo || meta.nombre || 'Usuario'
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            nombre: nombreFinal,
+            nombre_completo: nombreFinal,
+            apellidos: finalProfile.apellidos || '',
+            role: finalProfile.role || 'usuario',
+            ...(meta.municipio_id ? { municipio_id: meta.municipio_id } : {}),
+            ...(meta.dni ? { dni: meta.dni } : {}),
+            ...(meta.calle ? { calle: meta.calle } : {}),
+            ...(meta.fecha_nacimiento ? { fecha_nacimiento: meta.fecha_nacimiento } : {}),
+            ...(meta.localidad ? { localidad: meta.localidad } : {}),
+            ...(meta.codigo_postal ? { codigo_postal: meta.codigo_postal } : {})
+          })
+        }
+
+        setUser({ ...user, profile: finalProfile })
+
+        // Redirigir automáticamente según el rol del usuario
+        if (finalProfile.role === 'admin') {
+          router.replace('/admin/super')
+          return
+        } else if (finalProfile.role === 'gestor_municipio') {
+          router.replace('/admin/dashboard')
+          return
+        } else {
+          router.replace('/reservas')
+          return
+        }
+      }
+    } catch (err) {
+      console.error('Excepción al verificar sesión en Home:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleSignOut = async () => {
