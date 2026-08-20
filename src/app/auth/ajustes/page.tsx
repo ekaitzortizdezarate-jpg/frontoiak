@@ -315,6 +315,11 @@ export default function AjustesUsuarioPage() {
     }
   }
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/login')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -340,12 +345,21 @@ export default function AjustesUsuarioPage() {
             </span>
           </div>
 
-          <button 
-            onClick={handleVolver}
-            className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 whitespace-nowrap"
-          >
-            {userRole === 'gestor_municipio' ? '← Volver al Panel de Gestión' : '← Volver a Reservas'}
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+            <button 
+              onClick={handleVolver}
+              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition flex-shrink-0 whitespace-nowrap"
+            >
+              {userRole === 'gestor_municipio' ? '← Volver al Panel' : '← Volver a Reservas'}
+            </button>
+
+            <button 
+              onClick={handleSignOut}
+              className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
       </header>
 
