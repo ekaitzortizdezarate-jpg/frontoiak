@@ -123,6 +123,7 @@ export default function SuperAdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
+    document.documentElement.classList.add('dark')
     verificarAdminYCargarDatos()
   }, [])
 
@@ -1190,12 +1191,12 @@ export default function SuperAdminDashboard() {
                   placeholder={`${t.common.search}...`} 
                   value={busquedaMunicipio}
                   onChange={(e) => setBusquedaMunicipio(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-60 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-60 font-medium"
                 />
                 <select 
                   value={filtroProvinciaMun} 
                   onChange={(e) => setFiltroProvinciaMun(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
                 >
                   <option value="">Todas las provincias</option>
                   {provincias.map(p => (
@@ -1205,7 +1206,7 @@ export default function SuperAdminDashboard() {
                 <select 
                   value={filtroEstadoMun} 
                   onChange={(e) => setFiltroEstadoMun(e.target.value as any)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
                 >
                   <option value="todos">Todos los estados</option>
                   <option value="activo">🟢 Activos</option>
@@ -1253,7 +1254,7 @@ export default function SuperAdminDashboard() {
                         value={nuevoMunicipio.nombre}
                         onChange={(e) => setNuevoMunicipio({...nuevoMunicipio, nombre: e.target.value})}
                         placeholder="ej. Arrasate / Mondragón"
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                     </div>
 
@@ -1263,7 +1264,7 @@ export default function SuperAdminDashboard() {
                         required
                         value={nuevoMunicipio.provincia_id}
                         onChange={(e) => setNuevoMunicipio({...nuevoMunicipio, provincia_id: e.target.value})}
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       >
                         <option value="">Selecciona provincia...</option>
                         {provincias.map(p => (
@@ -1277,7 +1278,7 @@ export default function SuperAdminDashboard() {
                       <select 
                         value={nuevoMunicipio.estado}
                         onChange={(e) => setNuevoMunicipio({...nuevoMunicipio, estado: e.target.value as any})}
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       >
                         <option value="activo">🟢 Activo (Visible en reservas)</option>
                         <option value="en_pruebas">🟡 En pruebas (Solo gestor/pruebas)</option>
@@ -1309,12 +1310,12 @@ export default function SuperAdminDashboard() {
                             handleAddCpMun()
                           }
                         }}
-                        className="p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 flex-1 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 flex-1 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                       <button 
                         type="button" 
                         onClick={handleAddCpMun}
-                        className="bg-stone-800 text-stone-200 hover:bg-stone-700 px-3.5 py-2 rounded-xl text-xs font-bold"
+                        className="bg-stone-800 text-stone-200 hover:bg-stone-700 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer"
                       >
                         Añadir C.P.
                       </button>
@@ -1428,7 +1429,7 @@ export default function SuperAdminDashboard() {
                                 value={nuevoFronton.nombre}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, nombre: e.target.value })}
                                 placeholder="ej. Frontón Municipal Uarkape"
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1439,7 +1440,7 @@ export default function SuperAdminDashboard() {
                                 value={nuevoFronton.largura}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, largura: e.target.value })}
                                 placeholder="ej. 36"
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1450,7 +1451,7 @@ export default function SuperAdminDashboard() {
                                 value={nuevoFronton.anchura}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, anchura: e.target.value })}
                                 placeholder="ej. 10"
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1460,7 +1461,7 @@ export default function SuperAdminDashboard() {
                                 type="time"
                                 value={nuevoFronton.hora_apertura}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_apertura: e.target.value })}
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1470,7 +1471,7 @@ export default function SuperAdminDashboard() {
                                 type="time"
                                 value={nuevoFronton.hora_cierre}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_cierre: e.target.value })}
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1482,7 +1483,7 @@ export default function SuperAdminDashboard() {
                                 step={15}
                                 value={nuevoFronton.duracion_slot_minutos}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, duracion_slot_minutos: Number(e.target.value) })}
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
 
@@ -1493,7 +1494,7 @@ export default function SuperAdminDashboard() {
                                 min={1}
                                 value={nuevoFronton.dias_antelacion_maxima}
                                 onChange={(e) => setNuevoFronton({ ...nuevoFronton, dias_antelacion_maxima: Number(e.target.value) })}
-                                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                               />
                             </div>
                           </div>
@@ -1581,7 +1582,7 @@ export default function SuperAdminDashboard() {
                                   value={nuevoFronton.hardware_token}
                                   onChange={(e) => setNuevoFronton({ ...nuevoFronton, hardware_token: e.target.value })}
                                   placeholder="esp32-xxxx..."
-                                  className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs font-mono text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                  className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                                 />
                               </div>
                             )}
@@ -1917,12 +1918,12 @@ export default function SuperAdminDashboard() {
                   placeholder="Buscar gestor por nombre o email..." 
                   value={busquedaGestor}
                   onChange={(e) => setBusquedaGestor(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-72 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-72 font-medium"
                 />
                 <select 
                   value={filtroMunicipioGestor} 
                   onChange={(e) => setFiltroMunicipioGestor(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
                 >
                   <option value="">Todos los municipios</option>
                   {municipios.map(m => (
@@ -1932,7 +1933,7 @@ export default function SuperAdminDashboard() {
                 <select 
                   value={filtroEstadoAprobacionGestor} 
                   onChange={(e) => setFiltroEstadoAprobacionGestor(e.target.value as any)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
                 >
                   <option value="todos">Todos los estados</option>
                   <option value="pendiente">🟡 Pendientes de Aprobación</option>
@@ -1990,7 +1991,7 @@ export default function SuperAdminDashboard() {
                         value={nuevoGestor.nombre}
                         onChange={(e) => setNuevoGestor({...nuevoGestor, nombre: e.target.value})}
                         placeholder="ej. Jon"
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                     </div>
                     <div>
@@ -2000,7 +2001,7 @@ export default function SuperAdminDashboard() {
                         value={nuevoGestor.apellidos}
                         onChange={(e) => setNuevoGestor({...nuevoGestor, apellidos: e.target.value})}
                         placeholder="ej. Pérez Gómez"
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                     </div>
                   </div>
@@ -2014,7 +2015,7 @@ export default function SuperAdminDashboard() {
                         value={nuevoGestor.email}
                         onChange={(e) => setNuevoGestor({...nuevoGestor, email: e.target.value})}
                         placeholder="ej. gestor.arrasate@ayto.es"
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                     </div>
                     <div>
@@ -2026,7 +2027,7 @@ export default function SuperAdminDashboard() {
                         value={nuevoGestor.password}
                         onChange={(e) => setNuevoGestor({...nuevoGestor, password: e.target.value})}
                         placeholder="Mínimo 6 caracteres"
-                        className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                        className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                       />
                     </div>
                   </div>
@@ -2036,7 +2037,7 @@ export default function SuperAdminDashboard() {
                     <select 
                       value={nuevoGestor.municipio_id}
                       onChange={(e) => setNuevoGestor({...nuevoGestor, municipio_id: e.target.value})}
-                      className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                      className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                     >
                       <option value="">Sin municipio asignado (Asignar más tarde)</option>
                       {municipios.map(m => (
@@ -2081,7 +2082,7 @@ export default function SuperAdminDashboard() {
                   <select 
                     value={municipioReasignadoId}
                     onChange={(e) => setMunicipioReasignadoId(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                    className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                   >
                     <option value="">Sin municipio asignado</option>
                     {municipios.map(m => (
@@ -2272,12 +2273,12 @@ export default function SuperAdminDashboard() {
                   placeholder="Buscar frontón o municipio..." 
                   value={busquedaFrontonIot}
                   onChange={(e) => setBusquedaFrontonIot(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-72 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 placeholder:text-stone-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-72 font-medium"
                 />
                 <select 
                   value={filtroMunicipioIot} 
                   onChange={(e) => setFiltroMunicipioIot(e.target.value)}
-                  className="p-2.5 bg-white border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
+                  className="p-2.5 bg-stone-900 border border-stone-800 rounded-2xl text-xs text-stone-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium"
                 >
                   <option value="">Todos los municipios</option>
                   {municipios.map(m => (
@@ -2413,7 +2414,7 @@ export default function SuperAdminDashboard() {
                     value={nuevaProvinciaNombre}
                     onChange={(e) => setNuevaProvinciaNombre(e.target.value)}
                     placeholder="ej. Gipuzkoa / Bizkaia / Araba / Navarra"
-                    className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                    className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
                   />
                 </div>
                 <button 
