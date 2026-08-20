@@ -203,22 +203,22 @@ export default function AjustesUsuarioPage() {
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2">
           <div 
             onClick={() => router.push('/reservas')}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
           >
-            <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm group-hover:bg-emerald-800 transition">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
               F
             </div>
-            <span className="text-2xl font-black text-stone-900 tracking-tight">
+            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
               Frontoiak
             </span>
           </div>
 
           <button 
             onClick={() => router.push('/reservas')}
-            className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-4 py-2 rounded-xl text-xs font-bold transition"
+            className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex-shrink-0 whitespace-nowrap"
           >
             ← Volver a Reservas
           </button>

@@ -57,43 +57,46 @@ export default function Home() {
     <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-2 sm:gap-4">
           <div 
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group flex-shrink-0"
           >
-            <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm group-hover:bg-emerald-800 transition">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
               F
             </div>
-            <span className="text-2xl font-black text-stone-900 tracking-tight">
+            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
               Frontoiak
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 justify-end">
             {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-stone-700 bg-stone-100 px-3 py-1.5 rounded-full border border-stone-200">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+                <span 
+                  className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[110px] xs:max-w-[150px] sm:max-w-[200px] md:max-w-xs"
+                  title={user.profile?.nombre_completo || user.email}
+                >
                   {user.profile?.nombre_completo || user.email}
                 </span>
                 <button 
                   onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-600 border border-rose-200 px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs"
+                  className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
                 >
                   Cerrar Sesión
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-sm font-bold text-stone-700 hover:text-emerald-700 px-4 py-2 rounded-xl transition"
+                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
                 >
                   Iniciar Sesión
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95"
+                  className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
                 >
                   Registrarse
                 </button>
