@@ -420,14 +420,14 @@ export default function AjustesUsuarioPage() {
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button 
                 onClick={handleVolver}
-                className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition flex-shrink-0 whitespace-nowrap"
+                className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex-shrink-0 whitespace-nowrap"
               >
                 {userRole === 'gestor_municipio' ? `← ${t.common.dashboard}` : `← ${t.common.reservations}`}
               </button>
 
               <button 
                 onClick={handleSignOut}
-                className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
+                className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap active:scale-95"
               >
                 {t.common.logout}
               </button>

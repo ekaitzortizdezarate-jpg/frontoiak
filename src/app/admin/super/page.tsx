@@ -1075,7 +1075,7 @@ export default function SuperAdminDashboard() {
               </button>
               <button 
                 onClick={handleSignOut}
-                className="bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition shadow-2xs whitespace-nowrap"
+                className="bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-2xs whitespace-nowrap active:scale-95"
               >
                 {t.common.logout}
               </button>

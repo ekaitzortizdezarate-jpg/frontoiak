@@ -225,6 +225,7 @@ export const eu = {
     postal_code: 'Posta Kodea',
     province: 'Probintzia',
     municipality: 'Udalerria',
+    select_postal_code: 'Hautatu posta kodea...',
     create_account: 'Kontua Sortu',
     creating_account: 'Kontua sortzen...',
     gestor_notice_title: 'ℹ️ Balioztatzearen mende dagoen erregistroa',

@@ -958,7 +958,7 @@ export default function PortalReservas() {
 
                 <button 
                   onClick={handleSignOut}
-                  className="bg-rose-50 text-rose-600 border border-rose-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap"
+                  className="bg-rose-50 text-rose-700 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition shadow-2xs whitespace-nowrap active:scale-95"
                 >
                   {t.common.logout}
                 </button>
@@ -967,13 +967,13 @@ export default function PortalReservas() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => router.push('/auth/login')}
-                  className="text-[11px] sm:text-xs font-bold text-stone-700 hover:text-emerald-700 px-2 py-1 rounded-lg transition whitespace-nowrap"
+                  className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-2.5 py-1.5 rounded-xl transition whitespace-nowrap"
                 >
                   {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
-                  className="bg-emerald-700 text-white px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
+                  className="bg-emerald-700 text-white px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap active:scale-95"
                 >
                   {t.common.register}
                 </button>

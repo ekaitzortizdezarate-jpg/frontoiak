@@ -225,6 +225,7 @@ export const es = {
     postal_code: 'Código Postal',
     province: 'Provincia',
     municipality: 'Población / Municipio',
+    select_postal_code: 'Selecciona código postal...',
     create_account: 'Crear Cuenta',
     creating_account: 'Creando cuenta...',
     gestor_notice_title: 'ℹ️ Registro sujeto a validación',

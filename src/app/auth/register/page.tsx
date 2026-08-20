@@ -15,23 +15,25 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nombre, setNombre] = useState('')
+  const [apellidos, setApellidos] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Campos de Ciudadano
-  const [apellidos, setApellidos] = useState('')
-  const [dni, setDni] = useState('')
-  const [calle, setCalle] = useState('')
-  const [fechaNacimiento, setFechaNacimiento] = useState('')
-  const [localidad, setLocalidad] = useState('')
-  const [codigoPostal, setCodigoPostal] = useState('')
-
-  // Campos de Gestor Municipal
+  // Campos de ubicación compartidos (BD)
   const [provincias, setProvincias] = useState<any[]>([])
   const [municipiosDisponibles, setMunicipiosDisponibles] = useState<any[]>([])
   const [selectedProvinciaId, setSelectedProvinciaId] = useState('')
   const [selectedMunicipioId, setSelectedMunicipioId] = useState('')
   const [codigosPostales, setCodigosPostales] = useState<string[]>([])
+  const [codigoPostal, setCodigoPostal] = useState('')
+  const [localidad, setLocalidad] = useState('')
+
+  // Campos específicos de Ciudadano
+  const [dni, setDni] = useState('')
+  const [calle, setCalle] = useState('')
+  const [fechaNacimiento, setFechaNacimiento] = useState('')
+
+  // Campos específicos de Gestor Municipal
   const [nuevoCp, setNuevoCp] = useState('')
 
   const router = useRouter()
@@ -48,6 +50,8 @@ export default function RegisterPage() {
   const handleProvinciaChange = async (provId: string) => {
     setSelectedProvinciaId(provId)
     setSelectedMunicipioId('')
+    setLocalidad('')
+    setCodigoPostal('')
     setCodigosPostales([])
 
     if (!provId) {
@@ -68,9 +72,18 @@ export default function RegisterPage() {
     setSelectedMunicipioId(munId)
     const mun = municipiosDisponibles.find(m => m.id === munId)
     if (mun) {
-      setCodigosPostales(mun.codigos_postales || [])
+      const cps = mun.codigos_postales || []
+      setCodigosPostales(cps)
+      setLocalidad(mun.nombre)
+      if (cps.length === 1) {
+        setCodigoPostal(cps[0])
+      } else if (!cps.includes(codigoPostal)) {
+        setCodigoPostal('')
+      }
     } else {
       setCodigosPostales([])
+      setLocalidad('')
+      setCodigoPostal('')
     }
   }
 
@@ -92,8 +105,8 @@ export default function RegisterPage() {
     setErrorMsg('')
 
     if (tipoCuenta === 'gestor_municipio') {
-      if (!selectedMunicipioId) {
-        setErrorMsg('Por favor selecciona una provincia y un municipio.')
+      if (!selectedProvinciaId || !selectedMunicipioId) {
+        setErrorMsg(t.reservas.select_province + ' / ' + t.reservas.select_municipality)
         setLoading(false)
         return
       }
@@ -148,21 +161,43 @@ export default function RegisterPage() {
       return
     }
 
-    // Registro como Ciudadano
+    // Registro como Ciudadano / Pelotari
+    if (!selectedProvinciaId) {
+      setErrorMsg(t.reservas.select_province || 'Por favor selecciona una provincia.')
+      setLoading(false)
+      return
+    }
+    if (!selectedMunicipioId) {
+      setErrorMsg(t.reservas.select_municipality || 'Por favor selecciona una población / municipio.')
+      setLoading(false)
+      return
+    }
+    if (!codigoPostal) {
+      setErrorMsg(t.auth.select_postal_code || 'Por favor selecciona o introduce un código postal.')
+      setLoading(false)
+      return
+    }
+
+    const mun = municipiosDisponibles.find(m => m.id === selectedMunicipioId)
+    const nombreMunicipio = mun?.nombre || localidad || ''
+    const nombreCompleto = apellidos ? `${nombre.trim()} ${apellidos.trim()}` : nombre.trim()
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reservas` : undefined,
         data: {
-          nombre_completo: nombre,
-          nombre: nombre,
-          apellidos,
-          dni,
-          calle,
+          nombre_completo: nombreCompleto,
+          nombre: nombre.trim(),
+          apellidos: apellidos ? apellidos.trim() : '',
+          dni: dni.trim(),
+          calle: calle.trim(),
           fecha_nacimiento: fechaNacimiento || null,
-          localidad,
-          codigo_postal: codigoPostal,
+          provincia_id: selectedProvinciaId,
+          municipio_id: selectedMunicipioId,
+          localidad: nombreMunicipio,
+          codigo_postal: codigoPostal.trim(),
           role: 'usuario'
         }
       }
@@ -179,14 +214,15 @@ export default function RegisterPage() {
         await supabase.from('profiles').upsert({
           id: authData.user.id,
           email,
-          nombre,
-          nombre_completo: nombre,
-          apellidos,
-          dni,
-          calle,
+          nombre: nombre.trim(),
+          nombre_completo: nombreCompleto,
+          apellidos: apellidos ? apellidos.trim() : '',
+          dni: dni.trim(),
+          calle: calle.trim(),
           fecha_nacimiento: fechaNacimiento || null,
-          localidad,
-          codigo_postal: codigoPostal,
+          municipio_id: selectedMunicipioId,
+          localidad: nombreMunicipio,
+          codigo_postal: codigoPostal.trim(),
           role: 'usuario'
         })
       }
@@ -222,7 +258,7 @@ export default function RegisterPage() {
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <Link 
               href="/auth/login"
-              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition shadow-2xs whitespace-nowrap"
+              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-2xs whitespace-nowrap active:scale-95"
             >
               {t.common.login}
             </Link>
@@ -350,7 +386,7 @@ export default function RegisterPage() {
                         onChange={(e) => handleMunicipioChange(e.target.value)}
                         required
                         disabled={!selectedProvinciaId}
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
                         <option value="">{t.reservas.select_municipality}</option>
                         {municipiosDisponibles.map(m => (
@@ -399,7 +435,7 @@ export default function RegisterPage() {
                             handleAddCp()
                           }
                         }}
-                        className="p-2.5 border border-stone-300 rounded-xl flex-1 text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                        className="p-2.5 border border-stone-300 rounded-xl flex-1 text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                       <button 
                         type="button" 
@@ -447,14 +483,14 @@ export default function RegisterPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                      className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300 cursor-pointer"
                     >
                       {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>
                   </div>
                 </>
               ) : (
-                /* FORMULARIO CIUDADANO */
+                /* FORMULARIO CIUDADANO / PELOTARI */
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -466,7 +502,7 @@ export default function RegisterPage() {
                         required
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        placeholder="Tu nombre"
+                        placeholder="ej. Mikel"
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
@@ -480,7 +516,7 @@ export default function RegisterPage() {
                         required
                         value={apellidos}
                         onChange={(e) => setApellidos(e.target.value)}
-                        placeholder="Tus apellidos"
+                        placeholder="ej. Larrañaga Agirre"
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
@@ -496,7 +532,7 @@ export default function RegisterPage() {
                         required
                         value={dni}
                         onChange={(e) => setDni(e.target.value)}
-                        placeholder="00000000X"
+                        placeholder="12345678Z"
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
@@ -528,33 +564,71 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* PROVINCIA, POBLACIÓN / MUNICIPIO, CÓDIGO POSTAL (ORDEN Y DESPLEGABLES IGUAL QUE GESTOR) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        {t.auth.city} *
+                        {t.auth.province} *
                       </label>
-                      <input
-                        type="text"
+                      <select
+                        value={selectedProvinciaId}
+                        onChange={(e) => handleProvinciaChange(e.target.value)}
                         required
-                        value={localidad}
-                        onChange={(e) => setLocalidad(e.target.value)}
-                        placeholder="ej. Donostia"
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
-                      />
+                      >
+                        <option value="">{t.reservas.select_province}</option>
+                        {provincias.map(p => (
+                          <option key={p.id} value={p.id}>{p.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                        {t.auth.municipality} *
+                      </label>
+                      <select
+                        value={selectedMunicipioId}
+                        onChange={(e) => handleMunicipioChange(e.target.value)}
+                        required
+                        disabled={!selectedProvinciaId}
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                      >
+                        <option value="">{t.reservas.select_municipality}</option>
+                        {municipiosDisponibles.map(m => (
+                          <option key={m.id} value={m.id}>{m.nombre}</option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
                         {t.auth.postal_code} *
                       </label>
-                      <input
-                        type="text"
-                        required
-                        value={codigoPostal}
-                        onChange={(e) => setCodigoPostal(e.target.value)}
-                        placeholder="ej. 20001"
-                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
-                      />
+                      {codigosPostales.length > 0 ? (
+                        <select
+                          value={codigoPostal}
+                          onChange={(e) => setCodigoPostal(e.target.value)}
+                          required
+                          disabled={!selectedMunicipioId}
+                          className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        >
+                          <option value="">{t.auth.select_postal_code}</option>
+                          {codigosPostales.map(cp => (
+                            <option key={cp} value={cp}>{cp}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          required
+                          disabled={!selectedMunicipioId}
+                          value={codigoPostal}
+                          onChange={(e) => setCodigoPostal(e.target.value)}
+                          placeholder="ej. 20001"
+                          className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white disabled:bg-stone-100 disabled:text-stone-400 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -570,7 +644,7 @@ export default function RegisterPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="correo@ejemplo.com"
+                        placeholder="mikel@adibidea.eus"
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       />
                     </div>
@@ -594,7 +668,7 @@ export default function RegisterPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
+                      className="w-full bg-emerald-700 text-white p-3.5 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300 cursor-pointer"
                     >
                       {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>

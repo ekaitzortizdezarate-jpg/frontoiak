@@ -39,16 +39,16 @@ export default function LanguageSelector({ variant = 'light' }: LanguageSelector
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs border ${
+        className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-extrabold transition shadow-2xs border ${
           isDark
             ? 'bg-stone-900 hover:bg-stone-800 text-stone-200 border-stone-800 hover:border-stone-700'
-            : 'bg-white hover:bg-stone-50 text-stone-800 border-stone-200 hover:border-stone-300'
+            : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
         }`}
         title="Aldatu hizkuntza / Cambiar idioma / Change language"
       >
-        <span className="text-sm leading-none">🌐</span>
-        <span className="font-extrabold tracking-wider">{currentLang.short}</span>
-        <span className="text-[9px] opacity-60">▾</span>
+        <span className="text-[11px] leading-none">🌐</span>
+        <span className="tracking-wider">{currentLang.short}</span>
+        <span className="text-[8px] opacity-60">▾</span>
       </button>
 
       {open && (
