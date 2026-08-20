@@ -97,14 +97,16 @@ export default function RegisterPage() {
       }
 
       // Registro como Gestor Municipal
+      const nombreCompleto = apellidos ? `${nombre.trim()} ${apellidos.trim()}` : nombre.trim()
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin/dashboard` : undefined,
           data: {
-            nombre_completo: nombre,
-            nombre: nombre,
+            nombre_completo: nombreCompleto,
+            nombre: nombre.trim(),
+            apellidos: apellidos ? apellidos.trim() : '',
             municipio_id: selectedMunicipioId,
             role: 'gestor_municipio'
           }
@@ -122,8 +124,9 @@ export default function RegisterPage() {
           await supabase.from('profiles').upsert({
             id: authData.user.id,
             email,
-            nombre,
-            nombre_completo: nombre,
+            nombre: nombre.trim(),
+            apellidos: apellidos ? apellidos.trim() : '',
+            nombre_completo: nombreCompleto,
             municipio_id: selectedMunicipioId,
             role: 'gestor_municipio'
           })
@@ -275,18 +278,32 @@ export default function RegisterPage() {
               {tipoCuenta === 'gestor_municipio' ? (
                 /* FORMULARIO GESTOR MUNICIPAL */
                 <>
-                  <div>
-                    <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                      Nombre del Gestor / Responsable *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
-                      placeholder="ej. Ayuntamiento de Arrasate / Jon Gestor"
-                      className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                        Nombre del Gestor *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        placeholder="ej. Jon"
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                        Apellidos del Gestor
+                      </label>
+                      <input
+                        type="text"
+                        value={apellidos}
+                        onChange={(e) => setApellidos(e.target.value)}
+                        placeholder="ej. Pérez Gómez"
+                        className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

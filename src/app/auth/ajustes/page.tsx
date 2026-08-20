@@ -32,6 +32,9 @@ export default function AjustesUsuarioPage() {
   const [nuevoCp, setNuevoCp] = useState('')
   const [nombreMunicipioActual, setNombreMunicipioActual] = useState('')
   const [nombreProvinciaActual, setNombreProvinciaActual] = useState('')
+  const [imagenMunicipioUrl, setImagenMunicipioUrl] = useState('')
+  const [archivoImagenMunicipio, setArchivoImagenMunicipio] = useState<File | null>(null)
+  const [uploadingImageMunicipio, setUploadingImageMunicipio] = useState(false)
 
   // Seguridad
   const [passwordActual, setPasswordActual] = useState('')
@@ -87,6 +90,8 @@ export default function AjustesUsuarioPage() {
       setSelectedProvinciaId(mun.provincia_id || '')
       setCodigosPostales(mun.codigos_postales || [])
       setNombreMunicipioActual(mun.nombre || '')
+      setImagenMunicipioUrl(mun.imagen_url || '')
+      setArchivoImagenMunicipio(null)
 
       const prov = (provData || []).find((p: any) => p.id === mun.provincia_id)
       setNombreProvinciaActual(prov ? prov.nombre : '')
@@ -106,6 +111,8 @@ export default function AjustesUsuarioPage() {
       setCodigosPostales([])
       setNombreMunicipioActual('Sin municipio configurado')
       setNombreProvinciaActual('')
+      setImagenMunicipioUrl('')
+      setArchivoImagenMunicipio(null)
     }
 
     setLoading(false)
@@ -154,6 +161,36 @@ export default function AjustesUsuarioPage() {
     setCodigosPostales(codigosPostales.filter(cp => cp !== cpToRemove))
   }
 
+  const subirImagenMunicipio = async (): Promise<string | null> => {
+    if (!archivoImagenMunicipio) return imagenMunicipioUrl || null
+
+    try {
+      setUploadingImageMunicipio(true)
+      const extension = archivoImagenMunicipio.name.split('.').pop()
+      const nombreArchivo = `municipio-${selectedMunicipioId || user.id}-${Date.now()}.${extension}`
+
+      const { data, error } = await supabase.storage
+        .from('frontones-fotos')
+        .upload(nombreArchivo, archivoImagenMunicipio)
+
+      if (error) {
+        alert('Error al subir imagen del municipio: ' + error.message)
+        return imagenMunicipioUrl || null
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('frontones-fotos')
+        .getPublicUrl(data.path)
+
+      return publicUrlData.publicUrl
+    } catch (err) {
+      console.error(err)
+      return imagenMunicipioUrl || null
+    } finally {
+      setUploadingImageMunicipio(false)
+    }
+  }
+
   const handleGuardarPerfil = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
@@ -161,6 +198,8 @@ export default function AjustesUsuarioPage() {
     const nombreLimpio = (nombre && nombre.trim().length > 0)
       ? nombre.trim()
       : (user?.profile?.nombre || user?.user_metadata?.nombre || user?.user_metadata?.nombre_completo || (user.email ? user.email.split('@')[0] : 'Usuario'))
+
+    const nombreCompleto = apellidos && apellidos.trim() ? `${nombreLimpio} ${apellidos.trim()}` : nombreLimpio
 
     setGuardando(true)
 
@@ -172,7 +211,8 @@ export default function AjustesUsuarioPage() {
           id: user.id,
           email: email || user.email,
           nombre: nombreLimpio,
-          nombre_completo: nombreLimpio,
+          apellidos: apellidos ? apellidos.trim() : '',
+          nombre_completo: nombreCompleto,
           municipio_id: selectedMunicipioId || null,
           role: 'gestor_municipio'
         })
@@ -183,24 +223,38 @@ export default function AjustesUsuarioPage() {
         return
       }
 
-      // 2. Actualizar códigos postales en la tabla de municipios si hay un municipio seleccionado
+      // 2. Subir imagen si se seleccionó archivo nuevo
+      let finalImageUrl = imagenMunicipioUrl
+      if (archivoImagenMunicipio) {
+        const subida = await subirImagenMunicipio()
+        if (subida) finalImageUrl = subida
+      }
+
+      // 3. Actualizar códigos postales e imagen en la tabla de municipios si hay un municipio seleccionado
       if (selectedMunicipioId) {
         const { error: munError } = await supabase
           .from('municipios')
-          .update({ codigos_postales: codigosPostales })
+          .update({ 
+            codigos_postales: codigosPostales,
+            imagen_url: finalImageUrl || null
+          })
           .eq('id', selectedMunicipioId)
 
         if (munError) {
-          console.warn('No se pudieron actualizar los códigos postales del municipio:', munError)
+          console.warn('Aviso al actualizar datos del municipio:', munError)
+          if (munError.message?.includes('column') || munError.code === 'PGRST204') {
+            await supabase.from('municipios').update({ codigos_postales: codigosPostales }).eq('id', selectedMunicipioId)
+          }
         }
       }
 
-      // 3. Sincronizar metadatos en Auth
+      // 4. Sincronizar metadatos en Auth
       try {
         await supabase.auth.updateUser({
           data: {
             nombre: nombreLimpio,
-            nombre_completo: nombreLimpio,
+            apellidos: apellidos ? apellidos.trim() : '',
+            nombre_completo: nombreCompleto,
             municipio_id: selectedMunicipioId || null,
             role: 'gestor_municipio'
           }
@@ -212,6 +266,7 @@ export default function AjustesUsuarioPage() {
       alert('¡Ajustes de gestor municipal actualizados correctamente!')
       setEditandoPerfil(false)
       setGuardando(false)
+      setArchivoImagenMunicipio(null)
       cargarDatosUsuario()
       return
     }
@@ -390,19 +445,66 @@ export default function AjustesUsuarioPage() {
             </div>
 
             <form onSubmit={handleGuardarPerfil} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    Nombre del Gestor *
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={nombre} 
+                    onChange={(e) => setNombre(e.target.value)} 
+                    disabled={!editandoPerfil}
+                    placeholder="ej. Jon"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
+                    Apellidos del Gestor
+                  </label>
+                  <input 
+                    type="text" 
+                    value={apellidos} 
+                    onChange={(e) => setApellidos(e.target.value)} 
+                    disabled={!editandoPerfil}
+                    placeholder="ej. Pérez Gómez"
+                    className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Nombre del Gestor / Responsable *
+                  Imagen / Escudo del Municipio (Opcional)
                 </label>
-                <input 
-                  type="text" 
-                  required
-                  value={nombre} 
-                  onChange={(e) => setNombre(e.target.value)} 
-                  disabled={!editandoPerfil}
-                  placeholder="ej. Ayuntamiento de Arrasate / Jon Gestor"
-                  className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 disabled:text-stone-800 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
-                />
+                {imagenMunicipioUrl && !archivoImagenMunicipio && (
+                  <div className="flex items-center gap-3 mb-2">
+                    <img src={imagenMunicipioUrl} alt="Escudo/Imagen del municipio" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs" />
+                    {editandoPerfil && (
+                      <button 
+                        type="button" 
+                        onClick={() => setImagenMunicipioUrl('')} 
+                        className="text-xs text-rose-600 hover:text-rose-800 font-bold"
+                      >
+                        Quitar imagen
+                      </button>
+                    )}
+                  </div>
+                )}
+                {editandoPerfil && (
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setArchivoImagenMunicipio(e.target.files[0])
+                      }
+                    }}
+                    className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 transition cursor-pointer"
+                  />
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

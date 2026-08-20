@@ -27,6 +27,9 @@ export default function AdminDashboard() {
   const [codigosPostales, setCodigosPostales] = useState<string[]>([])
   const [nuevoCp, setNuevoCp] = useState('')
   const [editandoAjustes, setEditandoAjustes] = useState(false)
+  const [imagenMunicipioUrl, setImagenMunicipioUrl] = useState('')
+  const [archivoImagenMunicipio, setArchivoImagenMunicipio] = useState<File | null>(null)
+  const [uploadingImageMunicipio, setUploadingImageMunicipio] = useState(false)
 
   // Frontones
   const [frontones, setFrontones] = useState<any[]>([])
@@ -163,6 +166,8 @@ export default function AdminDashboard() {
       setSelectedMunicipioId(profile.municipios.id)
       setSelectedProvinciaId(profile.municipios.provincia_id || '')
       setCodigosPostales(profile.municipios.codigos_postales || [])
+      setImagenMunicipioUrl(profile.municipios.imagen_url || '')
+      setArchivoImagenMunicipio(null)
       setEditandoAjustes(false)
 
       if (profile.municipios.provincia_id) {
@@ -188,6 +193,8 @@ export default function AdminDashboard() {
       cargarIncidencias(profile.municipios.id)
       cargarCiudadanos(profile.municipios.nombre, profile.municipios.codigos_postales || [])
     } else {
+      setImagenMunicipioUrl('')
+      setArchivoImagenMunicipio(null)
       setEditandoAjustes(true)
     }
     setLoading(false)
@@ -482,15 +489,69 @@ export default function AdminDashboard() {
     setCodigosPostales(codigosPostales.filter(cp => cp !== cpToRemove))
   }
 
+  const subirImagenMunicipio = async (): Promise<string | null> => {
+    if (!archivoImagenMunicipio) return imagenMunicipioUrl || null
+
+    try {
+      setUploadingImageMunicipio(true)
+      const extension = archivoImagenMunicipio.name.split('.').pop()
+      const nombreArchivo = `municipio-${selectedMunicipioId || userProfile.id}-${Date.now()}.${extension}`
+
+      const { data, error } = await supabase.storage
+        .from('frontones-fotos')
+        .upload(nombreArchivo, archivoImagenMunicipio)
+
+      if (error) {
+        alert('Error al subir imagen del municipio: ' + error.message)
+        return imagenMunicipioUrl || null
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('frontones-fotos')
+        .getPublicUrl(data.path)
+
+      return publicUrlData.publicUrl
+    } catch (err) {
+      console.error(err)
+      return imagenMunicipioUrl || null
+    } finally {
+      setUploadingImageMunicipio(false)
+    }
+  }
+
   const handleSaveAjustes = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedMunicipioId) return
 
-    await supabase.from('municipios').update({ codigos_postales: codigosPostales }).eq('id', selectedMunicipioId)
+    let finalImageUrl = imagenMunicipioUrl
+    if (archivoImagenMunicipio) {
+      const subida = await subirImagenMunicipio()
+      if (subida) finalImageUrl = subida
+    }
+
+    const { error: munError } = await supabase
+      .from('municipios')
+      .update({ 
+        codigos_postales: codigosPostales,
+        imagen_url: finalImageUrl || null
+      })
+      .eq('id', selectedMunicipioId)
+
+    if (munError) {
+      console.warn('Aviso al guardar municipio:', munError)
+      if (munError.message?.includes('column') || munError.code === 'PGRST204') {
+        await supabase.from('municipios').update({ codigos_postales: codigosPostales }).eq('id', selectedMunicipioId)
+      } else {
+        alert('Error al guardar datos de la población: ' + munError.message)
+        return
+      }
+    }
+
     await supabase.from('profiles').update({ municipio_id: selectedMunicipioId }).eq('id', userProfile.id)
     alert('Datos de población guardados correctamente.')
+    setArchivoImagenMunicipio(null)
     setEditandoAjustes(false)
-    loadInitialData()
+    await loadInitialData()
   }
 
   const subirImagenFronton = async (): Promise<string | null> => {
@@ -1034,11 +1095,20 @@ export default function AdminDashboard() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8 space-y-6">
         <div className="flex justify-between items-center border-b border-stone-200 pb-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Área de Gestión Municipal</span>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
-              {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : 'Panel de Gestión'}
-            </h1>
+          <div className="flex items-center gap-4">
+            {(userProfile?.municipios?.imagen_url || imagenMunicipioUrl) && (
+              <img 
+                src={userProfile?.municipios?.imagen_url || imagenMunicipioUrl} 
+                alt="Escudo/Imagen del municipio" 
+                className="w-14 h-14 object-cover rounded-2xl border border-stone-200 shadow-sm"
+              />
+            )}
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Área de Gestión Municipal</span>
+              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-0.5">
+                {userProfile?.municipios?.nombre ? `Ayuntamiento de ${userProfile.municipios.nombre}` : 'Panel de Gestión'}
+              </h1>
+            </div>
           </div>
         </div>
 
@@ -2206,6 +2276,20 @@ export default function AdminDashboard() {
 
             {puebloConfigurado && !editandoAjustes ? (
               <div className="space-y-4 bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                {imagenMunicipioUrl && (
+                  <div className="flex items-center gap-4 border-b border-stone-200 pb-4">
+                    <img 
+                      src={imagenMunicipioUrl} 
+                      alt="Imagen del municipio" 
+                      className="w-20 h-20 object-cover rounded-2xl border border-stone-200 shadow-2xs"
+                    />
+                    <div>
+                      <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Imagen / Escudo Municipal</span>
+                      <p className="text-xs text-stone-600 font-medium mt-0.5">Imagen configurada para el municipio</p>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <span className="block text-xs font-bold text-stone-400 uppercase tracking-wider">Provincia</span>
                   <p className="text-base font-bold text-stone-800 mt-0.5">{nombreProvinciaActual}</p>
@@ -2229,6 +2313,34 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <form onSubmit={handleSaveAjustes} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-600 uppercase mb-1">
+                    Imagen / Escudo de la Población (Opcional)
+                  </label>
+                  {imagenMunicipioUrl && !archivoImagenMunicipio && (
+                    <div className="flex items-center gap-3 mb-2">
+                      <img src={imagenMunicipioUrl} alt="Escudo/Imagen del municipio" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 shadow-2xs" />
+                      <button 
+                        type="button" 
+                        onClick={() => setImagenMunicipioUrl('')} 
+                        className="text-xs text-rose-600 hover:text-rose-800 font-bold"
+                      >
+                        Quitar imagen actual
+                      </button>
+                    </div>
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setArchivoImagenMunicipio(e.target.files[0])
+                      }
+                    }}
+                    className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100 transition cursor-pointer"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-xs font-bold text-stone-600 uppercase mb-1">Provincia</label>
                   <select 
