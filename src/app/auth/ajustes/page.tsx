@@ -51,37 +51,41 @@ export default function AjustesUsuarioPage() {
       .eq('id', user.id)
       .single()
 
-    // 2. Si la tabla profiles tiene datos, los usamos
-    if (profile && (profile.nombre_completo || profile.dni)) {
-      setNombre(profile.nombre_completo || '')
-      setApellidos(profile.apellidos || '')
-      setDni(profile.dni || '')
-      setCalle(profile.calle || '')
-      setFechaNacimiento(profile.fecha_nacimiento || '')
-      setLocalidad(profile.localidad || '')
-      setCodigoPostal(profile.codigo_postal || '')
-    } else {
-      // 3. Respaldo: Si profiles está vacío, leemos directamente de los metadatos de autenticación del registro
-      const meta = user.user_metadata || {}
-      setNombre(meta.nombre_completo || '')
-      setApellidos(meta.apellidos || '')
-      setDni(meta.dni || '')
-      setCalle(meta.calle || '')
-      setFechaNacimiento(meta.fecha_nacimiento || '')
-      setLocalidad(meta.localidad || '')
-      setCodigoPostal(meta.codigo_postal || '')
+    const meta = user.user_metadata || {}
 
-      // Opcional: sincronizamos la tabla profiles de paso para que quede arreglada
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        nombre_completo: meta.nombre_completo || '',
-        apellidos: meta.apellidos || '',
-        dni: meta.dni || '',
-        calle: meta.calle || '',
-        fecha_nacimiento: meta.fecha_nacimiento || null,
-        localidad: meta.localidad || '',
-        codigo_postal: meta.codigo_postal || ''
-      })
+    // Combinamos datos de la tabla profiles y de user_metadata como respaldo seguro
+    const nombreVal = profile?.nombre_completo || profile?.nombre || meta.nombre_completo || meta.nombre || meta.full_name || ''
+    const apellidosVal = profile?.apellidos || meta.apellidos || ''
+    const dniVal = profile?.dni || meta.dni || ''
+    const calleVal = profile?.calle || meta.calle || ''
+    const fechaNacVal = profile?.fecha_nacimiento || meta.fecha_nacimiento || ''
+    const localidadVal = profile?.localidad || meta.localidad || ''
+    const cpVal = profile?.codigo_postal || meta.codigo_postal || ''
+
+    setNombre(nombreVal)
+    setApellidos(apellidosVal)
+    setDni(dniVal)
+    setCalle(calleVal)
+    setFechaNacimiento(fechaNacVal)
+    setLocalidad(localidadVal)
+    setCodigoPostal(cpVal)
+
+    // Si la tabla profiles no existía o estaba incompleta, la sincronizamos para que quede persistida en BD
+    if (!profile || !profile.nombre_completo || !profile.dni || !profile.localidad) {
+      if (nombreVal || apellidosVal || dniVal || localidadVal || cpVal) {
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email || '',
+          nombre_completo: nombreVal,
+          apellidos: apellidosVal,
+          dni: dniVal,
+          calle: calleVal,
+          fecha_nacimiento: fechaNacVal || null,
+          localidad: localidadVal,
+          codigo_postal: cpVal,
+          role: profile?.role || meta.role || 'usuario'
+        })
+      }
     }
 
     setLoading(false)
@@ -93,10 +97,12 @@ export default function AjustesUsuarioPage() {
 
     setGuardando(true)
 
+    // 1. Guardamos en la base de datos (tabla profiles)
     const { error } = await supabase
       .from('profiles')
       .upsert({
         id: user.id,
+        email: email || user.email,
         nombre_completo: nombre,
         apellidos,
         dni,
@@ -108,11 +114,26 @@ export default function AjustesUsuarioPage() {
 
     if (error) {
       alert('Error al actualizar el perfil: ' + error.message)
-    } else {
-      alert('¡Datos actualizados correctamente!')
-      setEditandoPerfil(false)
+      setGuardando(false)
+      return
     }
 
+    // 2. Sincronizamos también los metadatos de autenticación en Supabase Auth
+    await supabase.auth.updateUser({
+      data: {
+        nombre_completo: nombre,
+        nombre: nombre,
+        apellidos,
+        dni,
+        calle,
+        fecha_nacimiento: fechaNacimiento || null,
+        localidad,
+        codigo_postal: codigoPostal
+      }
+    })
+
+    alert('¡Datos actualizados correctamente!')
+    setEditandoPerfil(false)
     setGuardando(false)
   }
 

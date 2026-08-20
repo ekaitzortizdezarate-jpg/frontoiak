@@ -26,17 +26,18 @@ export default function RegisterPage() {
     setLoading(true)
     setErrorMsg('')
 
-    // Enviamos todos los datos dentro de options.data para que el Trigger de Supabase cree la fila en profiles automáticamente
+    // Enviamos todos los datos dentro de options.data para que queden en Auth y en el Trigger si existe
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           nombre_completo: nombre,
+          nombre: nombre,
           apellidos,
           dni,
           calle,
-          fecha_nacimiento: fechaNacimiento || '',
+          fecha_nacimiento: fechaNacimiento || null,
           localidad,
           codigo_postal: codigoPostal,
           role: 'usuario'
@@ -51,6 +52,22 @@ export default function RegisterPage() {
     }
 
     if (authData.user) {
+      // Si la sesión está activa de inmediato (sin confirmación de email requerida), guardamos directamente en profiles
+      if (authData.session) {
+        await supabase.from('profiles').upsert({
+          id: authData.user.id,
+          email,
+          nombre_completo: nombre,
+          apellidos,
+          dni,
+          calle,
+          fecha_nacimiento: fechaNacimiento || null,
+          localidad,
+          codigo_postal: codigoPostal,
+          role: 'usuario'
+        })
+      }
+
       alert('¡Registro completado con éxito! Ya puedes iniciar sesión.')
       router.push('/reservas')
     }

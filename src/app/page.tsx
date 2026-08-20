@@ -22,7 +22,19 @@ export default function Home() {
         .select('*')
         .eq('id', user.id)
         .single()
-      setUser({ ...user, profile })
+      const meta = user.user_metadata || {}
+      const finalProfile = profile ? {
+        ...profile,
+        nombre_completo: profile.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+        apellidos: profile.apellidos || meta.apellidos || '',
+        role: profile.role || meta.role || 'usuario'
+      } : {
+        nombre_completo: meta.nombre_completo || meta.nombre || meta.full_name || '',
+        apellidos: meta.apellidos || '',
+        role: meta.role || 'usuario',
+        email: user.email
+      }
+      setUser({ ...user, profile: finalProfile })
     }
     setLoading(false)
   }

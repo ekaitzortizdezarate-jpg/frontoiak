@@ -33,18 +33,36 @@ export default function LoginPage() {
 
     const user = authData.user
 
-    // 2. Consultar el rol del usuario en la tabla 'profiles'
+    // 2. Consultar el perfil del usuario en la tabla 'profiles'
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('role')
+      .select('*')
       .eq('id', user.id)
       .single()
+
+    let userRole = profileData?.role
+
+    // Si el perfil no existe o no tiene datos, lo creamos/sincronizamos desde los metadatos de Auth
+    if (!profileData || !profileData.nombre_completo) {
+      const meta = user.user_metadata || {}
+      userRole = profileData?.role || meta.role || 'usuario'
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        nombre_completo: profileData?.nombre_completo || meta.nombre_completo || meta.nombre || meta.full_name || '',
+        apellidos: profileData?.apellidos || meta.apellidos || '',
+        dni: profileData?.dni || meta.dni || '',
+        calle: profileData?.calle || meta.calle || '',
+        fecha_nacimiento: profileData?.fecha_nacimiento || meta.fecha_nacimiento || null,
+        localidad: profileData?.localidad || meta.localidad || '',
+        codigo_postal: profileData?.codigo_postal || meta.codigo_postal || '',
+        role: userRole
+      })
+    }
 
     setLoading(false)
 
     // 3. Redirigir según el rol
-    const userRole = profileData?.role
-
     if (userRole === 'gestor_municipio' || userRole === 'admin') {
       router.push('/admin/dashboard')
     } else {
