@@ -1,14 +1,16 @@
-// src/app/admin/dashboard/page.tsx
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'gestion' | 'frontones' | 'incidencias' | 'ciudadanos' | 'ajustes'>('gestion')
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
+  const { t } = useLanguage()
 
   // Refs para scroll
   const calendarioCompletoRef = useRef<HTMLDivElement>(null)
@@ -1222,7 +1224,9 @@ export default function AdminDashboard() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0 justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+            <LanguageSelector variant="light" />
+
             {userProfile ? (
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
                 {userProfile.role === 'admin' && (
@@ -1231,14 +1235,14 @@ export default function AdminDashboard() {
                     className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
                     title="Ir a la Consola Central Superadmin"
                   >
-                    👑 Superadmin
+                    👑 {t.common.superadmin}
                   </button>
                 )}
 
                 {/* BOTÓN DE ACCESO A AJUSTES DE GESTOR EN EL NOMBRE */}
                 <button 
                   onClick={() => router.push('/auth/ajustes')}
-                  title={`Ir a Ajustes (${userProfile.nombre_completo || userProfile.email})`}
+                  title={`${t.common.settings} (${userProfile.nombre_completo || userProfile.email})`}
                   className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
                 >
                   {userProfile.nombre_completo || userProfile.email} {userProfile.role === 'admin' ? '(Admin)' : '(Gestor)'}
@@ -1248,7 +1252,7 @@ export default function AdminDashboard() {
                   onClick={handleSignOut}
                   className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
                 >
-                  Cerrar Sesión
+                  {t.common.logout}
                 </button>
               </div>
             ) : (
@@ -1257,13 +1261,13 @@ export default function AdminDashboard() {
                   onClick={() => router.push('/auth/login')}
                   className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
                 >
-                  Iniciar Sesión
+                  {t.common.login}
                 </button>
                 <button 
-                  onClick={() => router.push('/auth/login')}
+                  onClick={() => router.push('/auth/register')}
                   className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
                 >
-                  Registrarse
+                  {t.common.register}
                 </button>
               </div>
             )}

@@ -1,12 +1,14 @@
-// src/app/reservas/page.tsx
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function PortalReservas() {
   const [user, setUser] = useState<any>(null)
+  const { t } = useLanguage()
   const [provincias, setProvincias] = useState<any[]>([])
   const [municipios, setMunicipios] = useState<any[]>([])
   const [frontones, setFrontones] = useState<any[]>([])
@@ -879,7 +881,7 @@ export default function PortalReservas() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 text-emerald-800 font-medium">
-        Cargando portal de reservas...
+        {t.common.loading}
       </div>
     )
   }
@@ -907,7 +909,9 @@ export default function PortalReservas() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0 justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+            <LanguageSelector variant="light" />
+
             {user ? (
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
                 {user.profile?.role === 'admin' && (
@@ -916,7 +920,7 @@ export default function PortalReservas() {
                     className="bg-stone-900 text-amber-300 border border-amber-400/40 hover:bg-stone-800 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
                     title="Ir a la Consola Central Superadmin"
                   >
-                    👑 Superadmin
+                    👑 {t.common.superadmin}
                   </button>
                 )}
 
@@ -926,14 +930,14 @@ export default function PortalReservas() {
                     className="bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 flex-shrink-0"
                     title="Ir al Panel de Gestión Municipal"
                   >
-                    🏛️ Panel Gestor
+                    🏛️ {t.common.dashboard}
                   </button>
                 )}
 
                 {/* BOTÓN DE ACCESO A AJUSTES DE USUARIO EN EL NOMBRE */}
                 <button 
                   onClick={() => router.push('/auth/ajustes')}
-                  title={`Ir a Ajustes (${user.profile?.nombre_completo || user.email})`}
+                  title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
                   className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
                 >
                   {user.profile?.nombre_completo || user.email} {user.profile?.role === 'admin' ? '(Admin)' : user.profile?.role === 'gestor_municipio' ? '(Gestor)' : ''}
@@ -943,7 +947,7 @@ export default function PortalReservas() {
                   onClick={handleSignOut}
                   className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
                 >
-                  Cerrar Sesión
+                  {t.common.logout}
                 </button>
               </div>
             ) : (
@@ -952,13 +956,13 @@ export default function PortalReservas() {
                   onClick={() => router.push('/auth/login')}
                   className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
                 >
-                  Iniciar Sesión
+                  {t.common.login}
                 </button>
                 <button 
-                  onClick={() => router.push('/auth/login')}
+                  onClick={() => router.push('/auth/register')}
                   className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm whitespace-nowrap"
                 >
-                  Registrarse
+                  {t.common.register}
                 </button>
               </div>
             )}

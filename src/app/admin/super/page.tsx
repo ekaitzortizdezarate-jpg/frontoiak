@@ -1,10 +1,11 @@
-// src/app/admin/super/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 // Cliente aislado de Supabase sin persistencia de sesión para crear nuevos usuarios sin alterar la sesión del Superadmin
 const authSignUpClient = createClient(
@@ -23,6 +24,7 @@ export default function SuperAdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'municipios' | 'gestores' | 'iot' | 'provincias'>('municipios')
+  const { t } = useLanguage()
 
   // Datos globales
   const [municipios, setMunicipios] = useState<any[]>([])
@@ -1020,7 +1022,7 @@ export default function SuperAdminDashboard() {
       <div className="min-h-screen bg-stone-900 text-stone-100 flex items-center justify-center font-medium">
         <div className="flex items-center gap-3">
           <span className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
-          Cargando Consola Superadmin...
+          {t.common.loading}
         </div>
       </div>
     )
@@ -1043,30 +1045,32 @@ export default function SuperAdminDashboard() {
                   Superadmin
                 </span>
               </div>
-              <p className="text-xs text-stone-400">Consola Central de Gestión y Control Global</p>
+              <p className="text-xs text-stone-400">{t.superadmin.title}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageSelector variant="dark" />
+
             <button 
               onClick={() => router.push('/admin/dashboard')}
               className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
               title="Ir al panel de gestión municipal local"
             >
-              🏛️ Panel Municipal
+              🏛️ {t.common.dashboard}
             </button>
             <button 
               onClick={() => router.push('/reservas')}
               className="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
               title="Ir a la app de reservas de usuarios"
             >
-              🎾 Vista Ciudadana
+              🎾 {t.common.reservations}
             </button>
             <button 
               onClick={handleSignOut}
               className="bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
             >
-              Cerrar Sesión
+              {t.common.logout}
             </button>
           </div>
         </div>

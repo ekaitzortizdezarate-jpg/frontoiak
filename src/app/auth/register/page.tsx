@@ -1,13 +1,15 @@
-// src/app/auth/register/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function RegisterPage() {
   const [tipoCuenta, setTipoCuenta] = useState<'usuario' | 'gestor_municipio'>('usuario')
+  const { t } = useLanguage()
   
   // Campos comunes
   const [email, setEmail] = useState('')
@@ -200,26 +202,26 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
       {/* HEADER */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-3">
           <div 
             onClick={() => router.push('/')}
             className="flex items-center gap-2 cursor-pointer group"
           >
-            <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm group-hover:bg-emerald-800 transition">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
               F
             </div>
-            <span className="text-2xl font-black text-stone-900 tracking-tight">
+            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
               Frontoiak
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-stone-500 hidden sm:inline">¿Ya tienes cuenta?</span>
+          <div className="flex items-center gap-3">
+            <LanguageSelector variant="light" />
             <Link 
               href="/auth/login"
-              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-4 py-2 rounded-xl text-xs font-bold transition"
+              className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap"
             >
-              Iniciar Sesión
+              {t.common.login}
             </Link>
           </div>
         </div>
@@ -229,10 +231,10 @@ export default function RegisterPage() {
       <main className="flex-1 flex flex-col justify-center py-10 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-xl px-4">
           <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">
-            Crear nueva cuenta
+            {t.auth.register_title}
           </h2>
           <p className="mt-1 text-center text-xs text-stone-500">
-            Selecciona si eres un ciudadano o un gestor municipal para acceder a la plataforma.
+            {t.auth.register_subtitle}
           </p>
 
           {/* SELECTOR DE TIPO DE CUENTA */}
@@ -249,7 +251,7 @@ export default function RegisterPage() {
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span>👤 Pelotari / Usuario</span>
+              <span>{t.auth.tab_user}</span>
             </button>
             <button
               type="button"
@@ -263,7 +265,7 @@ export default function RegisterPage() {
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span>🏛️ Gestor Municipal</span>
+              <span>{t.auth.tab_gestor}</span>
             </button>
           </div>
         </div>
@@ -281,16 +283,16 @@ export default function RegisterPage() {
                 /* FORMULARIO GESTOR MUNICIPAL */
                 <>
                   <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs space-y-1">
-                    <span className="font-bold flex items-center gap-1.5">ℹ️ Registro sujeto a validación</span>
+                    <span className="font-bold flex items-center gap-1.5">{t.auth.gestor_notice_title}</span>
                     <p className="text-[11px] text-amber-800 leading-relaxed">
-                      Al registrarte como Gestor Municipal, tu solicitud será revisada y validada por el Administrador de la plataforma antes de otorgar acceso al panel de gestión del municipio.
+                      {t.auth.gestor_notice_desc}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Nombre del Gestor *
+                        {t.auth.name} *
                       </label>
                       <input
                         type="text"
@@ -303,7 +305,7 @@ export default function RegisterPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Apellidos del Gestor
+                        {t.auth.last_name}
                       </label>
                       <input
                         type="text"
@@ -318,7 +320,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Provincia *
+                        {t.auth.province} *
                       </label>
                       <select
                         value={selectedProvinciaId}
@@ -326,7 +328,7 @@ export default function RegisterPage() {
                         required
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-white text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-600 focus:outline-none transition font-medium"
                       >
-                        <option value="">Selecciona provincia...</option>
+                        <option value="">{t.reservas.select_province}</option>
                         {provincias.map(p => (
                           <option key={p.id} value={p.id}>{p.nombre}</option>
                         ))}
@@ -335,7 +337,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Población / Municipio *
+                        {t.auth.municipality} *
                       </label>
                       <select
                         value={selectedMunicipioId}
@@ -344,7 +346,7 @@ export default function RegisterPage() {
                         disabled={!selectedProvinciaId}
                         className="w-full p-3 border border-stone-300 rounded-2xl text-sm bg-stone-50 disabled:bg-stone-100 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-none transition"
                       >
-                        <option value="">Selecciona pueblo / municipio...</option>
+                        <option value="">{t.reservas.select_municipality}</option>
                         {municipiosDisponibles.map(m => (
                           <option key={m.id} value={m.id}>{m.nombre}</option>
                         ))}
@@ -408,7 +410,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Correo Electrónico de Contacto *
+                        {t.auth.email} *
                       </label>
                       <input
                         type="email"
@@ -422,7 +424,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Contraseña *
+                        {t.auth.password} *
                       </label>
                       <input
                         type="password"
@@ -441,7 +443,7 @@ export default function RegisterPage() {
                       disabled={loading}
                       className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
                     >
-                      {loading ? 'Registrando gestor...' : 'Completar Registro de Gestor'}
+                      {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>
                   </div>
                 </>
@@ -451,7 +453,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Nombre *
+                        {t.auth.name} *
                       </label>
                       <input
                         type="text"
@@ -465,7 +467,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Apellidos *
+                        {t.auth.last_name} *
                       </label>
                       <input
                         type="text"
@@ -481,7 +483,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        DNI *
+                        {t.auth.dni} *
                       </label>
                       <input
                         type="text"
@@ -495,7 +497,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Fecha de Nacimiento
+                        {t.auth.birth_date}
                       </label>
                       <input
                         type="date"
@@ -508,7 +510,7 @@ export default function RegisterPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                      Calle / Dirección *
+                      {t.auth.address} *
                     </label>
                     <input
                       type="text"
@@ -523,7 +525,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Localidad *
+                        {t.auth.city} *
                       </label>
                       <input
                         type="text"
@@ -537,7 +539,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Código Postal *
+                        {t.auth.postal_code} *
                       </label>
                       <input
                         type="text"
@@ -555,7 +557,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Correo Electrónico *
+                        {t.auth.email} *
                       </label>
                       <input
                         type="email"
@@ -569,7 +571,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                        Contraseña *
+                        {t.auth.password} *
                       </label>
                       <input
                         type="password"
@@ -588,16 +590,16 @@ export default function RegisterPage() {
                       disabled={loading}
                       className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
                     >
-                      {loading ? 'Registrando usuario...' : 'Completar Registro'}
+                      {loading ? t.auth.creating_account : t.auth.create_account}
                     </button>
                   </div>
                 </>
               )}
 
               <div className="text-center pt-2">
-                <span className="text-xs text-stone-500">¿Ya tienes cuenta? </span>
+                <span className="text-xs text-stone-500">{t.auth.already_have_account} </span>
                 <Link href="/auth/login" className="text-xs font-bold text-emerald-700 hover:underline">
-                  Inicia sesión aquí
+                  {t.common.login}
                 </Link>
               </div>
             </form>
@@ -606,7 +608,7 @@ export default function RegisterPage() {
       </main>
 
       <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+        {t.home.footer}
       </footer>
     </div>
   )

@@ -1,9 +1,10 @@
-// src/app/auth/ajustes/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function AjustesUsuarioPage() {
   const [user, setUser] = useState<any>(null)
@@ -12,6 +13,7 @@ export default function AjustesUsuarioPage() {
   const [guardando, setGuardando] = useState(false)
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [modoCambioPass, setModoCambioPass] = useState(false)
+  const { t } = useLanguage()
 
   // Campos de perfil de Ciudadano
   const [nombre, setNombre] = useState('')
@@ -407,18 +409,20 @@ export default function AjustesUsuarioPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+            <LanguageSelector variant="light" />
+
             <button 
               onClick={handleVolver}
               className="bg-stone-100 text-stone-700 hover:bg-stone-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition flex-shrink-0 whitespace-nowrap"
             >
-              {userRole === 'gestor_municipio' ? '← Volver al Panel' : '← Volver a Reservas'}
+              {userRole === 'gestor_municipio' ? `← ${t.common.dashboard}` : `← ${t.common.reservations}`}
             </button>
 
             <button 
               onClick={handleSignOut}
               className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
             >
-              Cerrar Sesión
+              {t.common.logout}
             </button>
           </div>
         </div>

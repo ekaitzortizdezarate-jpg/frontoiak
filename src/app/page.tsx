@@ -1,14 +1,16 @@
-// src/app/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { t } = useLanguage()
 
   useEffect(() => {
     checkUserSession()
@@ -102,7 +104,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 text-emerald-800 font-medium">
-        Cargando Frontoiak...
+        {t.common.loading}
       </div>
     )
   }
@@ -124,12 +126,15 @@ export default function Home() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0 justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
+            {/* SELECTOR DE IDIOMA */}
+            <LanguageSelector variant="light" />
+
             {user ? (
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 justify-end">
                 <button 
                   onClick={() => router.push('/auth/ajustes')}
-                  title={`Ir a Ajustes (${user.profile?.nombre_completo || user.email})`}
+                  title={`${t.common.settings} (${user.profile?.nombre_completo || user.email})`}
                   className="text-xs sm:text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-stone-200 truncate min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs transition shadow-2xs cursor-pointer text-left"
                 >
                   {user.profile?.nombre_completo || user.email}
@@ -138,7 +143,7 @@ export default function Home() {
                   onClick={handleSignOut}
                   className="bg-rose-50 text-rose-600 border border-rose-200 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-2xs flex-shrink-0 whitespace-nowrap"
                 >
-                  Cerrar Sesión
+                  {t.common.logout}
                 </button>
               </div>
             ) : (
@@ -147,13 +152,13 @@ export default function Home() {
                   onClick={() => router.push('/auth/login')}
                   className="text-xs sm:text-sm font-bold text-stone-700 hover:text-emerald-700 px-3 sm:px-4 py-2 rounded-xl transition whitespace-nowrap"
                 >
-                  Iniciar Sesión
+                  {t.common.login}
                 </button>
                 <button 
                   onClick={() => router.push('/auth/register')}
                   className="bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-800 transition shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
                 >
-                  Registrarse
+                  {t.common.register}
                 </button>
               </div>
             )}
@@ -165,13 +170,13 @@ export default function Home() {
       <main className="flex-1 max-w-5xl mx-auto px-6 py-12 flex flex-col justify-center items-center text-center space-y-10">
         <div className="space-y-4 max-w-2xl">
           <span className="inline-block bg-emerald-100/80 text-emerald-900 text-xs font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200">
-            Euskal Frontoiak Sarea
+            {t.home.badge}
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-tight">
-            Gestión inteligente de frontones en Euskadi
+            {t.home.hero_title}
           </h2>
           <p className="text-stone-600 text-base md:text-lg leading-relaxed">
-            Consulta la disponibilidad en tiempo real, reserva tu hora o gestiona los frontones de tu municipio desde un único lugar.
+            {t.home.hero_subtitle}
           </p>
         </div>
 
@@ -187,14 +192,14 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-stone-900 group-hover:text-emerald-800 transition">
-                Soy Pelotari / Usuario
+                {t.home.card_player_title}
               </h3>
               <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
-                Encuentra tu frontón, mira si está libre con sensores en vivo y reserva tu plaza.
+                {t.home.card_player_desc}
               </p>
             </div>
             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl group-hover:bg-emerald-700 group-hover:text-white transition">
-              Entrar a Reservas →
+              {t.home.card_player_btn}
             </span>
           </div>
 
@@ -208,14 +213,14 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-stone-900 group-hover:text-stone-800 transition">
-                Soy un Municipio
+                {t.home.card_municipio_title}
               </h3>
               <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
-                Configura frontones, bloquea franjas para escuelas o eventos y monitoriza el uso IoT.
+                {t.home.card_municipio_desc}
               </p>
             </div>
             <span className="text-xs font-bold text-stone-800 bg-stone-100 px-4 py-2 rounded-xl group-hover:bg-stone-900 group-hover:text-white transition">
-              Panel de Control →
+              {t.home.card_municipio_btn}
             </span>
           </div>
         </div>
@@ -223,7 +228,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-        Frontoiak — Plataforma para la gestión y disfrute de los frontones de Euskadi.
+        {t.home.footer}
       </footer>
     </div>
   )

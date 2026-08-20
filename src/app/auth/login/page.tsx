@@ -5,48 +5,54 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-
   const router = useRouter()
+  const { t } = useLanguage()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
 
-    // 1. Autenticar credenciales
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
+    // 1. Iniciar sesión con Supabase Auth
+    const { data: { user }, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error || !authData.user) {
-      if (error?.message === 'Invalid login credentials') {
-        setErrorMsg('Correo o contraseña incorrectos.')
-      } else if (error?.message?.toLowerCase().includes('email not confirmed')) {
-        setErrorMsg('El correo electrónico aún no ha sido confirmado. Revisa tu bandeja de entrada o solicita al administrador su activación.')
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        setErrorMsg('Credenciales incorrectas. Comprueba tu correo y contraseña.')
+      } else if (error.message.includes('Email not confirmed')) {
+        setErrorMsg('Tu correo electrónico aún no ha sido confirmado. Si eres un Gestor Municipal nuevo, tu cuenta debe ser aprobada primero por el Administrador.')
       } else {
-        setErrorMsg(error?.message || 'Error al iniciar sesión.')
+        setErrorMsg(error.message)
       }
       setLoading(false)
       return
     }
 
-    const user = authData.user
+    if (!user) {
+      setErrorMsg('No se ha podido recuperar la información de usuario.')
+      setLoading(false)
+      return
+    }
 
-    // 2. Consultar el perfil del usuario en la tabla 'profiles'
-    const { data: profileData } = await supabase
+    // 2. Comprobar perfil y rol en la tabla profiles
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle()
 
-    let userRole = profileData?.role
+    let userRole = profileData?.role || user.user_metadata?.role || 'usuario'
 
     // Si el perfil no existe o no tiene datos, lo creamos/sincronizamos desde los metadatos de Auth
     if (!profileData || !profileData.nombre_completo || !profileData.nombre) {
@@ -84,26 +90,26 @@ export default function LoginPage() {
     <div className="min-h-screen bg-stone-50 flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
       {/* CABECERA */}
       <header className="bg-white/90 backdrop-blur-md border-b border-stone-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-3">
           <div 
             onClick={() => router.push('/')}
             className="flex items-center gap-2 cursor-pointer group"
           >
-            <div className="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm group-hover:bg-emerald-800 transition">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-sm group-hover:bg-emerald-800 transition">
               F
             </div>
-            <span className="text-2xl font-black text-stone-900 tracking-tight">
+            <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
               Frontoiak
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-stone-500 hidden sm:inline">¿Nuevo por aquí?</span>
+          <div className="flex items-center gap-3">
+            <LanguageSelector variant="light" />
             <Link 
               href="/auth/register"
-              className="bg-emerald-700 text-white hover:bg-emerald-800 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm"
+              className="bg-emerald-700 text-white hover:bg-emerald-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap"
             >
-              Registrarse
+              {t.common.register}
             </Link>
           </div>
         </div>
@@ -113,10 +119,10 @@ export default function LoginPage() {
       <main className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="text-center text-2xl font-black text-stone-900 tracking-tight">
-            Inicia sesión en tu cuenta
+            {t.auth.login_title}
           </h2>
           <p className="mt-2 text-center text-xs text-stone-500">
-            Gestiona tus reservas y frontones favoritos
+            {t.auth.login_subtitle}
           </p>
         </div>
 
@@ -131,7 +137,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Correo Electrónico
+                  {t.auth.email}
                 </label>
                 <input
                   type="email"
@@ -145,7 +151,7 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-1">
-                  Contraseña
+                  {t.auth.password}
                 </label>
                 <input
                   type="password"
@@ -163,14 +169,14 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full bg-emerald-700 text-white p-3 rounded-2xl text-sm font-bold hover:bg-emerald-800 transition shadow-sm active:scale-95 disabled:bg-stone-300"
                 >
-                  {loading ? 'Iniciando sesión...' : 'Entrar'}
+                  {loading ? t.auth.logging_in : t.auth.login_btn}
                 </button>
               </div>
 
               <div className="text-center pt-4 border-t border-stone-100">
-                <span className="text-xs text-stone-500">¿Aún no tienes cuenta? </span>
+                <span className="text-xs text-stone-500">{t.auth.no_account} </span>
                 <Link href="/auth/register" className="text-xs font-bold text-emerald-700 hover:underline">
-                  Regístrate gratis
+                  {t.auth.register_free}
                 </Link>
               </div>
             </form>
