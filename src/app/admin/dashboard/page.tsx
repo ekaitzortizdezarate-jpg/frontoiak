@@ -2756,27 +2756,95 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-2">
-                <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
-                  {horasDelDia.map((hora) => {
-                    const registro = datosTelemetria.find(t => t.hora_inicio?.slice(0,2) === hora.slice(0,2))
-                    const hayPresencia = registro ? registro.presencia_detectada : false
+              <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-3">
+                <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 font-semibold px-1">
+                  <span>Presencia por tramos de 5 minutos (00:00 - 23:59)</span>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block"></span>Ocupado</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 inline-block"></span>Libre</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
+                  {Array.from({ length: 24 }, (_, h) => {
+                    const horaStr = `${String(h).padStart(2, '0')}:00`
+                    const horaNum = h
+
+                    // Intervalos de 5 minutos en esta hora: 12 bloques (00, 05, 10, ... 55)
+                    const bloques = Array.from({ length: 12 }, (_, bIdx) => {
+                      const minInicio = bIdx * 5
+                      const minFin = minInicio + 5
+                      const slotInicioTotal = horaNum * 60 + minInicio
+                      const slotFinTotal = horaNum * 60 + minFin
+                      const etiqueta = `${String(horaNum).padStart(2, '0')}:${String(minInicio).padStart(2, '0')}`
+
+                      // Comprobamos si algún registro de telemetría con presencia se solapa con este tramo de 5 minutos
+                      const ocupado = datosTelemetria.some((t: any) => {
+                        if (!t.presencia_detectada && !t.en_uso) return false
+                        
+                        let startMin = 0
+                        let endMin = 1440
+
+                        if (t.hora_inicio) {
+                          const parts = t.hora_inicio.split(':')
+                          startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else if (t.hora) {
+                          const parts = t.hora.split(':')
+                          startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else if (t.created_at) {
+                          const d = new Date(t.created_at)
+                          startMin = d.getHours() * 60 + d.getMinutes()
+                        }
+
+                        if (t.hora_fin) {
+                          const parts = t.hora_fin.split(':')
+                          endMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else {
+                          // Si no tiene hora_fin definida, asumimos ventana de 5 min o pulso puntual
+                          endMin = startMin + 5
+                        }
+
+                        // Si hora_fin es menor o igual que hora_inicio (e.g. medianoche 00:00 al terminar las 23:xx), ajustar
+                        if (endMin <= startMin && endMin === 0) {
+                          endMin = 1440
+                        }
+
+                        // Solapamiento: el tramo empieza antes de que termine el evento y termina después de que empiece
+                        return slotInicioTotal < endMin && slotFinTotal > startMin
+                      })
+
+                      return {
+                        minInicio,
+                        etiqueta,
+                        ocupado
+                      }
+                    })
+
+                    const tramosOcupados = bloques.filter(b => b.ocupado).length
 
                     return (
-                      <div key={hora} className="flex items-center gap-3 text-xs">
-                        <span className="font-mono w-12 text-stone-600 dark:text-stone-400 font-bold">{hora}</span>
-                        <div className="flex-1 h-6 bg-stone-200 dark:bg-stone-800 rounded-lg overflow-hidden relative">
-                          <div 
-                            className={`h-full transition-all duration-300 ${
-                              hayPresencia ? 'bg-emerald-600 w-full' : 'bg-stone-200 dark:bg-stone-800 w-0'
-                            }`} 
-                          />
-                          <span className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold ${
-                            hayPresencia ? 'text-white' : 'text-stone-400 dark:text-stone-500'
-                          }`}>
-                            {hayPresencia ? 'Presencia Detectada' : 'Sin Actividad'}
-                          </span>
+                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-white dark:bg-stone-900/60 p-1.5 rounded-xl border border-stone-200/70 dark:border-stone-800/70 hover:border-emerald-500/40 transition">
+                        <span className="font-mono w-11 text-stone-700 dark:text-stone-300 font-bold shrink-0 text-[11px]">{horaStr}</span>
+                        <div className="flex-1 grid grid-cols-12 gap-1 h-6">
+                          {bloques.map((b) => (
+                            <div
+                              key={b.minInicio}
+                              title={`${b.etiqueta} - ${b.ocupado ? 'Ocupado / Presencia detectada' : 'Libre / Sin actividad'}`}
+                              className={`h-full rounded-xs transition-colors cursor-pointer border ${
+                                b.ocupado
+                                  ? 'bg-emerald-500 hover:bg-emerald-400 border-emerald-600 dark:border-emerald-400 shadow-xs'
+                                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/80 dark:hover:bg-stone-700/80 border-stone-200 dark:border-stone-700/60'
+                              }`}
+                            />
+                          ))}
                         </div>
+                        <span className="w-14 text-right text-[10px] font-mono text-stone-500 dark:text-stone-400 shrink-0 font-medium">
+                          {tramosOcupados > 0 ? (
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{tramosOcupados * 5} min</span>
+                          ) : (
+                            <span>0 min</span>
+                          )}
+                        </span>
                       </div>
                     )
                   })}
