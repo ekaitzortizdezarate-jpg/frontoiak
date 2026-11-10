@@ -309,6 +309,7 @@ export const eu = {
     showers: 'Dutxak',
     iot_active: 'IoT Sentsore Aktiboa',
     iot_telemetry: 'IoT Telemetria',
+    iot_device_info: '📡 IoT Gailua',
     btn_enable: '✓ Gaitu',
     btn_disable: '🚫 Desgaitu',
     add_new_fronton: 'Frontoia berria gehitu',

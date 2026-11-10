@@ -309,6 +309,7 @@ export const en = {
     showers: 'Showers',
     iot_active: 'IoT Sensor Active',
     iot_telemetry: 'IoT Telemetry',
+    iot_device_info: '📡 IoT Device',
     btn_enable: '✓ Enable',
     btn_disable: '🚫 Disable',
     add_new_fronton: 'Add new fronton',

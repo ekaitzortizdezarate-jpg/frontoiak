@@ -53,6 +53,9 @@ export default function AdminDashboard() {
   const [frontonEnEdicion, setFrontonEnEdicion] = useState<any | null>(null)
   const [frontonTokenModal, setFrontonTokenModal] = useState<any | null>(null)
   const [frontonGraficaModal, setFrontonGraficaModal] = useState<any | null>(null)
+  const [frontonDispositivoModal, setFrontonDispositivoModal] = useState<any | null>(null)
+  const [cargandoDispositivo, setCargandoDispositivo] = useState(false)
+  const [ultimaTelemetriaFronton, setUltimaTelemetriaFronton] = useState<any | null>(null)
   const [fechaGraficaIoT, setFechaGraficaIoT] = useState(new Date().toISOString().split('T')[0])
   const [datosTelemetria, setDatosTelemetria] = useState<any[]>([])
 
@@ -230,6 +233,7 @@ export default function AdminDashboard() {
   const handleLogoClick = () => {
     setFrontonSeleccionadoCalendario(null)
     setFrontonGraficaModal(null)
+    setFrontonDispositivoModal(null)
     setFrontonTokenModal(null)
     setMostrarFormularioFronton(false)
     setFrontonEnEdicion(null)
@@ -250,6 +254,43 @@ export default function AdminDashboard() {
   const abrirGraficaIoT = (f: any) => {
     setFrontonGraficaModal(f)
     cargarTelemetriaFronton(f.id, fechaGraficaIoT)
+  }
+
+  const abrirDispositivoIoT = async (f: any) => {
+    setFrontonDispositivoModal(f)
+    setCargandoDispositivo(true)
+    setUltimaTelemetriaFronton(null)
+
+    try {
+      // 1. Obtener datos frescos del frontón (batería, en_uso, etc.)
+      const { data: frontonFresco } = await supabase
+        .from('frontones')
+        .select('*')
+        .eq('id', f.id)
+        .single()
+
+      if (frontonFresco) {
+        setFrontonDispositivoModal(frontonFresco)
+        // Actualizar en el estado local de la lista
+        setFrontones(prev => prev.map(p => p.id === f.id ? { ...p, ...frontonFresco } : p))
+      }
+
+      // 2. Obtener el último pulso de telemetría registrado para calcular frescura
+      const { data: ultimosPulsos } = await supabase
+        .from('telemetria_iot')
+        .select('*')
+        .eq('fronton_id', f.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (ultimosPulsos && ultimosPulsos.length > 0) {
+        setUltimaTelemetriaFronton(ultimosPulsos[0])
+      }
+    } catch (e) {
+      console.error('Error cargando estado del dispositivo IoT:', e)
+    } finally {
+      setCargandoDispositivo(false)
+    }
   }
 
   const parseHistorial = (raw: any): any[] => {
@@ -1428,14 +1469,23 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {f.tiene_sensor_iot && (
-                            <button 
-                              onClick={() => abrirGraficaIoT(f)}
-                              className="bg-stone-800 dark:bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-stone-900 dark:hover:bg-stone-700 transition cursor-pointer"
-                            >
-                              {t.admin.see_usage}
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => abrirDispositivoIoT(f)}
+                                className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                                title="Ver estado del hardware, batería y escucha de pelotazos"
+                              >
+                                {t.admin.iot_device_info}
+                              </button>
+                              <button 
+                                onClick={() => abrirGraficaIoT(f)}
+                                className="bg-stone-800 dark:bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-stone-900 dark:hover:bg-stone-700 transition cursor-pointer"
+                              >
+                                {t.admin.see_usage}
+                              </button>
+                            </>
                           )}
                           <button 
                             onClick={() => {
@@ -1994,12 +2044,20 @@ export default function AdminDashboard() {
 
                           <div className="flex gap-2 flex-wrap items-center">
                             {f.tiene_sensor_iot && (
-                              <button 
-                                onClick={() => abrirGraficaIoT(f)}
-                                className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition cursor-pointer"
-                              >
-                                {t.admin.iot_telemetry}
-                              </button>
+                              <>
+                                <button 
+                                  onClick={() => abrirDispositivoIoT(f)}
+                                  className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center gap-1"
+                                >
+                                  {t.admin.iot_device_info}
+                                </button>
+                                <button 
+                                  onClick={() => abrirGraficaIoT(f)}
+                                  className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition cursor-pointer"
+                                >
+                                  {t.admin.iot_telemetry}
+                                </button>
+                              </>
                             )}
                             <button 
                               onClick={() => handleToggleHabilitarFronton(f)}
@@ -2853,6 +2911,16 @@ export default function AdminDashboard() {
 
               <div className="flex gap-2">
                 <button 
+                  onClick={() => {
+                    const f = frontonGraficaModal
+                    setFrontonGraficaModal(null)
+                    abrirDispositivoIoT(f)
+                  }}
+                  className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  📡 Info Dispositivo IoT
+                </button>
+                <button 
                   onClick={() => setFrontonTokenModal(frontonGraficaModal)}
                   className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-300 dark:border-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
@@ -2863,6 +2931,211 @@ export default function AdminDashboard() {
                   className="flex-1 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-900 p-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   Cerrar Visualizador
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL INFO DISPOSITIVO IOT */}
+        {frontonDispositivoModal && (
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-lg">
+                    📡
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                      {frontonDispositivoModal.nombre}
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
+                        ESP32
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">Estado operativo y telemetría de hardware en tiempo real</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setFrontonDispositivoModal(null)} 
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {cargandoDispositivo ? (
+                <div className="py-10 text-center text-stone-400 text-xs animate-pulse">
+                  Consultando estado del dispositivo y telemetría...
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* ESTADO EN VIVO Y ESCUCHA DE PELOTAZOS */}
+                  <div className={`p-4 rounded-2xl border transition-all ${
+                    frontonDispositivoModal.en_uso
+                      ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50'
+                      : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="relative flex h-3.5 w-3.5">
+                          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                            frontonDispositivoModal.en_uso ? 'bg-rose-400' : 'bg-emerald-400'
+                          }`}></span>
+                          <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${
+                            frontonDispositivoModal.en_uso ? 'bg-rose-500' : 'bg-emerald-500'
+                          }`}></span>
+                        </span>
+                        <div>
+                          <p className={`text-xs font-black uppercase tracking-wider ${
+                            frontonDispositivoModal.en_uso ? 'text-rose-900 dark:text-rose-200' : 'text-emerald-900 dark:text-emerald-200'
+                          }`}>
+                            {frontonDispositivoModal.en_uso ? '🔴 Cancha Ocupada / Pelotazos Activos' : '🟢 Cancha Libre / Escuchando Cancha'}
+                          </p>
+                          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                            {frontonDispositivoModal.en_uso 
+                              ? 'El micrófono MAX9814 ha detectado impactos de pelota continuos superando el umbral de calibración.' 
+                              : 'Sensor en ciclo de muestreo activo (escucha de 20s / reposo de 15s).'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* PARRILLA DE DATOS: BATERÍA Y VOLTAJE */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* BATERÍA */}
+                    <div className="bg-stone-50 dark:bg-stone-950 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-2">
+                      <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
+                        🔋 Batería (18650)
+                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-stone-900 dark:text-stone-100">
+                          {frontonDispositivoModal.bateria_porcentaje !== null && frontonDispositivoModal.bateria_porcentaje !== undefined
+                            ? `${frontonDispositivoModal.bateria_porcentaje}%`
+                            : 'Sin datos'}
+                        </span>
+                        {frontonDispositivoModal.bateria_voltaje !== null && frontonDispositivoModal.bateria_voltaje !== undefined && (
+                          <span className="text-xs font-mono font-bold text-stone-500 dark:text-stone-400">
+                            ({Number(frontonDispositivoModal.bateria_voltaje).toFixed(2)}V)
+                          </span>
+                        )}
+                      </div>
+                      {/* Barra de progreso de batería */}
+                      <div className="w-full bg-stone-200 dark:bg-stone-800 h-2 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-500 ${
+                            (frontonDispositivoModal.bateria_porcentaje || 0) > 40
+                              ? 'bg-emerald-500'
+                              : (frontonDispositivoModal.bateria_porcentaje || 0) > 15
+                              ? 'bg-amber-500'
+                              : 'bg-rose-500'
+                          }`}
+                          style={{ width: `${Math.min(100, Math.max(0, frontonDispositivoModal.bateria_porcentaje || 0))}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                        Rango operativo Li-ion: 3.3V (0%) a 4.2V (100%)
+                      </p>
+                    </div>
+
+                    {/* ÚLTIMA TRANSMISIÓN */}
+                    <div className="bg-stone-50 dark:bg-stone-950 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-1.5 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
+                          🕒 Último Pulso Recibido
+                        </span>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">
+                          {ultimaTelemetriaFronton?.created_at
+                            ? new Date(ultimaTelemetriaFronton.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                            : 'Pendiente de conexión'}
+                        </p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                          {ultimaTelemetriaFronton?.fecha || 'Sin sincronización hoy'}
+                        </p>
+                      </div>
+                      <span className="inline-block text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400">
+                        {ultimaTelemetriaFronton ? '● Protocolo HTTPS activo' : 'Esperando primer envío'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* PARÁMETROS DEL FIRMWARE ARDUINO */}
+                  <div className="bg-stone-50 dark:bg-stone-950 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-2">
+                    <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
+                      ⚙️ Configuración y Calibración del Sensor
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                      <div className="bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200/80 dark:border-stone-800">
+                        <span className="text-[10px] text-stone-400 block font-bold">Ventana escucha</span>
+                        <span className="font-mono font-bold text-stone-800 dark:text-stone-200">20 seg</span>
+                      </div>
+                      <div className="bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200/80 dark:border-stone-800">
+                        <span className="text-[10px] text-stone-400 block font-bold">Deep Sleep</span>
+                        <span className="font-mono font-bold text-stone-800 dark:text-stone-200">15 seg</span>
+                      </div>
+                      <div className="bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200/80 dark:border-stone-800">
+                        <span className="text-[10px] text-stone-400 block font-bold">Umbral impacto</span>
+                        <span className="font-mono font-bold text-stone-800 dark:text-stone-200">1200 pico</span>
+                      </div>
+                      <div className="bg-white dark:bg-stone-900 p-2 rounded-xl border border-stone-200/80 dark:border-stone-800">
+                        <span className="text-[10px] text-stone-400 block font-bold">Mínimo golpes</span>
+                        <span className="font-mono font-bold text-stone-800 dark:text-stone-200">3 impactos</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TOKEN DE IDENTIFICACIÓN */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                      🔑 Token Hardware Vinculado
+                    </label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        readOnly 
+                        value={frontonDispositivoModal.hardware_token || 'No generado'} 
+                        className="flex-1 p-2 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-mono text-xs border border-stone-200 dark:border-stone-700 rounded-xl select-all"
+                      />
+                      <button 
+                        onClick={() => {
+                          if (frontonDispositivoModal.hardware_token) {
+                            navigator.clipboard.writeText(frontonDispositivoModal.hardware_token)
+                            alert('Token de hardware copiado al portapapeles.')
+                          }
+                        }}
+                        className="bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                        title="Copiar token"
+                      >
+                        Copiar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                <button 
+                  onClick={() => abrirDispositivoIoT(frontonDispositivoModal)}
+                  className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                >
+                  🔄 Actualizar Estado
+                </button>
+                <button 
+                  onClick={() => {
+                    const f = frontonDispositivoModal
+                    setFrontonDispositivoModal(null)
+                    abrirGraficaIoT(f)
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                >
+                  📊 Ver Histórico Telemetría
+                </button>
+                <button 
+                  onClick={() => setFrontonDispositivoModal(null)}
+                  className="flex-1 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-900 p-2.5 rounded-xl text-xs font-bold cursor-pointer"
+                >
+                  Cerrar
                 </button>
               </div>
             </div>

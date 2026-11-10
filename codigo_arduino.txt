@@ -1,0 +1,148 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
+#include "time.h"
+
+// ================= CONFIGURACIÓN USUARIO =================
+const char* WIFI_SSID         = "TU_WIFI_SSID";
+const char* WIFI_PASS         = "TU_WIFI_PASSWORD";
+const char* SUPABASE_URL      = "https://tu-proyecto.supabase.co";
+const char* SUPABASE_ANON_KEY = "TU_SUPABASE_ANON_KEY";
+const char* HARDWARE_TOKEN    = "00000000-0000-0000-0000-000000000000";
+
+// ================= PARÁMETROS DEL SENSOR =================
+#define PIN_MIC     33                  // OUT del MAX9814
+#define PIN_BATERIA 34                  // Punto medio del divisor 100k / 100k
+
+const int UMBRAL_IMPACTO      = 1200;   // Ajusta según tu calibración
+const int GOLPES_MINIMOS      = 3;      
+const int TIEMPO_MUESTREO_SEG = 20;     
+const int TIEMPO_DORMIR_SEG   = 15;     
+
+const char* NTP_SERVER = "pool.ntp.org";
+const char* TZ_INFO    = "CET-1CEST,M3.5.0,M10.5.0/3";
+
+// Lee el voltaje real de la batería 18650 (3.3V a 4.2V)
+float leerVoltajeBateria() {
+  uint32_t sumaMv = 0;
+  for (int i = 0; i < 10; i++) {
+    sumaMv += analogReadMilliVolts(PIN_BATERIA);
+    delay(5);
+  }
+  float pinMv = sumaMv / 10.0;
+  return (pinMv * 2.0) / 1000.0; // Multiplicamos por 2 por el divisor 100k/100k
+}
+
+int calcularPorcentajeBateria(float v) {
+  if (v >= 4.20) return 100;
+  if (v <= 3.30) return 0;
+  return (int)((v - 3.30) / (4.20 - 3.30) * 100.0);
+}
+
+int contarPelotazos() {
+  int impactos = 0;
+  unsigned long inicio = millis();
+  unsigned long ultimoImpacto = 0;
+
+  Serial.println("Escuchando impactos en el fronton...");
+
+  while (millis() - inicio < (TIEMPO_MUESTREO_SEG * 1000UL)) {
+    unsigned long ventana = millis();
+    int senalMax = 0;
+    int senalMin = 4095;
+
+    while (millis() - ventana < 20) {
+      int lectura = analogRead(PIN_MIC);
+      if (lectura > senalMax) senalMax = lectura;
+      if (lectura < senalMin) senalMin = lectura;
+    }
+
+    int amplitudPico = senalMax - senalMin;
+
+    if (amplitudPico > UMBRAL_IMPACTO && (millis() - ultimoImpacto > 180)) {
+      impactos++;
+      ultimoImpacto = millis();
+      Serial.printf("Pelotazo detectado! (#%d) - Amplitud: %d\n", impactos, amplitudPico);
+    }
+  }
+  return impactos;
+}
+
+void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje) {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Error obteniendo hora NTP");
+    return;
+  }
+
+  char fecha[11], horaInicio[9], horaFin[9];
+  strftime(fecha, sizeof(fecha), "%Y-%m-%d", &timeinfo);
+  snprintf(horaInicio, sizeof(horaInicio), "%02d:00:00", timeinfo.tm_hour);
+  snprintf(horaFin, sizeof(horaFin), "%02d:00:00", (timeinfo.tm_hour + 1) % 24);
+
+  WiFiClientSecure client;
+  client.setInsecure();
+
+  HTTPClient https;
+  String endpoint = String(SUPABASE_URL) + "/rest/v1/rpc/registrar_pulso_iot";
+
+  if (https.begin(client, endpoint)) {
+    https.addHeader("Content-Type", "application/json");
+    https.addHeader("apikey", SUPABASE_ANON_KEY);
+    https.addHeader("Authorization", String("Bearer ") + SUPABASE_ANON_KEY);
+
+    String payload = "{";
+    payload += "\"p_token\":\"" + String(HARDWARE_TOKEN) + "\",";
+    payload += "\"p_en_uso\":" + String(enUso ? "true" : "false") + ",";
+    payload += "\"p_fecha\":\"" + String(fecha) + "\",";
+    payload += "\"p_hora_inicio\":\"" + String(horaInicio) + "\",";
+    payload += "\"p_hora_fin\":\"" + String(horaFin) + "\",";
+    payload += "\"p_bateria_pct\":" + String(batPorcentaje) + ",";
+    payload += "\"p_bateria_v\":" + String(batVoltaje, 2);
+    payload += "}";
+
+    int httpCode = https.POST(payload);
+    String respuesta = https.getString();
+    Serial.printf("Supabase HTTP %d: %s\n", httpCode, respuesta.c_str());
+    https.end();
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  analogReadResolution(12);
+
+  // 1. Medir batería y pelotazos antes de encender el WiFi
+  float batV = leerVoltajeBateria();
+  int batPct = calcularPorcentajeBateria(batV);
+  int totalGolpes = contarPelotazos();
+  bool frontonOcupado = (totalGolpes >= GOLPES_MINIMOS);
+  
+  Serial.printf("Bateria: %.2fV (%d%%) | Golpes: %d -> Estado: %s\n", 
+                batV, batPct, totalGolpes, frontonOcupado ? "EN USO" : "LIBRE");
+
+  // 2. Conectar al WiFi y enviar datos
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  int intentos = 0;
+  while (WiFi.status() != WL_CONNECTED && intentos < 20) {
+    delay(500);
+    intentos++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    configTzTime(TZ_INFO, NTP_SERVER);
+    enviarASupabase(frontonOcupado, batV, batPct);
+  }
+
+  // 3. Dormir
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
+  esp_sleep_enable_timer_wakeup(TIEMPO_DORMIR_SEG * 1000000ULL);
+  esp_deep_sleep_start();
+}
+
+void loop() {}
+// FIN DEL ARCHIVO
