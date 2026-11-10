@@ -1452,6 +1452,18 @@ export default function AdminDashboard() {
                             </span>
                           )}
 
+                          {/* INSIGNIA DE DETECCIÓN DE PELOTAZOS EN TIEMPO REAL */}
+                          {f.tiene_sensor_iot && (
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 border shadow-2xs ${
+                              f.en_uso
+                                ? 'bg-amber-100 dark:bg-amber-950/90 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse'
+                                : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700'
+                            }`}>
+                              <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-amber-500' : 'bg-stone-400'}`}></span>
+                              🎾 {f.en_uso ? t.admin.iot_detecting_pelotazos : t.admin.iot_no_pelotazos}
+                            </span>
+                          )}
+
                           {/* CONTADORES DE INCIDENCIAS */}
                           {pendientes > 0 && (
                             <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
@@ -2038,6 +2050,16 @@ export default function AdminDashboard() {
                                   {f.tiene_vestuarios && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
                                   {f.tiene_duchas && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
                                   {f.tiene_sensor_iot && <span className="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md">{t.admin.iot_active}</span>}
+                                  {f.tiene_sensor_iot && (
+                                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex items-center gap-1 ${
+                                      f.en_uso
+                                        ? 'bg-amber-100 dark:bg-amber-950/90 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse'
+                                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700'
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${f.en_uso ? 'bg-amber-500' : 'bg-stone-400'}`}></span>
+                                      🎾 {f.en_uso ? t.admin.iot_detecting_pelotazos : t.admin.iot_no_pelotazos}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -2815,10 +2837,11 @@ export default function AdminDashboard() {
               </div>
 
               <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 font-semibold px-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 font-semibold px-1 gap-2">
                   <span>Presencia por tramos de 5 minutos (00:00 - 23:59)</span>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block"></span>Ocupado</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-amber-500 border border-amber-600 inline-block shadow-2xs"></span>🎾 Pelotazos</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 border border-emerald-600 inline-block shadow-2xs"></span>📅 Ocupado / Reserva</span>
                     <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 inline-block"></span>Libre</span>
                   </div>
                 </div>
@@ -2836,8 +2859,8 @@ export default function AdminDashboard() {
                       const slotFinTotal = horaNum * 60 + minFin
                       const etiqueta = `${String(horaNum).padStart(2, '0')}:${String(minInicio).padStart(2, '0')}`
 
-                      // Comprobamos si algún registro de telemetría con presencia se solapa con este tramo de 5 minutos
-                      const ocupado = datosTelemetria.some((t: any) => {
+                      // 1. Detección de PELOTAZOS por el sensor IoT físico (telemetría)
+                      const tienePelotazos = datosTelemetria.some((t: any) => {
                         if (!t.presencia_detectada && !t.en_uso) return false
                         
                         let startMin = 0
@@ -2858,49 +2881,84 @@ export default function AdminDashboard() {
                           const parts = t.hora_fin.split(':')
                           endMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
                         } else {
-                          // Si no tiene hora_fin definida, asumimos ventana de 5 min o pulso puntual
                           endMin = startMin + 5
                         }
 
-                        // Si hora_fin es menor o igual que hora_inicio (e.g. medianoche 00:00 al terminar las 23:xx), ajustar
                         if (endMin <= startMin && endMin === 0) {
                           endMin = 1440
                         }
 
-                        // Solapamiento: el tramo empieza antes de que termine el evento y termina después de que empiece
                         return slotInicioTotal < endMin && slotFinTotal > startMin
                       })
+
+                      // 2. Comprobación de reserva u ocupación administrativa en este frontón y fecha
+                      const tieneReserva = todosLosEventos.some((ev: any) => {
+                        if (ev.fronton_id !== frontonGraficaModal.id || ev.fecha !== fechaGraficaIoT) return false
+                        if (!ev.hora_inicio) return false
+
+                        const startParts = ev.hora_inicio.split(':')
+                        const evStart = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1] || '0', 10)
+
+                        let evEnd = evStart + 60
+                        if (ev.hora_fin) {
+                          const endParts = ev.hora_fin.split(':')
+                          evEnd = parseInt(endParts[0], 10) * 60 + parseInt(endParts[1] || '0', 10)
+                        }
+
+                        return slotInicioTotal < evEnd && slotFinTotal > evStart
+                      })
+
+                      // Estado por prioridad: pelotazos (impactos sensor) > ocupado (reserva/evento) > libre
+                      const estado: 'pelotazos' | 'ocupado' | 'libre' = tienePelotazos
+                        ? 'pelotazos'
+                        : tieneReserva
+                        ? 'ocupado'
+                        : 'libre'
 
                       return {
                         minInicio,
                         etiqueta,
-                        ocupado
+                        estado
                       }
                     })
 
-                    const tramosOcupados = bloques.filter(b => b.ocupado).length
+                    const tramosPelotazos = bloques.filter(b => b.estado === 'pelotazos').length
+                    const tramosOcupados = bloques.filter(b => b.estado === 'ocupado').length
 
                     return (
-                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-white dark:bg-stone-900/60 p-1.5 rounded-xl border border-stone-200/70 dark:border-stone-800/70 hover:border-emerald-500/40 transition">
+                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-white dark:bg-stone-900/60 p-1.5 rounded-xl border border-stone-200/70 dark:border-stone-800/70 hover:border-amber-500/40 transition">
                         <span className="font-mono w-11 text-stone-700 dark:text-stone-300 font-bold shrink-0 text-[11px]">{horaStr}</span>
                         <div className="flex-1 grid grid-cols-12 gap-1 h-6">
-                          {bloques.map((b) => (
-                            <div
-                              key={b.minInicio}
-                              title={`${b.etiqueta} - ${b.ocupado ? 'Ocupado / Presencia detectada' : 'Libre / Sin actividad'}`}
-                              className={`h-full rounded-xs transition-colors cursor-pointer border ${
-                                b.ocupado
-                                  ? 'bg-emerald-500 hover:bg-emerald-400 border-emerald-600 dark:border-emerald-400 shadow-xs'
-                                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/80 dark:hover:bg-stone-700/80 border-stone-200 dark:border-stone-700/60'
-                              }`}
-                            />
-                          ))}
+                          {bloques.map((b) => {
+                            let bgClass = 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/80 dark:hover:bg-stone-700/80 border-stone-200 dark:border-stone-700/60'
+                            let label = 'Libre / Sin actividad'
+
+                            if (b.estado === 'pelotazos') {
+                              bgClass = 'bg-amber-500 hover:bg-amber-400 border-amber-600 dark:border-amber-400 shadow-xs'
+                              label = '🎾 Presencia de Pelotazos (Sensor IoT)'
+                            } else if (b.estado === 'ocupado') {
+                              bgClass = 'bg-emerald-500 hover:bg-emerald-400 border-emerald-600 dark:border-emerald-400 shadow-xs'
+                              label = '📅 Cancha Ocupada / Reserva'
+                            }
+
+                            return (
+                              <div
+                                key={b.minInicio}
+                                title={`${b.etiqueta} - ${label}`}
+                                className={`h-full rounded-xs transition-colors cursor-pointer border ${bgClass}`}
+                              />
+                            )
+                          })}
                         </div>
-                        <span className="w-14 text-right text-[10px] font-mono text-stone-500 dark:text-stone-400 shrink-0 font-medium">
-                          {tramosOcupados > 0 ? (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{tramosOcupados * 5} min</span>
-                          ) : (
-                            <span>0 min</span>
+                        <span className="w-24 text-right text-[10px] font-mono shrink-0 font-medium space-x-1">
+                          {tramosPelotazos > 0 && (
+                            <span className="text-amber-600 dark:text-amber-400 font-bold">🎾 {tramosPelotazos * 5}m</span>
+                          )}
+                          {tramosOcupados > 0 && (
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">📅 {tramosOcupados * 5}m</span>
+                          )}
+                          {tramosPelotazos === 0 && tramosOcupados === 0 && (
+                            <span className="text-stone-400">0 min</span>
                           )}
                         </span>
                       </div>

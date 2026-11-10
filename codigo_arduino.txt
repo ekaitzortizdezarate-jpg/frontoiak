@@ -79,8 +79,19 @@ void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje) {
 
   char fecha[11], horaInicio[9], horaFin[9];
   strftime(fecha, sizeof(fecha), "%Y-%m-%d", &timeinfo);
-  snprintf(horaInicio, sizeof(horaInicio), "%02d:00:00", timeinfo.tm_hour);
-  snprintf(horaFin, sizeof(horaFin), "%02d:00:00", (timeinfo.tm_hour + 1) % 24);
+
+  // Redondear a tramos de 5 minutos exactos (00, 05, 10, ... 55)
+  int minutoBase = (timeinfo.tm_min / 5) * 5;
+  int minutoFin  = minutoBase + 5;
+  int horaFinVal = timeinfo.tm_hour;
+
+  if (minutoFin >= 60) {
+    minutoFin = 0;
+    horaFinVal = (horaFinVal + 1) % 24;
+  }
+
+  snprintf(horaInicio, sizeof(horaInicio), "%02d:%02d:00", timeinfo.tm_hour, minutoBase);
+  snprintf(horaFin, sizeof(horaFin), "%02d:%02d:00", horaFinVal, minutoFin);
 
   WiFiClientSecure client;
   client.setInsecure();

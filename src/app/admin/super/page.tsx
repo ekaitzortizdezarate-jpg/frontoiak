@@ -2335,6 +2335,15 @@ export default function SuperAdminDashboard() {
                               <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-rose-400 animate-ping' : 'bg-emerald-400'}`}></span>
                               {f.en_uso ? 'En uso (Presencia detectada)' : 'Libre'}
                             </span>
+                            {/* INSIGNIA DETECCIÓN PELOTAZOS */}
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 border ${
+                              f.en_uso
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'
+                                : 'bg-stone-950 text-stone-400 border-stone-800'
+                            }`}>
+                              <span className={`w-2 h-2 rounded-full ${f.en_uso ? 'bg-amber-400' : 'bg-stone-500'}`}></span>
+                              🎾 {f.en_uso ? 'Detectando pelotazos' : 'Sin pelotazos'}
+                            </span>
                           </div>
 
                           <p className="text-xs text-stone-500">
@@ -2494,10 +2503,11 @@ export default function SuperAdminDashboard() {
               </div>
 
               <div className="border border-stone-800 rounded-2xl p-4 bg-stone-950 space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-stone-400 font-semibold px-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-stone-400 font-semibold px-1 gap-2">
                   <span>Presencia por tramos de 5 minutos (00:00 - 23:59)</span>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block"></span>Ocupado</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-amber-500 border border-amber-400 inline-block"></span>🎾 Pelotazos</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 border border-emerald-400 inline-block"></span>📅 Ocupado / Reserva</span>
                     <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-stone-900 border border-stone-800 inline-block"></span>Libre</span>
                   </div>
                 </div>
@@ -2514,7 +2524,8 @@ export default function SuperAdminDashboard() {
                       const slotFinTotal = horaNum * 60 + minFin
                       const etiqueta = `${String(horaNum).padStart(2, '0')}:${String(minInicio).padStart(2, '0')}`
 
-                      const ocupado = datosTelemetria.some((t: any) => {
+                      // Pelotazos registrados por el sensor
+                      const tienePelotazos = datosTelemetria.some((t: any) => {
                         if (!t.presencia_detectada && !t.en_uso) return false
                         
                         let startMin = 0
@@ -2545,34 +2556,36 @@ export default function SuperAdminDashboard() {
                         return slotInicioTotal < endMin && slotFinTotal > startMin
                       })
 
+                      const estado: 'pelotazos' | 'libre' = tienePelotazos ? 'pelotazos' : 'libre'
+
                       return {
                         minInicio,
                         etiqueta,
-                        ocupado
+                        estado
                       }
                     })
 
-                    const tramosOcupados = bloques.filter(b => b.ocupado).length
+                    const tramosPelotazos = bloques.filter(b => b.estado === 'pelotazos').length
 
                     return (
-                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-stone-900/60 p-1.5 rounded-xl border border-stone-800/80 hover:border-emerald-500/40 transition">
+                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-stone-900/60 p-1.5 rounded-xl border border-stone-800/80 hover:border-amber-500/40 transition">
                         <span className="font-mono w-11 text-stone-300 font-bold shrink-0 text-[11px]">{horaStr}</span>
                         <div className="flex-1 grid grid-cols-12 gap-1 h-6">
                           {bloques.map((b) => (
                             <div
                               key={b.minInicio}
-                              title={`${b.etiqueta} - ${b.ocupado ? 'Ocupado / Presencia detectada' : 'Libre / Sin actividad'}`}
+                              title={`${b.etiqueta} - ${b.estado === 'pelotazos' ? '🎾 Pelotazos detectados por sensor' : 'Libre / Sin actividad'}`}
                               className={`h-full rounded-xs transition-colors cursor-pointer border ${
-                                b.ocupado
-                                  ? 'bg-emerald-500 hover:bg-emerald-400 border-emerald-400 shadow-xs'
+                                b.estado === 'pelotazos'
+                                  ? 'bg-amber-500 hover:bg-amber-400 border-amber-400 shadow-xs'
                                   : 'bg-stone-900 hover:bg-stone-800 border-stone-800'
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="w-14 text-right text-[10px] font-mono text-stone-400 shrink-0 font-medium">
-                          {tramosOcupados > 0 ? (
-                            <span className="text-emerald-400 font-bold">{tramosOcupados * 5} min</span>
+                        <span className="w-20 text-right text-[10px] font-mono text-stone-400 shrink-0 font-medium">
+                          {tramosPelotazos > 0 ? (
+                            <span className="text-amber-400 font-bold">🎾 {tramosPelotazos * 5} min</span>
                           ) : (
                             <span>0 min</span>
                           )}

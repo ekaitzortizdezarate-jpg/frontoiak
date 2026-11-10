@@ -308,6 +308,8 @@ export const es = {
     dressing_rooms: 'Vestuarios',
     showers: 'Duchas',
     iot_active: 'Sensor IoT Activo',
+    iot_detecting_pelotazos: 'Detectando pelotazos',
+    iot_no_pelotazos: 'Sin pelotazos',
     iot_telemetry: 'Telemetría IoT',
     iot_device_info: '📡 Dispositivo IoT',
     btn_enable: '✓ Habilitar',

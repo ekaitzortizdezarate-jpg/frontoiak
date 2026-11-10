@@ -308,6 +308,8 @@ export const en = {
     dressing_rooms: 'Locker rooms',
     showers: 'Showers',
     iot_active: 'IoT Sensor Active',
+    iot_detecting_pelotazos: 'Detecting ball impacts',
+    iot_no_pelotazos: 'No ball impacts',
     iot_telemetry: 'IoT Telemetry',
     iot_device_info: '📡 IoT Device',
     btn_enable: '✓ Enable',

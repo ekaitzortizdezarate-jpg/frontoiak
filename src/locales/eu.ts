@@ -308,6 +308,8 @@ export const eu = {
     dressing_rooms: 'Aldagelak',
     showers: 'Dutxak',
     iot_active: 'IoT Sentsore Aktiboa',
+    iot_detecting_pelotazos: 'Pelotakadak detektatzen',
+    iot_no_pelotazos: 'Pelotakadarik gabe',
     iot_telemetry: 'IoT Telemetria',
     iot_device_info: '📡 IoT Gailua',
     btn_enable: '✓ Gaitu',
