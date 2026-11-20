@@ -215,3 +215,50 @@ CREATE POLICY "Gestores y admins pueden eliminar incidencias"
       AND (p.role = 'admin' OR (p.role = 'gestor_municipio' AND p.municipio_id = f.municipio_id))
     )
   );
+
+-- ==============================================================================
+-- 7. TABLA Y POLÍTICAS: MENSAJES_FORO_FRONTON (FORO / CHAT PÚBLICO DEL FRONTÓN)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS mensajes_foro_fronton (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fronton_id UUID NOT NULL REFERENCES frontones(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_name TEXT NOT NULL,
+  user_role TEXT DEFAULT 'usuario',
+  mensaje TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Habilitar RLS en mensajes_foro_fronton
+ALTER TABLE mensajes_foro_fronton ENABLE ROW LEVEL SECURITY;
+
+-- 1. Lectura pública de mensajes para todos los usuarios autenticados y anónimos
+DROP POLICY IF EXISTS "Lectura publica de mensajes del foro" ON mensajes_foro_fronton;
+CREATE POLICY "Lectura publica de mensajes del foro"
+  ON mensajes_foro_fronton FOR SELECT
+  USING (true);
+
+-- 2. Creación de mensajes por cualquier usuario autenticado (pelotaris y gestores)
+DROP POLICY IF EXISTS "Usuarios autenticados pueden publicar en el foro" ON mensajes_foro_fronton;
+CREATE POLICY "Usuarios autenticados pueden publicar en el foro"
+  ON mensajes_foro_fronton FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+-- 3. Moderación: Gestores y Admins pueden eliminar mensajes si es necesario
+DROP POLICY IF EXISTS "Gestores y admins pueden moderar el foro" ON mensajes_foro_fronton;
+CREATE POLICY "Gestores y admins pueden moderar el foro"
+  ON mensajes_foro_fronton FOR DELETE
+  TO authenticated
+  USING (
+    auth.uid() = user_id
+    OR EXISTS (
+      SELECT 1 FROM profiles p
+      JOIN frontones f ON f.id = mensajes_foro_fronton.fronton_id
+      WHERE p.id = auth.uid()
+      AND (p.role = 'admin' OR (p.role = 'gestor_municipio' AND p.municipio_id = f.municipio_id))
+    )
+  );
+
+-- Habilitar columna limitar_antelacion en frontones si no existe
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_antelacion BOOLEAN DEFAULT true;

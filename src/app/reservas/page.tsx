@@ -9,6 +9,7 @@ import LanguageSelector from '@/components/LanguageSelector'
 import ThemeToggle from '@/components/ThemeToggle'
 import Footer from '@/components/Footer'
 import IncidentHistoryModal from '@/components/reservas/IncidentHistoryModal'
+import FrontonForumModal from '@/components/reservas/FrontonForumModal'
 import { 
   parseSafeDate, 
   formatFullDateWithWeekday, 
@@ -57,6 +58,7 @@ export default function PortalReservas() {
   const [mostrarModalIncidencia, setMostrarModalIncidencia] = useState(false)
   const [incidenciaVerHistoricoModal, setIncidenciaVerHistoricoModal] = useState<any | null>(null)
   const [modalFrontonIncidencias, setModalFrontonIncidencias] = useState<any | null>(null)
+  const [modalForoFrontonAbierto, setModalForoFrontonAbierto] = useState(false)
   const [incidenciasDelFronton, setIncidenciasDelFronton] = useState<any[]>([])
   const [cargandoIncidenciasFronton, setCargandoIncidenciasFronton] = useState(false)
   const [incidenciaFrontonId, setIncidenciaFrontonId] = useState('')
@@ -570,16 +572,20 @@ export default function PortalReservas() {
           return false
         }
 
-        // Comprobación de antelación máxima
+        // Comprobación de antelación máxima (si tiene limitación activa)
         const hoy = new Date()
         hoy.setHours(0, 0, 0, 0)
         const [anio, mes, dia] = fecha.split('-').map(Number)
         const fechaObj = new Date(anio, mes - 1, dia)
         fechaObj.setHours(0, 0, 0, 0)
         const diffDias = Math.round((fechaObj.getTime() - hoy.getTime()) / (1000 * 3600 * 24))
-        const antelacionMaxima = f.dias_antelacion_maxima ?? 7
+        const tieneLimiteAntelacion = f.limitar_antelacion !== false && f.dias_antelacion_maxima !== null && f.dias_antelacion_maxima !== undefined
+        const antelacionMaxima = tieneLimiteAntelacion ? Number(f.dias_antelacion_maxima) : null
 
-        if (diffDias < 0 || diffDias > antelacionMaxima) {
+        if (diffDias < 0) {
+          return false
+        }
+        if (tieneLimiteAntelacion && antelacionMaxima !== null && diffDias > antelacionMaxima) {
           return false
         }
 
@@ -879,7 +885,7 @@ export default function PortalReservas() {
 
   const calcularEstadoFechaReservable = (fechaStr: string) => {
     if (!frontonSeleccionado) {
-      return { esPasado: false, bloqueadoPorAntelacion: false, noReservable: false, diasFaltantes: 0, antelacionMaxima: 7 }
+      return { esPasado: false, bloqueadoPorAntelacion: false, noReservable: false, diasFaltantes: 0, antelacionMaxima: null }
     }
 
     const hoy = new Date()
@@ -890,11 +896,12 @@ export default function PortalReservas() {
     fechaObj.setHours(0, 0, 0, 0)
 
     const diffDias = Math.round((fechaObj.getTime() - hoy.getTime()) / (1000 * 3600 * 24))
-    const antelacionMaxima = frontonSeleccionado.dias_antelacion_maxima ?? 7
+    const tieneLimiteAntelacion = frontonSeleccionado.limitar_antelacion !== false && frontonSeleccionado.dias_antelacion_maxima !== null && frontonSeleccionado.dias_antelacion_maxima !== undefined
+    const antelacionMaxima = tieneLimiteAntelacion ? Number(frontonSeleccionado.dias_antelacion_maxima) : null
 
     const esPasado = diffDias < 0
-    // Si diffDias > antelacionMaxima (ej. 6 días cuando el máximo es 5), no se puede reservar
-    const bloqueadoPorAntelacion = !esPasado && diffDias > antelacionMaxima
+    // Si diffDias > antelacionMaxima (ej. 8 días cuando el máximo es 7), no se puede reservar
+    const bloqueadoPorAntelacion = !esPasado && tieneLimiteAntelacion && antelacionMaxima !== null && diffDias > antelacionMaxima
     const noReservable = esPasado || bloqueadoPorAntelacion
 
     return { esPasado, bloqueadoPorAntelacion, noReservable, diasFaltantes: diffDias, antelacionMaxima }
@@ -1855,15 +1862,31 @@ export default function PortalReservas() {
             {/* TARJETA DEL FRONTÓN */}
             <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 flex flex-col gap-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                  {frontonSeleccionado.imagen_url ? (
-                    <img src={frontonSeleccionado.imagen_url} alt="" className="w-20 h-20 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />
-                  ) : (
-                    <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-2xl rounded-2xl flex items-center justify-center">
-                      F
-                    </div>
-                  )}
-                  <div className="space-y-1.5">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-2.5">
+                    {frontonSeleccionado.imagen_url ? (
+                      <img src={frontonSeleccionado.imagen_url} alt="" className="w-20 h-20 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 flex-shrink-0" />
+                    ) : (
+                      <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-2xl rounded-2xl flex items-center justify-center flex-shrink-0">
+                        F
+                      </div>
+                    )}
+
+                    {/* BOTÓN GRANDE AL LADO DE LA IMAGEN PARA ABRIR EL FORO */}
+                    <button
+                      type="button"
+                      onClick={() => setModalForoFrontonAbierto(true)}
+                      className="h-20 px-3.5 sm:px-4 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-1 shadow-sm hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-500/50"
+                      title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                    >
+                      <span className="text-xl leading-none">💬</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-center leading-tight">
+                        {t.reservas.fronton_forum || 'Foro'}
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-1.5 min-w-0">
                     {/* Fila 1: Nombre del frontón y estado de ocupación */}
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">{frontonSeleccionado.nombre}</h3>
@@ -1894,7 +1917,13 @@ export default function PortalReservas() {
 
                     {/* Fila 2: Horario y características */}
                     <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                      {t.reservas.hours}: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | {frontonSeleccionado.dias_antelacion_maxima ?? 7} {t.common.days}
+                      {t.reservas.hours}: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | {
+                        frontonSeleccionado.limitar_antelacion === false
+                          ? (t.reservas.advance_limit_none || 'Sin límite de antelación')
+                          : (t.reservas.advance_limit_info
+                              ? t.reservas.advance_limit_info.replace('{days}', String(frontonSeleccionado.dias_antelacion_maxima ?? 7))
+                              : `Reserva con antelación máxima de ${frontonSeleccionado.dias_antelacion_maxima ?? 7} días`)
+                      }
                       {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
                         <> | {t.reservas.dimensions}: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
                       )}
@@ -2763,6 +2792,16 @@ export default function PortalReservas() {
             </div>
           </div>
         )}
+
+        {/* MODAL DEL FORO DEL FRONTÓN */}
+        <FrontonForumModal
+          fronton={frontonSeleccionado}
+          isOpen={modalForoFrontonAbierto}
+          onClose={() => setModalForoFrontonAbierto(false)}
+          user={user}
+          lang={lang}
+          t={t}
+        />
       </main>
 
       {/* FOOTER */}

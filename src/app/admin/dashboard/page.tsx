@@ -9,6 +9,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 import Footer from '@/components/Footer'
 import IncidentStatusChangeModal from '@/components/admin/IncidentStatusChangeModal'
 import AdminIncidentHistoryModal from '@/components/admin/AdminIncidentHistoryModal'
+import FrontonForumModal from '@/components/reservas/FrontonForumModal'
 import { 
   parseSafeDate, 
   formatFullDateWithWeekday, 
@@ -109,10 +110,14 @@ export default function AdminDashboard() {
     hora_apertura: '08:00',
     hora_cierre: '22:00',
     duracion_slot_minutos: 60,
+    limitar_antelacion: true,
     dias_antelacion_maxima: 7,
     max_reservas_activas: 1,
     habilitado: true
   })
+
+  // Modal Foro Frontón
+  const [frontonForoModal, setFrontonForoModal] = useState<any | null>(null)
 
   // Incidencias
   const [incidencias, setIncidencias] = useState<any[]>([])
@@ -712,7 +717,8 @@ export default function AdminDashboard() {
       hora_apertura: nuevoFronton.hora_apertura,
       hora_cierre: nuevoFronton.hora_cierre,
       duracion_slot_minutos: Number(nuevoFronton.duracion_slot_minutos),
-      dias_antelacion_maxima: Number(nuevoFronton.dias_antelacion_maxima),
+      limitar_antelacion: nuevoFronton.limitar_antelacion,
+      dias_antelacion_maxima: nuevoFronton.limitar_antelacion ? Number(nuevoFronton.dias_antelacion_maxima) : null,
       max_reservas_activas: Number(nuevoFronton.max_reservas_activas),
       habilitado: nuevoFronton.habilitado
     }
@@ -737,6 +743,7 @@ export default function AdminDashboard() {
         delete fallbackDatos.labur
         delete fallbackDatos.luze
         delete fallbackDatos.habilitado
+        delete fallbackDatos.limitar_antelacion
         if (frontonEnEdicion) {
           await supabase.from('frontones').update(fallbackDatos).eq('id', frontonEnEdicion.id)
         } else {
@@ -774,6 +781,7 @@ export default function AdminDashboard() {
       hora_apertura: '08:00',
       hora_cierre: '22:00',
       duracion_slot_minutos: 60,
+      limitar_antelacion: true,
       dias_antelacion_maxima: 7,
       max_reservas_activas: 1,
       habilitado: true
@@ -810,6 +818,7 @@ export default function AdminDashboard() {
       hora_apertura: f.hora_apertura || '08:00',
       hora_cierre: f.hora_cierre || '22:00',
       duracion_slot_minutos: f.duracion_slot_minutos || 60,
+      limitar_antelacion: f.limitar_antelacion !== false && f.dias_antelacion_maxima !== null && f.dias_antelacion_maxima !== undefined,
       dias_antelacion_maxima: f.dias_antelacion_maxima ?? 7,
       max_reservas_activas: f.max_reservas_activas ?? 1,
       habilitado: f.habilitado !== false
@@ -1992,14 +2001,29 @@ export default function AdminDashboard() {
                         const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                         return (
                           <li key={f.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div className="flex items-center gap-4">
-                              {f.imagen_url ? (
-                                <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 dark:border-stone-700" />
-                              ) : (
-                                <div className="w-16 h-16 bg-stone-100 dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 flex items-center justify-center text-xs text-stone-400 dark:text-stone-500 font-bold">
-                                  {t.admin.no_photo}
-                                </div>
-                              )}
+                            <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                              <div className="flex items-center gap-2">
+                                {f.imagen_url ? (
+                                  <img src={f.imagen_url} alt="" className="w-16 h-16 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 flex-shrink-0" />
+                                ) : (
+                                  <div className="w-16 h-16 bg-stone-100 dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 flex items-center justify-center text-xs text-stone-400 dark:text-stone-500 font-bold flex-shrink-0">
+                                    {t.admin.no_photo}
+                                  </div>
+                                )}
+
+                                {/* BOTÓN GRANDE AL LADO DE LA IMAGEN PARA ABRIR EL FORO */}
+                                <button
+                                  type="button"
+                                  onClick={() => setFrontonForoModal(f)}
+                                  className="h-16 px-3 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-xs hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-500/50"
+                                  title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                                >
+                                  <span className="text-lg leading-none">💬</span>
+                                  <span className="text-[10px] font-black uppercase tracking-wider text-center leading-tight">
+                                    {t.reservas.fronton_forum || 'Foro'}
+                                  </span>
+                                </button>
+                              </div>
 
                               <div>
                                 <div className="flex items-center gap-2.5 flex-wrap">
@@ -2035,7 +2059,13 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
-                                  {t.admin.schedule_info}: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | {t.admin.slot}: {f.duracion_slot_minutos || 60}m | {t.admin.max}: {f.dias_antelacion_maxima ?? 7} {t.admin.days}
+                                  {t.admin.schedule_info}: {f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)} | {t.admin.slot}: {f.duracion_slot_minutos || 60}m | {
+                                    f.limitar_antelacion === false
+                                      ? (t.admin.no_advance_limit_badge || 'Sin límite de antelación')
+                                      : (t.reservas.advance_limit_info
+                                          ? t.reservas.advance_limit_info.replace('{days}', String(f.dias_antelacion_maxima ?? 7))
+                                          : `Reserva con antelación máxima de ${f.dias_antelacion_maxima ?? 7} días`)
+                                  }
                                 </p>
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   {(f.largura || f.anchura || f.medidas) && (
@@ -2262,7 +2292,7 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
                               <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.slot_duration}</label>
                               <select 
@@ -2276,22 +2306,40 @@ export default function AdminDashboard() {
                                 <option value="120">120 min</option>
                               </select>
                             </div>
-                            <div>
-                              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.max_advance}</label>
-                              <select 
-                                value={nuevoFronton.dias_antelacion_maxima} 
-                                onChange={(e) => setNuevoFronton({...nuevoFronton, dias_antelacion_maxima: Number(e.target.value)})}
-                                className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
-                              >
-                                <option value="0">0 {t.admin.days} ({t.reservas.today})</option>
-                                <option value="1">1 {t.admin.days.slice(0,-1)}</option>
-                                <option value="2">2 {t.admin.days}</option>
-                                <option value="3">3 {t.admin.days}</option>
-                                <option value="4">4 {t.admin.days}</option>
-                                <option value="5">5 {t.admin.days}</option>
-                                <option value="6">6 {t.admin.days}</option>
-                                <option value="7">7 {t.admin.days}</option>
-                              </select>
+                            <div className="space-y-1.5">
+                              <label className="flex items-center gap-2 cursor-pointer pt-0.5">
+                                <input 
+                                  type="checkbox" 
+                                  checked={nuevoFronton.limitar_antelacion} 
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, limitar_antelacion: e.target.checked })}
+                                  className="rounded text-emerald-700 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-stone-700 dark:text-stone-300">
+                                  {t.admin.limit_advance_checkbox || 'Limitar antelación'}
+                                </span>
+                              </label>
+                              {nuevoFronton.limitar_antelacion ? (
+                                <select 
+                                  value={nuevoFronton.dias_antelacion_maxima} 
+                                  onChange={(e) => setNuevoFronton({...nuevoFronton, dias_antelacion_maxima: Number(e.target.value)})}
+                                  className="w-full p-2 border border-stone-300 dark:border-stone-700 rounded-xl text-sm bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
+                                >
+                                  <option value="0">0 {t.admin.days} ({t.reservas.today})</option>
+                                  <option value="1">1 {t.admin.days.slice(0,-1)}</option>
+                                  <option value="2">2 {t.admin.days}</option>
+                                  <option value="3">3 {t.admin.days}</option>
+                                  <option value="4">4 {t.admin.days}</option>
+                                  <option value="5">5 {t.admin.days}</option>
+                                  <option value="6">6 {t.admin.days}</option>
+                                  <option value="7">7 {t.admin.days}</option>
+                                  <option value="14">14 {t.admin.days}</option>
+                                  <option value="30">30 {t.admin.days}</option>
+                                </select>
+                              ) : (
+                                <div className="p-2 border border-dashed border-stone-300 dark:border-stone-700 rounded-xl text-xs text-stone-400 bg-stone-50 dark:bg-stone-950 font-medium">
+                                  {t.admin.no_advance_limit_badge || 'Sin límite de antelación'}
+                                </div>
+                              )}
                             </div>
                             <div>
                               <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">{t.admin.max_bookings_day}</label>
@@ -3245,6 +3293,16 @@ export default function AdminDashboard() {
           incidencia={incidenciaVerHistoricoModal}
           onClose={() => setIncidenciaVerHistoricoModal(null)}
           onOpenStatusChange={(inc) => abrirModalCambioEstado(inc)}
+          lang={lang}
+          t={t}
+        />
+
+        {/* MODAL DEL FORO DEL FRONTÓN */}
+        <FrontonForumModal
+          fronton={frontonForoModal}
+          isOpen={!!frontonForoModal}
+          onClose={() => setFrontonForoModal(null)}
+          user={userProfile}
           lang={lang}
           t={t}
         />

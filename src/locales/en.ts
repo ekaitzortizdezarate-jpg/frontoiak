@@ -218,7 +218,17 @@ export const en = {
     no_incidents_desc: 'This fronton has no damage or active maintenance notices.',
     view_incidents: '⚠️ View Incidents',
     show_actions: 'View actions',
-    hide_actions: 'Hide actions'
+    hide_actions: 'Hide actions',
+    fronton_forum: 'Fronton Forum',
+    open_forum_btn: '💬 Fronton Forum',
+    forum_title: 'Fronton Forum',
+    forum_desc: 'Public chat room for players and municipal managers',
+    no_forum_messages: 'No messages in this forum yet.',
+    forum_empty_desc: 'Be the first to share an announcement, organize a match, or ask questions to managers and fellow players.',
+    write_forum_message: 'Write a message in the forum for all users...',
+    send_forum_message: 'Send',
+    advance_limit_info: 'Booking up to {days} days in advance',
+    advance_limit_none: 'No advance booking limit'
   },
   auth: {
     login_title: 'Log in to your account',
@@ -328,6 +338,9 @@ export const en = {
     closing: 'Closing',
     slot_duration: 'Slot Duration',
     max_advance: 'Max Advance',
+    limit_advance_checkbox: 'Limit maximum booking advance',
+    advance_limit_badge: 'Booking up to {days} days in advance',
+    no_advance_limit_badge: 'No advance booking limit',
     max_bookings_day: 'Max Bookings/Day',
     allow_bookings: 'Enabled Fronton (Allow user bookings)',
     iot_device_active: 'IoT Device Active (Occupancy sensor)',

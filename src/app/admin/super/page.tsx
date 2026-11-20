@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import LanguageSelector from '@/components/LanguageSelector'
 import Footer from '@/components/Footer'
+import FrontonForumModal from '@/components/reservas/FrontonForumModal'
 
 // Cliente aislado de Supabase sin persistencia de sesión para crear nuevos usuarios sin alterar la sesión del Superadmin
 const authSignUpClient = createClient(
@@ -88,10 +89,12 @@ export default function SuperAdminDashboard() {
     hora_apertura: '08:00',
     hora_cierre: '22:00',
     duracion_slot_minutos: 60,
+    limitar_antelacion: true,
     dias_antelacion_maxima: 7,
     max_reservas_activas: 1,
     habilitado: true
   })
+  const [modalForoFronton, setModalForoFronton] = useState<any | null>(null)
   const [archivoImagenFronton, setArchivoImagenFronton] = useState<File | null>(null)
   const [guardandoFronton, setGuardandoFronton] = useState(false)
 
@@ -412,6 +415,7 @@ export default function SuperAdminDashboard() {
       hora_apertura: '08:00',
       hora_cierre: '22:00',
       duracion_slot_minutos: 60,
+      limitar_antelacion: true,
       dias_antelacion_maxima: 7,
       max_reservas_activas: 1,
       habilitado: true
@@ -463,6 +467,7 @@ export default function SuperAdminDashboard() {
       hora_apertura: f.hora_apertura ? f.hora_apertura.slice(0, 5) : '08:00',
       hora_cierre: f.hora_cierre ? f.hora_cierre.slice(0, 5) : '22:00',
       duracion_slot_minutos: f.duracion_slot_minutos || 60,
+      limitar_antelacion: f.limitar_antelacion !== false && f.dias_antelacion_maxima !== null && f.dias_antelacion_maxima !== undefined,
       dias_antelacion_maxima: f.dias_antelacion_maxima || 7,
       max_reservas_activas: f.max_reservas_activas || 1,
       habilitado: f.habilitado !== false
@@ -529,7 +534,8 @@ export default function SuperAdminDashboard() {
       hora_apertura: nuevoFronton.hora_apertura,
       hora_cierre: nuevoFronton.hora_cierre,
       duracion_slot_minutos: Number(nuevoFronton.duracion_slot_minutos) || 60,
-      dias_antelacion_maxima: Number(nuevoFronton.dias_antelacion_maxima) || 7,
+      limitar_antelacion: nuevoFronton.limitar_antelacion,
+      dias_antelacion_maxima: nuevoFronton.limitar_antelacion ? (Number(nuevoFronton.dias_antelacion_maxima) || 7) : null,
       max_reservas_activas: Number(nuevoFronton.max_reservas_activas) || 1,
       habilitado: nuevoFronton.habilitado
     }
@@ -550,6 +556,7 @@ export default function SuperAdminDashboard() {
         delete fallback.labur
         delete fallback.luze
         delete fallback.habilitado
+        delete fallback.limitar_antelacion
         if (res.error.message?.includes('uuid') || res.error.message?.includes('syntax')) {
           // Si hardware_token en la base de datos es de tipo UUID, omitirlo o usar null en el fallback
           delete fallback.hardware_token
@@ -1488,15 +1495,32 @@ export default function SuperAdminDashboard() {
                               />
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-bold text-stone-300 uppercase mb-1">Antelación Máx. (días)</label>
-                              <input
-                                type="number"
-                                min={1}
-                                value={nuevoFronton.dias_antelacion_maxima}
-                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, dias_antelacion_maxima: Number(e.target.value) })}
-                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
-                              />
+                            <div className="space-y-1">
+                              <label className="flex items-center gap-2 cursor-pointer pt-0.5">
+                                <input
+                                  type="checkbox"
+                                  checked={nuevoFronton.limitar_antelacion}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, limitar_antelacion: e.target.checked })}
+                                  className="rounded text-emerald-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-stone-300 uppercase">
+                                  {t.admin.limit_advance_checkbox || 'Limitar Antelación'}
+                                </span>
+                              </label>
+                              {nuevoFronton.limitar_antelacion ? (
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={nuevoFronton.dias_antelacion_maxima}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, dias_antelacion_maxima: Number(e.target.value) })}
+                                  className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                  placeholder="Días"
+                                />
+                              ) : (
+                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-stone-500 bg-stone-900 font-medium">
+                                  {t.admin.no_advance_limit_badge || 'Sin límite de antelación'}
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -2661,14 +2685,29 @@ export default function SuperAdminDashboard() {
                       className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-3.5 hover:border-stone-700 transition"
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3.5">
-                          {f.imagen_url ? (
-                            <img src={f.imagen_url} alt="" className="w-14 h-14 object-cover rounded-2xl border border-stone-800 bg-stone-900 flex-shrink-0" />
-                          ) : (
-                            <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0">
-                              🎾
-                            </div>
-                          )}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            {f.imagen_url ? (
+                              <img src={f.imagen_url} alt="" className="w-14 h-14 object-cover rounded-2xl border border-stone-800 bg-stone-900 flex-shrink-0" />
+                            ) : (
+                              <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0">
+                                🎾
+                              </div>
+                            )}
+
+                            {/* BOTÓN GRANDE AL LADO DE LA IMAGEN PARA ABRIR EL FORO */}
+                            <button
+                              type="button"
+                              onClick={() => setModalForoFronton(f)}
+                              className="h-14 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-xs hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-500/50"
+                              title="Foro del Frontón"
+                            >
+                              <span className="text-base leading-none">💬</span>
+                              <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
+                                Foro
+                              </span>
+                            </button>
+                          </div>
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="font-bold text-base text-white">{f.nombre}</h4>
@@ -2723,7 +2762,7 @@ export default function SuperAdminDashboard() {
                         <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
                           <span className="text-[10px] text-stone-500 uppercase font-bold block">Antelación / Reservas</span>
                           <span className="font-bold text-stone-200">
-                            Máx. {f.dias_antelacion_maxima ?? 7}d • {f.max_reservas_activas ?? 1} res/día
+                            {f.limitar_antelacion === false ? 'Sin límite' : `Máx. ${f.dias_antelacion_maxima ?? 7}d`} • {f.max_reservas_activas ?? 1} res/día
                           </span>
                         </div>
                       </div>
@@ -2753,6 +2792,16 @@ export default function SuperAdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* MODAL DEL FORO DEL FRONTÓN */}
+        <FrontonForumModal
+          fronton={modalForoFronton}
+          isOpen={!!modalForoFronton}
+          onClose={() => setModalForoFronton(null)}
+          user={adminUser}
+          lang="es"
+          t={t}
+        />
 
       </main>
 

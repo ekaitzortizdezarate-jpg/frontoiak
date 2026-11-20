@@ -218,7 +218,17 @@ export const eu = {
     no_incidents_desc: 'Frontoi honek ez du kalterik ezta abisu aktiborik ere.',
     view_incidents: '⚠️ Ikusi Gertakariak',
     show_actions: 'Ikusi jarduerak',
-    hide_actions: 'Ezkutatu jarduerak'
+    hide_actions: 'Ezkutatu jarduerak',
+    fronton_forum: 'Frontoiaren Foroa',
+    open_forum_btn: '💬 Frontoiaren Foroa',
+    forum_title: 'Frontoiaren Foroa',
+    forum_desc: 'Erabiltzaileen eta udal-kudeatzaileen arteko txat publikoa',
+    no_forum_messages: 'Oraindik ez dago mezurik foro honetan.',
+    forum_empty_desc: 'Izan zaitez lehena mezu bat partekatzen, partida bat antolatzen edo zalantzak argitzen.',
+    write_forum_message: 'Idatzi mezu bat foroan erabiltzaile guztientzat...',
+    send_forum_message: 'Bidali',
+    advance_limit_info: 'Gehienez {days} eguneko aurrerapenarekin erreserbatu',
+    advance_limit_none: 'Erreserbatzeko aurrerapen mugarik gabe'
   },
   auth: {
     login_title: 'Hasi saioa zure kontuan',
@@ -328,6 +338,9 @@ export const eu = {
     closing: 'Itxiera',
     slot_duration: 'Slot-aren iraupena',
     max_advance: 'Gehieneko aurrerapena',
+    limit_advance_checkbox: 'Erreserbaren gehieneko aurrerapena mugatu',
+    advance_limit_badge: 'Gehienez {days} eguneko aurrerapenarekin erreserbatu',
+    no_advance_limit_badge: 'Aurrerapen mugarik gabe',
     max_bookings_day: 'Geh. Erreserba/Egun',
     allow_bookings: 'Frontoia Gaituta (Erabiltzaileen erreserbak baimendu)',
     iot_device_active: 'IoT Gailua Aktibo (Okupazio sentsorea)',

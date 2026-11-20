@@ -218,7 +218,17 @@ export const es = {
     no_incidents_desc: 'Este frontón no tiene desperfectos ni avisos pendientes.',
     view_incidents: '⚠️ Ver Incidencias',
     show_actions: 'Ver actuaciones',
-    hide_actions: 'Ocultar actuaciones'
+    hide_actions: 'Ocultar actuaciones',
+    fronton_forum: 'Foro del Frontón',
+    open_forum_btn: '💬 Foro del Frontón',
+    forum_title: 'Foro del Frontón',
+    forum_desc: 'Espacio de chat público entre usuarios y gestores municipales',
+    no_forum_messages: 'Aún no hay mensajes en este foro.',
+    forum_empty_desc: 'Sé el primero en compartir un aviso, organizar una partida o consultar dudas con los gestores y pelotaris.',
+    write_forum_message: 'Escribe un mensaje en el foro para todos los usuarios...',
+    send_forum_message: 'Enviar',
+    advance_limit_info: 'Reserva con antelación máxima de {days} días',
+    advance_limit_none: 'Sin límite de antelación para reservar'
   },
   auth: {
     login_title: 'Inicia sesión en tu cuenta',
@@ -328,6 +338,9 @@ export const es = {
     closing: 'Cierre',
     slot_duration: 'Duración Slot',
     max_advance: 'Antelación Máx.',
+    limit_advance_checkbox: 'Limitar antelación máxima de reserva',
+    advance_limit_badge: 'Reserva con antelación máxima de {days} días',
+    no_advance_limit_badge: 'Sin límite de antelación',
     max_bookings_day: 'Max Reservas/Día',
     allow_bookings: 'Frontón Habilitado (Permitir reservas de usuarios)',
     iot_device_active: 'Dispositivo IoT Activo (Sensor de ocupación)',
