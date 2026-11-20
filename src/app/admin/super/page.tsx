@@ -2686,28 +2686,31 @@ export default function SuperAdminDashboard() {
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
+                          {/* BOTÓN FORO UNIFICADO CON LA IMAGEN DIFUMINADA DE FONDO */}
+                          <button
+                            type="button"
+                            onClick={() => setModalForoFronton(f)}
+                            className="relative w-16 h-16 rounded-2xl overflow-hidden border border-emerald-500/60 shadow-sm hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 group text-left"
+                            title="Foro del Frontón"
+                          >
                             {f.imagen_url ? (
-                              <img src={f.imagen_url} alt="" className="w-14 h-14 object-cover rounded-2xl border border-stone-800 bg-stone-900 flex-shrink-0" />
+                              <img
+                                src={f.imagen_url}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover blur-[1.5px] scale-105 group-hover:scale-110 transition duration-300"
+                              />
                             ) : (
-                              <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0">
-                                🎾
-                              </div>
+                              <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 to-stone-900" />
                             )}
-
-                            {/* BOTÓN GRANDE AL LADO DE LA IMAGEN PARA ABRIR EL FORO */}
-                            <button
-                              type="button"
-                              onClick={() => setModalForoFronton(f)}
-                              className="h-14 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-xs hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-500/50"
-                              title="Foro del Frontón"
-                            >
-                              <span className="text-base leading-none">💬</span>
-                              <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
+                            <div className="absolute inset-0 bg-stone-950/45 group-hover:bg-stone-950/35 transition duration-200" />
+                            <div className="relative z-10 w-full h-full p-1 flex flex-col items-center justify-center text-center text-white">
+                              <span className="text-base drop-shadow-md leading-none">💬</span>
+                              <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 drop-shadow-md leading-tight text-white">
                                 Foro
                               </span>
-                            </button>
-                          </div>
+                            </div>
+                          </button>
+
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="font-bold text-base text-white">{f.nombre}</h4>
