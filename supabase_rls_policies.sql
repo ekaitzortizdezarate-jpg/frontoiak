@@ -269,3 +269,137 @@ ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_antelacion BOOLEAN DEFAUL
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_horario BOOLEAN DEFAULT true;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_slot BOOLEAN DEFAULT true;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_max_reservas BOOLEAN DEFAULT true;
+
+-- ==============================================================================
+-- 8. SISTEMA IOT AVANZADO: PARÁMETROS REMOTOS, CALIBRACIÓN Y TELEMETRÍA
+-- ==============================================================================
+
+-- 8.1. Columnas de configuración remota y diagnóstico en tabla frontones
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_modo TEXT DEFAULT 'normal';
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_config_hasta TIMESTAMPTZ NULL;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_umbral_sonido INTEGER DEFAULT 1200;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_golpes_minimos INTEGER DEFAULT 3;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_muestreo_seg INTEGER DEFAULT 20;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_dormir_seg INTEGER DEFAULT 270;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_rebote_ms INTEGER DEFAULT 180;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_hora_inicio_activa TIME DEFAULT '07:00';
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_hora_fin_activa TIME DEFAULT '23:30';
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS bateria_porcentaje INTEGER NULL;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS bateria_voltaje NUMERIC(4,2) NULL;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultimo_aviso_iot TIMESTAMPTZ NULL;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultimo_conteo_golpes INTEGER NULL;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultima_amplitud_max INTEGER NULL;
+
+-- 8.2. Asegurar existencia de tabla telemetria_iot con restricción única para upsert
+CREATE TABLE IF NOT EXISTS telemetria_iot (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fronton_id UUID NOT NULL REFERENCES frontones(id) ON DELETE CASCADE,
+  fecha DATE NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fin TIME NOT NULL,
+  presencia_detectada BOOLEAN DEFAULT false,
+  en_uso BOOLEAN DEFAULT false,
+  bateria_porcentaje INTEGER NULL,
+  bateria_voltaje NUMERIC(4,2) NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT uq_telemetria_fronton_fecha_slot UNIQUE (fronton_id, fecha, hora_inicio)
+);
+
+ALTER TABLE telemetria_iot ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Lectura publica de telemetria_iot" ON telemetria_iot;
+CREATE POLICY "Lectura publica de telemetria_iot"
+  ON telemetria_iot FOR SELECT
+  USING (true);
+
+-- 8.3. Función RPC registrar_pulso_iot (seguridad definer para permitir actualización desde ESP32 con anon key)
+CREATE OR REPLACE FUNCTION registrar_pulso_iot(
+  p_token text,
+  p_en_uso boolean,
+  p_fecha date,
+  p_hora_inicio time,
+  p_hora_fin time,
+  p_bateria_pct integer default null,
+  p_bateria_v numeric default null,
+  p_golpes integer default null,
+  p_amplitud_max integer default null
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_fronton RECORD;
+  v_modo_actual text;
+  v_config_hasta timestamptz;
+BEGIN
+  -- 1. Buscar el frontón correspondiente mediante hardware_token
+  SELECT id, iot_modo, iot_config_hasta, iot_umbral_sonido, iot_golpes_minimos,
+         iot_muestreo_seg, iot_dormir_seg, iot_rebote_ms,
+         iot_hora_inicio_activa, iot_hora_fin_activa
+  INTO v_fronton
+  FROM frontones
+  WHERE hardware_token::text = p_token::text
+    AND tiene_sensor_iot = true
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('ok', false, 'error', 'Token invalido o sensor inactivo');
+  END IF;
+
+  v_modo_actual := COALESCE(v_fronton.iot_modo, 'normal');
+  v_config_hasta := v_fronton.iot_config_hasta;
+
+  -- 2. Si estaba en modo config y se ha superado el tiempo de 30 minutos, auto-retorno a normal
+  IF v_modo_actual = 'config' AND v_config_hasta IS NOT NULL AND v_config_hasta < now() THEN
+    v_modo_actual := 'normal';
+    v_config_hasta := NULL;
+  END IF;
+
+  -- 3. Actualizar estado y métricas en la tabla frontones
+  UPDATE frontones
+  SET
+    en_uso = p_en_uso,
+    ultimo_aviso_iot = now(),
+    iot_modo = v_modo_actual,
+    iot_config_hasta = v_config_hasta,
+    bateria_porcentaje = COALESCE(p_bateria_pct, bateria_porcentaje),
+    bateria_voltaje = COALESCE(p_bateria_v::numeric(4,2), bateria_voltaje),
+    ultimo_conteo_golpes = COALESCE(p_golpes, ultimo_conteo_golpes),
+    ultima_amplitud_max = COALESCE(p_amplitud_max, ultima_amplitud_max)
+  WHERE id = v_fronton.id;
+
+  -- 4. Insertar o actualizar la franja horaria en telemetria_iot
+  INSERT INTO telemetria_iot (
+    fronton_id, fecha, hora_inicio, hora_fin, presencia_detectada, en_uso, bateria_porcentaje, bateria_voltaje, created_at
+  )
+  VALUES (
+    v_fronton.id, p_fecha, p_hora_inicio, p_hora_fin, p_en_uso, p_en_uso, p_bateria_pct, p_bateria_v::numeric(4,2), now()
+  )
+  ON CONFLICT (fronton_id, fecha, hora_inicio)
+  DO UPDATE SET
+    presencia_detectada = telemetria_iot.presencia_detectada OR EXCLUDED.presencia_detectada,
+    en_uso = telemetria_iot.en_uso OR EXCLUDED.en_uso,
+    hora_fin = EXCLUDED.hora_fin,
+    bateria_porcentaje = COALESCE(EXCLUDED.bateria_porcentaje, telemetria_iot.bateria_porcentaje),
+    bateria_voltaje = COALESCE(EXCLUDED.bateria_voltaje, telemetria_iot.bateria_voltaje),
+    created_at = now();
+
+  -- 5. Devolver confirmación y configuración remota actualizada al ESP32
+  RETURN json_build_object(
+    'ok', true,
+    'fronton_id', v_fronton.id,
+    'en_uso', p_en_uso,
+    'config', json_build_object(
+      'modo', v_modo_actual,
+      'umbral_sonido', COALESCE(v_fronton.iot_umbral_sonido, 1200),
+      'golpes_minimos', COALESCE(v_fronton.iot_golpes_minimos, 3),
+      'muestreo_seg', COALESCE(v_fronton.iot_muestreo_seg, 20),
+      'dormir_seg', COALESCE(v_fronton.iot_dormir_seg, 270),
+      'rebote_ms', COALESCE(v_fronton.iot_rebote_ms, 180),
+      'hora_inicio_activa', TO_CHAR(COALESCE(v_fronton.iot_hora_inicio_activa, '07:00'::time), 'HH24:MI'),
+      'hora_fin_activa', TO_CHAR(COALESCE(v_fronton.iot_hora_fin_activa, '23:30'::time), 'HH24:MI')
+    )
+  );
+END;
+$$;

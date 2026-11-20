@@ -1,28 +1,66 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#include <Preferences.h>
 #include "time.h"
 
-// ================= CONFIGURACIÓN USUARIO =================
+// ================= CONFIGURACIÓN BÁSICA DEL USUARIO =================
 const char* WIFI_SSID         = "TU_WIFI_SSID";
 const char* WIFI_PASS         = "TU_WIFI_PASSWORD";
 const char* SUPABASE_URL      = "https://tu-proyecto.supabase.co";
 const char* SUPABASE_ANON_KEY = "TU_SUPABASE_ANON_KEY";
 const char* HARDWARE_TOKEN    = "00000000-0000-0000-0000-000000000000";
 
-// ================= PARÁMETROS DEL SENSOR =================
+// ================= PINES DE HARDWARE =================
 #define PIN_MIC     33                  // OUT del MAX9814
-#define PIN_BATERIA 34                  // Punto medio del divisor 100k / 100k
-
-const int UMBRAL_IMPACTO      = 1200;   // Ajusta según tu calibración
-const int GOLPES_MINIMOS      = 3;      
-const int TIEMPO_MUESTREO_SEG = 20;     
-const int TIEMPO_DORMIR_SEG   = 15;     
+#define PIN_BATERIA 34                  // Divisor 100k / 100k
 
 const char* NTP_SERVER = "pool.ntp.org";
 const char* TZ_INFO    = "CET-1CEST,M3.5.0,M10.5.0/3";
 
-// Lee el voltaje real de la batería 18650 (3.3V a 4.2V)
+// Objeto de almacenamiento Flash no volátil (NVS)
+Preferences preferences;
+
+// Variables de calibración activas en memoria
+String g_modo              = "normal";
+int    g_umbralSonido      = 1200;
+int    g_golpesMinimos     = 3;
+int    g_muestreoSeg       = 20;
+int    g_dormirSeg         = 270;
+int    g_reboteMs          = 180;
+String g_horaInicioActiva  = "07:00";
+String g_horaFinActiva     = "23:30";
+
+// Cargar configuración guardada en memoria Flash NVS
+void cargarConfiguracionFlash() {
+  preferences.begin("fronton_iot", false);
+  g_modo             = preferences.getString("modo", "normal");
+  g_umbralSonido     = preferences.getInt("umbral", 1200);
+  g_golpesMinimos    = preferences.getInt("golpes", 3);
+  g_muestreoSeg      = preferences.getInt("muestreo", 20);
+  g_dormirSeg        = preferences.getInt("dormir", 270);
+  g_reboteMs         = preferences.getInt("rebote", 180);
+  g_horaInicioActiva = preferences.getString("h_inicio", "07:00");
+  g_horaFinActiva    = preferences.getString("h_fin", "23:30");
+  preferences.end();
+}
+
+// Guardar nueva configuración en Flash NVS
+void guardarConfiguracionFlash() {
+  preferences.begin("fronton_iot", false);
+  preferences.putString("modo", g_modo);
+  preferences.putInt("umbral", g_umbralSonido);
+  preferences.putInt("golpes", g_golpesMinimos);
+  preferences.putInt("muestreo", g_muestreoSeg);
+  preferences.putInt("dormir", g_dormirSeg);
+  preferences.putInt("rebote", g_reboteMs);
+  preferences.putString("h_inicio", g_horaInicioActiva);
+  preferences.putString("h_fin", g_horaFinActiva);
+  preferences.end();
+  Serial.println(">> Configuracion guardada con exito en Flash NVS.");
+}
+
+// Lee el voltaje real de la batería Li-ion 18650 (3.3V a 4.2V)
 float leerVoltajeBateria() {
   uint32_t sumaMv = 0;
   for (int i = 0; i < 10; i++) {
@@ -30,7 +68,7 @@ float leerVoltajeBateria() {
     delay(5);
   }
   float pinMv = sumaMv / 10.0;
-  return (pinMv * 2.0) / 1000.0; // Multiplicamos por 2 por el divisor 100k/100k
+  return (pinMv * 2.0) / 1000.0; // Multiplicador 2.0 por divisor resistivo 100k/100k
 }
 
 int calcularPorcentajeBateria(float v) {
@@ -39,14 +77,16 @@ int calcularPorcentajeBateria(float v) {
   return (int)((v - 3.30) / (4.20 - 3.30) * 100.0);
 }
 
-int contarPelotazos() {
+// Escucha activa de impactos acústicos y registro de amplitud máxima registrada
+int contarPelotazos(int ventanaSeg, int umbral, int reboteMs, int &amplitudMaxRegistrada) {
   int impactos = 0;
+  amplitudMaxRegistrada = 0;
   unsigned long inicio = millis();
   unsigned long ultimoImpacto = 0;
 
-  Serial.println("Escuchando impactos en el fronton...");
+  Serial.printf("Escuchando impactos (%ds, umbral: %d, rebote: %dms)...\n", ventanaSeg, umbral, reboteMs);
 
-  while (millis() - inicio < (TIEMPO_MUESTREO_SEG * 1000UL)) {
+  while (millis() - inicio < (ventanaSeg * 1000UL)) {
     unsigned long ventana = millis();
     int senalMax = 0;
     int senalMin = 4095;
@@ -58,17 +98,127 @@ int contarPelotazos() {
     }
 
     int amplitudPico = senalMax - senalMin;
+    if (amplitudPico > amplitudMaxRegistrada) {
+      amplitudMaxRegistrada = amplitudPico;
+    }
 
-    if (amplitudPico > UMBRAL_IMPACTO && (millis() - ultimoImpacto > 180)) {
+    if (amplitudPico > umbral && (millis() - ultimoImpacto > (unsigned long)reboteMs)) {
       impactos++;
       ultimoImpacto = millis();
-      Serial.printf("Pelotazo detectado! (#%d) - Amplitud: %d\n", impactos, amplitudPico);
+      Serial.printf("Pelotazo detectado! (#%d) - Pico: %d | AmplitudMax: %d\n", impactos, amplitudPico, amplitudMaxRegistrada);
     }
   }
   return impactos;
 }
 
-void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje) {
+// Extraer valor de clave JSON sencilla (para compatibilidad total sin dependencias externas)
+String extraerJsonString(const String& json, const String& clave) {
+  String patron = "\"" + clave + "\":\"";
+  int idx = json.indexOf(patron);
+  if (idx == -1) return "";
+  idx += patron.length();
+  int fin = json.indexOf("\"", idx);
+  if (fin == -1) return "";
+  return json.substring(idx, fin);
+}
+
+int extraerJsonInt(const String& json, const String& clave, int valorDefecto) {
+  String patron = "\"" + clave + "\":";
+  int idx = json.indexOf(patron);
+  if (idx == -1) return valorDefecto;
+  idx += patron.length();
+  while (idx < (int)json.length() && (json[idx] == ' ' || json[idx] == '\"')) idx++;
+  int fin = idx;
+  while (fin < (int)json.length() && (isDigit(json[fin]) || json[fin] == '-')) fin++;
+  if (fin > idx) {
+    return json.substring(idx, fin).toInt();
+  }
+  return valorDefecto;
+}
+
+// Analizar la respuesta remota del RPC de Supabase y actualizar variables si hay cambios
+void procesarRespuestaConfig(const String& respuestaJson) {
+  if (respuestaJson.indexOf("\"config\":") == -1) return;
+
+  bool cambios = false;
+
+  String nuevoModo = extraerJsonString(respuestaJson, "modo");
+  if (nuevoModo.length() > 0 && nuevoModo != g_modo) {
+    g_modo = nuevoModo;
+    cambios = true;
+  }
+
+  int nuevoUmbral = extraerJsonInt(respuestaJson, "umbral_sonido", g_umbralSonido);
+  if (nuevoUmbral != g_umbralSonido) {
+    g_umbralSonido = nuevoUmbral;
+    cambios = true;
+  }
+
+  int nuevosGolpes = extraerJsonInt(respuestaJson, "golpes_minimos", g_golpesMinimos);
+  if (nuevosGolpes != g_golpesMinimos) {
+    g_golpesMinimos = nuevosGolpes;
+    cambios = true;
+  }
+
+  int nuevoMuestreo = extraerJsonInt(respuestaJson, "muestreo_seg", g_muestreoSeg);
+  if (nuevoMuestreo != g_muestreoSeg) {
+    g_muestreoSeg = nuevoMuestreo;
+    cambios = true;
+  }
+
+  int nuevoDormir = extraerJsonInt(respuestaJson, "dormir_seg", g_dormirSeg);
+  if (nuevoDormir != g_dormirSeg) {
+    g_dormirSeg = nuevoDormir;
+    cambios = true;
+  }
+
+  int nuevoRebote = extraerJsonInt(respuestaJson, "rebote_ms", g_reboteMs);
+  if (nuevoRebote != g_reboteMs) {
+    g_reboteMs = nuevoRebote;
+    cambios = true;
+  }
+
+  String nuevaHoraInicio = extraerJsonString(respuestaJson, "hora_inicio_activa");
+  if (nuevaHoraInicio.length() >= 5 && nuevaHoraInicio != g_horaInicioActiva) {
+    g_horaInicioActiva = nuevaHoraInicio.substring(0, 5);
+    cambios = true;
+  }
+
+  String nuevaHoraFin = extraerJsonString(respuestaJson, "hora_fin_activa");
+  if (nuevaHoraFin.length() >= 5 && nuevaHoraFin != g_horaFinActiva) {
+    g_horaFinActiva = nuevaHoraFin.substring(0, 5);
+    cambios = true;
+  }
+
+  if (cambios) {
+    Serial.printf(">> Nueva configuracion remota recibida: modo=%s, umbral=%d, dormir=%ds\n",
+                  g_modo.c_str(), g_umbralSonido, g_dormirSeg);
+    guardarConfiguracionFlash();
+  }
+}
+
+// Verifica si la hora actual está dentro de la franja operativa activa
+bool estaEnHorarioActivo(int horaActual, int minutoActual) {
+  int minutosActuales = horaActual * 60 + minutoActual;
+
+  int hInicio = g_horaInicioActiva.substring(0, 2).toInt();
+  int mInicio = g_horaInicioActiva.substring(3, 5).toInt();
+  int minutosInicio = hInicio * 60 + mInicio;
+
+  int hFin = g_horaFinActiva.substring(0, 2).toInt();
+  int mFin = g_horaFinActiva.substring(3, 5).toInt();
+  int minutosFin = hFin * 60 + mFin;
+
+  if (minutosFin >= minutosInicio) {
+    return (minutosActuales >= minutosInicio && minutosActuales <= minutosFin);
+  } else {
+    // Cruza medianoche
+    return (minutosActuales >= minutosInicio || minutosActuales <= minutosFin);
+  }
+}
+
+// Enviar datos por HTTPS llamando al RPC `registrar_pulso_iot`
+void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje, int golpes, int amplitudMax, int &horaOut, int &minOut) {
   if (WiFi.status() != WL_CONNECTED) return;
 
   struct tm timeinfo;
@@ -76,6 +226,9 @@ void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje) {
     Serial.println("Error obteniendo hora NTP");
     return;
   }
+
+  horaOut = timeinfo.tm_hour;
+  minOut  = timeinfo.tm_min;
 
   char fecha[11], horaInicio[9], horaFin[9];
   strftime(fecha, sizeof(fecha), "%Y-%m-%d", &timeinfo);
@@ -111,12 +264,18 @@ void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje) {
     payload += "\"p_hora_inicio\":\"" + String(horaInicio) + "\",";
     payload += "\"p_hora_fin\":\"" + String(horaFin) + "\",";
     payload += "\"p_bateria_pct\":" + String(batPorcentaje) + ",";
-    payload += "\"p_bateria_v\":" + String(batVoltaje, 2);
+    payload += "\"p_bateria_v\":" + String(batVoltaje, 2) + ",";
+    payload += "\"p_golpes\":" + String(golpes) + ",";
+    payload += "\"p_amplitud_max\":" + String(amplitudMax);
     payload += "}";
 
     int httpCode = https.POST(payload);
     String respuesta = https.getString();
     Serial.printf("Supabase HTTP %d: %s\n", httpCode, respuesta.c_str());
+
+    if (httpCode >= 200 && httpCode < 300) {
+      procesarRespuestaConfig(respuesta);
+    }
     https.end();
   }
 }
@@ -125,16 +284,23 @@ void setup() {
   Serial.begin(115200);
   analogReadResolution(12);
 
-  // 1. Medir batería y pelotazos antes de encender el WiFi
+  // 1. Cargar parámetros guardados en memoria no volátil
+  cargarConfiguracionFlash();
+
+  // 2. Determinar ventana de muestreo según el modo activo
+  int ventanaMuestreo = (g_modo == "config") ? 5 : g_muestreoSeg;
+
+  // 3. Medir batería y escuchar cancha antes de iniciar radio WiFi
   float batV = leerVoltajeBateria();
   int batPct = calcularPorcentajeBateria(batV);
-  int totalGolpes = contarPelotazos();
-  bool frontonOcupado = (totalGolpes >= GOLPES_MINIMOS);
-  
-  Serial.printf("Bateria: %.2fV (%d%%) | Golpes: %d -> Estado: %s\n", 
-                batV, batPct, totalGolpes, frontonOcupado ? "EN USO" : "LIBRE");
+  int ampMax = 0;
+  int totalGolpes = contarPelotazos(ventanaMuestreo, g_umbralSonido, g_reboteMs, ampMax);
+  bool frontonOcupado = (totalGolpes >= g_golpesMinimos);
 
-  // 2. Conectar al WiFi y enviar datos
+  Serial.printf("Modo: %s | Bateria: %.2fV (%d%%) | Golpes: %d | AmpMax: %d -> %s\n",
+                g_modo.c_str(), batV, batPct, totalGolpes, ampMax, frontonOcupado ? "EN USO" : "LIBRE");
+
+  // 4. Conectar al WiFi y sincronizar con Supabase
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   int intentos = 0;
@@ -143,17 +309,34 @@ void setup() {
     intentos++;
   }
 
+  int horaActual = 12, minActual = 0;
   if (WiFi.status() == WL_CONNECTED) {
     configTzTime(TZ_INFO, NTP_SERVER);
-    enviarASupabase(frontonOcupado, batV, batPct);
+    enviarASupabase(frontonOcupado, batV, batPct, totalGolpes, ampMax, horaActual, minActual);
   }
 
-  // 3. Dormir
+  // 5. Determinar tiempo de sueño según modo y horario activo
+  uint64_t segundosDormir = g_dormirSeg;
+
+  if (g_modo == "config") {
+    // En modo configuración y calibración: ciclo rápido de 5 segundos
+    segundosDormir = 5;
+    Serial.println(">> Modo Config: Durmiendo 5 segundos para calibracion rapida...");
+  } else {
+    // En modo normal: verificar si estamos fuera de horario activo
+    if (!estaEnHorarioActivo(horaActual, minActual)) {
+      segundosDormir = 600; // 10 minutos de reposo profundo nocturno
+      Serial.println(">> Fuera de horario activo: Durmiendo 600 segundos (modo ahorro)...");
+    } else {
+      Serial.printf(">> Modo Normal: Durmiendo %llu segundos...\n", segundosDormir);
+    }
+  }
+
+  // 6. Entrar en Deep Sleep
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
-  esp_sleep_enable_timer_wakeup(TIEMPO_DORMIR_SEG * 1000000ULL);
+  esp_sleep_enable_timer_wakeup(segundosDormir * 1000000ULL);
   esp_deep_sleep_start();
 }
 
 void loop() {}
-// FIN DEL ARCHIVO
