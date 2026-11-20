@@ -89,8 +89,11 @@ export default function SuperAdminDashboard() {
     hora_apertura: '08:00',
     hora_cierre: '22:00',
     duracion_slot_minutos: 60,
+    limitar_horario: true,
+    limitar_slot: true,
     limitar_antelacion: true,
     dias_antelacion_maxima: 7,
+    limitar_max_reservas: true,
     max_reservas_activas: 1,
     habilitado: true
   })
@@ -415,8 +418,11 @@ export default function SuperAdminDashboard() {
       hora_apertura: '08:00',
       hora_cierre: '22:00',
       duracion_slot_minutos: 60,
+      limitar_horario: true,
+      limitar_slot: true,
       limitar_antelacion: true,
       dias_antelacion_maxima: 7,
+      limitar_max_reservas: true,
       max_reservas_activas: 1,
       habilitado: true
     })
@@ -467,8 +473,11 @@ export default function SuperAdminDashboard() {
       hora_apertura: f.hora_apertura ? f.hora_apertura.slice(0, 5) : '08:00',
       hora_cierre: f.hora_cierre ? f.hora_cierre.slice(0, 5) : '22:00',
       duracion_slot_minutos: f.duracion_slot_minutos || 60,
+      limitar_horario: f.limitar_horario !== false,
+      limitar_slot: f.limitar_slot !== false,
       limitar_antelacion: f.limitar_antelacion !== false && f.dias_antelacion_maxima !== null && f.dias_antelacion_maxima !== undefined,
       dias_antelacion_maxima: f.dias_antelacion_maxima || 7,
+      limitar_max_reservas: f.limitar_max_reservas !== false,
       max_reservas_activas: f.max_reservas_activas || 1,
       habilitado: f.habilitado !== false
     })
@@ -531,12 +540,15 @@ export default function SuperAdminDashboard() {
       tiene_sensor_iot: nuevoFronton.tiene_sensor_iot,
       hardware_token: nuevoFronton.hardware_token || (nuevoFronton.tiene_sensor_iot ? `esp32-${Date.now().toString(36)}` : null),
       imagen_url: finalImageUrl || null,
-      hora_apertura: nuevoFronton.hora_apertura,
-      hora_cierre: nuevoFronton.hora_cierre,
-      duracion_slot_minutos: Number(nuevoFronton.duracion_slot_minutos) || 60,
+      hora_apertura: nuevoFronton.limitar_horario ? nuevoFronton.hora_apertura : null,
+      hora_cierre: nuevoFronton.limitar_horario ? nuevoFronton.hora_cierre : null,
+      duracion_slot_minutos: nuevoFronton.limitar_slot ? (Number(nuevoFronton.duracion_slot_minutos) || 60) : null,
+      limitar_horario: nuevoFronton.limitar_horario,
+      limitar_slot: nuevoFronton.limitar_slot,
       limitar_antelacion: nuevoFronton.limitar_antelacion,
       dias_antelacion_maxima: nuevoFronton.limitar_antelacion ? (Number(nuevoFronton.dias_antelacion_maxima) || 7) : null,
-      max_reservas_activas: Number(nuevoFronton.max_reservas_activas) || 1,
+      limitar_max_reservas: nuevoFronton.limitar_max_reservas,
+      max_reservas_activas: nuevoFronton.limitar_max_reservas ? (Number(nuevoFronton.max_reservas_activas) || 1) : null,
       habilitado: nuevoFronton.habilitado
     }
 
@@ -556,7 +568,14 @@ export default function SuperAdminDashboard() {
         delete fallback.labur
         delete fallback.luze
         delete fallback.habilitado
+        delete fallback.limitar_horario
+        delete fallback.limitar_slot
         delete fallback.limitar_antelacion
+        delete fallback.limitar_max_reservas
+        if (!fallback.hora_apertura) fallback.hora_apertura = '08:00'
+        if (!fallback.hora_cierre) fallback.hora_cierre = '22:00'
+        if (!fallback.duracion_slot_minutos) fallback.duracion_slot_minutos = 60
+        if (!fallback.max_reservas_activas) fallback.max_reservas_activas = 1
         if (res.error.message?.includes('uuid') || res.error.message?.includes('syntax')) {
           // Si hardware_token en la base de datos es de tipo UUID, omitirlo o usar null en el fallback
           delete fallback.hardware_token
@@ -1463,39 +1482,76 @@ export default function SuperAdminDashboard() {
                               />
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-bold text-stone-300 uppercase mb-1">Hora Apertura</label>
-                              <input
-                                type="time"
-                                value={nuevoFronton.hora_apertura}
-                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_apertura: e.target.value })}
-                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
-                              />
+                            <div className="col-span-1 sm:col-span-2 space-y-2 p-3 rounded-2xl bg-stone-900 border border-stone-800">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={nuevoFronton.limitar_horario}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, limitar_horario: e.target.checked })}
+                                  className="rounded text-emerald-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-stone-300 uppercase">
+                                  {t.admin.limit_schedule_checkbox || 'Limitar Horario (Apertura y Cierre)'}
+                                </span>
+                              </label>
+
+                              {nuevoFronton.limitar_horario ? (
+                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1">Hora Apertura</label>
+                                    <input
+                                      type="time"
+                                      value={nuevoFronton.hora_apertura}
+                                      onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_apertura: e.target.value })}
+                                      className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1">Hora Cierre</label>
+                                    <input
+                                      type="time"
+                                      value={nuevoFronton.hora_cierre}
+                                      onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_cierre: e.target.value })}
+                                      className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-emerald-400 bg-stone-950 font-medium">
+                                  ✅ {t.admin.all_day_available || 'Disponible 24 horas (Sin restricción de horario)'}
+                                </div>
+                              )}
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-bold text-stone-300 uppercase mb-1">Hora Cierre</label>
-                              <input
-                                type="time"
-                                value={nuevoFronton.hora_cierre}
-                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, hora_cierre: e.target.value })}
-                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
-                              />
+                            <div className="space-y-1 p-3 rounded-2xl bg-stone-900 border border-stone-800">
+                              <label className="flex items-center gap-2 cursor-pointer pt-0.5">
+                                <input
+                                  type="checkbox"
+                                  checked={nuevoFronton.limitar_slot}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, limitar_slot: e.target.checked })}
+                                  className="rounded text-emerald-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-stone-300 uppercase">
+                                  {t.admin.limit_slot_duration_checkbox || 'Fijar Duración de Slot'}
+                                </span>
+                              </label>
+                              {nuevoFronton.limitar_slot ? (
+                                <input
+                                  type="number"
+                                  min={30}
+                                  step={15}
+                                  value={nuevoFronton.duracion_slot_minutos}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, duracion_slot_minutos: Number(e.target.value) })}
+                                  className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                />
+                              ) : (
+                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-stone-400 bg-stone-950 font-medium">
+                                  {t.admin.slot_duration_free || 'Sin franja fija (Intervalos estándar)'}
+                                </div>
+                              )}
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-bold text-stone-300 uppercase mb-1">Duración Slot (minutos)</label>
-                              <input
-                                type="number"
-                                min={30}
-                                step={15}
-                                value={nuevoFronton.duracion_slot_minutos}
-                                onChange={(e) => setNuevoFronton({ ...nuevoFronton, duracion_slot_minutos: Number(e.target.value) })}
-                                className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
-                              />
-                            </div>
-
-                            <div className="space-y-1">
+                            <div className="space-y-1 p-3 rounded-2xl bg-stone-900 border border-stone-800">
                               <label className="flex items-center gap-2 cursor-pointer pt-0.5">
                                 <input
                                   type="checkbox"
@@ -1517,8 +1573,36 @@ export default function SuperAdminDashboard() {
                                   placeholder="Días"
                                 />
                               ) : (
-                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-stone-500 bg-stone-900 font-medium">
+                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-stone-400 bg-stone-950 font-medium">
                                   {t.admin.no_advance_limit_badge || 'Sin límite de antelación'}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="space-y-1 p-3 rounded-2xl bg-stone-900 border border-stone-800">
+                              <label className="flex items-center gap-2 cursor-pointer pt-0.5">
+                                <input
+                                  type="checkbox"
+                                  checked={nuevoFronton.limitar_max_reservas}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, limitar_max_reservas: e.target.checked })}
+                                  className="rounded text-emerald-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-stone-300 uppercase">
+                                  {t.admin.limit_max_bookings_checkbox || 'Limitar Máx Reservas/Día'}
+                                </span>
+                              </label>
+                              {nuevoFronton.limitar_max_reservas ? (
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={nuevoFronton.max_reservas_activas}
+                                  onChange={(e) => setNuevoFronton({ ...nuevoFronton, max_reservas_activas: Number(e.target.value) })}
+                                  className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-medium"
+                                  placeholder="Reservas por día"
+                                />
+                              ) : (
+                                <div className="p-2 border border-dashed border-stone-800 rounded-xl text-xs text-stone-400 bg-stone-950 font-medium">
+                                  {t.admin.no_max_bookings_limit || 'Sin límite de reservas por día'}
                                 </div>
                               )}
                             </div>
@@ -2682,27 +2766,28 @@ export default function SuperAdminDashboard() {
                   return frontonesList.map((f) => (
                     <div 
                       key={f.id}
-                      className="relative bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-3.5 hover:border-stone-700 transition overflow-hidden"
+                      className="bg-stone-900/90 p-5 rounded-2xl border border-stone-800 space-y-4 hover:border-stone-700 transition shadow-sm"
                     >
-                      {/* IMAGEN DE FONDO DE LA TARJETA DEL FRONTÓN (NÍTIDA, SIN DIFUMINAR) */}
-                      {f.imagen_url && (
-                        <>
-                          <img
-                            src={f.imagen_url}
-                            alt=""
-                            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-                          />
-                          <div className="absolute inset-0 bg-stone-950/90 pointer-events-none" />
-                        </>
-                      )}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+                          {/* IMAGEN DEL FRONTÓN LIMPIA */}
+                          {f.imagen_url ? (
+                            <img
+                              src={f.imagen_url}
+                              alt={f.nombre}
+                              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover object-center border border-stone-800 flex-shrink-0 shadow-2xs"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-950 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0 text-stone-500">
+                              🏟️
+                            </div>
+                          )}
 
-                      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          {/* BOTÓN FORO ALINEADO A LA IZQUIERDA SIN IMAGEN DE FONDO */}
+                          {/* BOTÓN FORO */}
                           <button
                             type="button"
                             onClick={() => setModalForoFronton(f)}
-                            className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/40"
+                            className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-sm hover:shadow transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/30"
                             title="Foro del Frontón"
                           >
                             <span className="text-lg leading-none">💬</span>
@@ -2711,9 +2796,9 @@ export default function SuperAdminDashboard() {
                             </span>
                           </button>
 
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-bold text-base text-white">{f.nombre}</h4>
+                              <h4 className="font-bold text-base text-white truncate">{f.nombre}</h4>
                               <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                 f.habilitado !== false 
                                   ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80' 
@@ -2727,8 +2812,20 @@ export default function SuperAdminDashboard() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-stone-400 mt-0.5">
-                              Horario: <strong className="text-stone-200">{f.hora_apertura?.slice(0,5)} - {f.hora_cierre?.slice(0,5)}</strong> | Slots: <strong className="text-stone-200">{f.duracion_slot_minutos || 60}m</strong>
+                            <p className="text-xs text-stone-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                              <span>
+                                Horario:{' '}
+                                <strong className="text-stone-200">
+                                  {f.limitar_horario === false ? '24 Horas' : `${f.hora_apertura?.slice(0,5) || '08:00'} - ${f.hora_cierre?.slice(0,5) || '22:00'}`}
+                                </strong>
+                              </span>
+                              <span className="text-stone-700">•</span>
+                              <span>
+                                Slots:{' '}
+                                <strong className="text-stone-200">
+                                  {f.limitar_slot === false ? 'Flexible' : `${f.duracion_slot_minutos || 60}m`}
+                                </strong>
+                              </span>
                             </p>
                           </div>
                         </div>
@@ -2742,37 +2839,37 @@ export default function SuperAdminDashboard() {
                       </div>
 
                       {/* DETALLES TÉCNICOS Y CARACTERÍSTICAS */}
-                      <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800/80 text-xs">
-                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
-                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Medidas / Dimensiones</span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800 text-xs">
+                        <div className="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800/80">
+                          <span className="text-[10px] text-stone-500 uppercase font-bold block">Medidas</span>
                           <span className="font-bold text-stone-200">
                             {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.medidas || 'Estándar'}
                           </span>
                         </div>
-                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                        <div className="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800/80">
                           <span className="text-[10px] text-stone-500 uppercase font-bold block">Cuadros / Líneas</span>
                           <span className="font-bold text-stone-200">
                             {f.cuadros ? `${f.cuadros} cuadros` : 'No especificado'}
                             {f.labur || f.luze ? ` (Pasa: ${f.labur || '-'} / Falta: ${f.luze || '-'})` : ''}
                           </span>
                         </div>
-                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                        <div className="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800/80">
                           <span className="text-[10px] text-stone-500 uppercase font-bold block">Iluminación</span>
                           <span className="font-bold text-stone-200">
-                            {f.tiene_luz ? (f.luz_pago ? '💡 Con luz (De pago)' : '💡 Con luz (Gratuita)') : 'Sin iluminación'}
+                            {f.tiene_luz ? (f.luz_pago ? '💡 Luz de Pago' : '💡 Luz Incluida') : 'Sin iluminación'}
                           </span>
                         </div>
-                        <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
+                        <div className="bg-stone-950/80 p-2.5 rounded-xl border border-stone-800/80">
                           <span className="text-[10px] text-stone-500 uppercase font-bold block">Antelación / Reservas</span>
                           <span className="font-bold text-stone-200">
-                            {f.limitar_antelacion === false ? 'Sin límite' : `Máx. ${f.dias_antelacion_maxima ?? 7}d`} • {f.max_reservas_activas ?? 1} res/día
+                            {f.limitar_antelacion === false ? 'Sin límite' : `Máx. ${f.dias_antelacion_maxima ?? 7}d`} • {f.limitar_max_reservas === false ? 'Sin lím. res/día' : `${f.max_reservas_activas ?? 1} res/día`}
                           </span>
                         </div>
                       </div>
 
                       {(f.tiene_vestuarios || f.tiene_duchas) && (
-                        <div className="flex items-center gap-3 text-xs text-stone-400 pt-1">
-                          {f.tiene_vestuarios && <span>🚿 Vestuarios disponibles</span>}
+                        <div className="flex items-center gap-3 text-xs text-stone-400 pt-1 border-t border-stone-800/50">
+                          {f.tiene_vestuarios && <span>🚪 Vestuarios disponibles</span>}
                           {f.tiene_duchas && <span>🚿 Duchas habilitadas</span>}
                         </div>
                       )}

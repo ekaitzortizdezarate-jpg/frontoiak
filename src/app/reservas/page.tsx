@@ -565,11 +565,13 @@ export default function PortalReservas() {
           if (pId !== provId) return false
         }
 
-        // Horarios del frontón
-        const apertura = (f.hora_apertura || '08:00').slice(0, 5)
-        const cierre = (f.hora_cierre || '22:00').slice(0, 5)
-        if (horaIni < apertura || horaFin > cierre) {
-          return false
+        // Horarios del frontón (si tiene limitación activa)
+        if (f.limitar_horario !== false) {
+          const apertura = (f.hora_apertura || '08:00').slice(0, 5)
+          const cierre = (f.hora_cierre || '22:00').slice(0, 5)
+          if (horaIni < apertura || horaFin > cierre) {
+            return false
+          }
         }
 
         // Comprobación de antelación máxima (si tiene limitación activa)
@@ -972,16 +974,22 @@ export default function PortalReservas() {
 
   const generarSlotsHorariosParaFecha = (fechaStr: string) => {
     if (!frontonSeleccionado) return []
-    const apertura = frontonSeleccionado.hora_apertura || '08:00'
-    const cierre = frontonSeleccionado.hora_cierre || '22:00'
-    const duracionMin = frontonSeleccionado.duracion_slot_minutos || 60
+    const apertura = (frontonSeleccionado.limitar_horario !== false && frontonSeleccionado.hora_apertura) 
+      ? frontonSeleccionado.hora_apertura 
+      : '00:00'
+    const cierre = (frontonSeleccionado.limitar_horario !== false && frontonSeleccionado.hora_cierre) 
+      ? frontonSeleccionado.hora_cierre 
+      : '24:00'
+    const duracionMin = (frontonSeleccionado.limitar_slot !== false && frontonSeleccionado.duracion_slot_minutos) 
+      ? frontonSeleccionado.duracion_slot_minutos 
+      : 60
 
     const slots = []
     let [hApertura, mApertura] = apertura.split(':').map(Number)
     let [hCierre, mCierre] = cierre.split(':').map(Number)
 
-    let minutoActual = hApertura * 60 + mApertura
-    const minutoCierre = hCierre * 60 + mCierre
+    let minutoActual = hApertura * 60 + (mApertura || 0)
+    const minutoCierre = hCierre * 60 + (mCierre || 0)
 
     const eventosDia = eventosFronton.filter(ev => ev.fecha === fechaStr)
 
@@ -1087,17 +1095,21 @@ export default function PortalReservas() {
       return
     }
 
+    const tieneLimiteMaxReservas = frontonSeleccionado.limitar_max_reservas !== false
     const maxReservasPermitidas = frontonSeleccionado.max_reservas_activas || 1
-    const { count: reservasMismoDiaFronton } = await supabase
-      .from('eventos_fronton')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('fronton_id', frontonSeleccionado.id)
-      .eq('fecha', fechaSeleccionada)
 
-    if ((reservasMismoDiaFronton || 0) >= maxReservasPermitidas) {
-      alert(`Ya has alcanzado el límite de ${maxReservasPermitidas} reserva(s) por usuario al día en este frontón.`)
-      return
+    if (tieneLimiteMaxReservas) {
+      const { count: reservasMismoDiaFronton } = await supabase
+        .from('eventos_fronton')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('fronton_id', frontonSeleccionado.id)
+        .eq('fecha', fechaSeleccionada)
+
+      if ((reservasMismoDiaFronton || 0) >= maxReservasPermitidas) {
+        alert(`Ya has alcanzado el límite de ${maxReservasPermitidas} reserva(s) por usuario al día en este frontón.`)
+        return
+      }
     }
 
     let { error } = await supabase.from('eventos_fronton').insert([{
@@ -1859,140 +1871,237 @@ export default function PortalReservas() {
         {frontonSeleccionado && (
           <div ref={frontonDetalleRef} className="space-y-6 pt-2 scroll-mt-24">
             
-            {/* TARJETA DEL FRONTÓN */}
-            <div className="relative bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden">
-              {/* IMAGEN DE FONDO DE LA TARJETA (NÍTIDA, SIN DIFUMINAR) */}
-              {frontonSeleccionado.imagen_url && (
-                <>
-                  <img
-                    src={frontonSeleccionado.imagen_url}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-                  />
-                  {/* Capa superpuesta suave para garantizar perfecto contraste y legibilidad de textos y botones */}
-                  <div className="absolute inset-0 bg-white/88 dark:bg-stone-950/88 backdrop-blur-[0.5px] pointer-events-none" />
-                </>
-              )}
+            {/* TARJETA DEL FRONTÓN: DISEÑO PROFESIONAL, LIMPIO Y ESTRUCTURADO */}
+            <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-xs border border-stone-200/90 dark:border-stone-800 p-5 sm:p-7 space-y-6 transition">
+              {/* CABECERA PRINCIPAL: IMAGEN, TÍTULO, BADGES Y ACCIONES */}
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border-b border-stone-100 dark:border-stone-800/80 pb-5">
+                <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0 w-full lg:w-auto">
+                  {/* IMAGEN ORIGINAL DEL FRONTÓN */}
+                  <div className="relative flex-shrink-0">
+                    {frontonSeleccionado.imagen_url ? (
+                      <img
+                        src={frontonSeleccionado.imagen_url}
+                        alt={frontonSeleccionado.nombre}
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 font-black text-2xl rounded-2xl flex items-center justify-center border border-stone-200 dark:border-stone-700 shadow-inner">
+                        🎾
+                      </div>
+                    )}
+                  </div>
 
-              <div className="relative z-10 p-6 flex flex-col gap-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap sm:flex-nowrap">
-                    {/* BOTÓN DEL FORO: UBICADO AL LADO IZQUIERDO, SIN IMAGEN DE FONDO */}
-                    <button
-                      type="button"
-                      onClick={() => setModalForoFrontonAbierto(true)}
-                      className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-1 shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer flex-shrink-0 border-2 border-emerald-400/40"
-                      title={t.reservas.open_forum_btn || 'Foro del Frontón'}
-                    >
-                      <span className="text-xl sm:text-2xl leading-none">💬</span>
-                      <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-center leading-tight">
-                        {t.reservas.fronton_forum || 'Foro'}
-                      </span>
-                    </button>
+                  {/* IDENTIFICACIÓN DEL FRONTÓN */}
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="text-xl sm:text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight truncate">
+                        {frontonSeleccionado.nombre}
+                      </h3>
 
-                    <div className="space-y-1.5 min-w-0">
-                    {/* Fila 1: Nombre del frontón y estado de ocupación */}
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">{frontonSeleccionado.nombre}</h3>
-                      
-                      {frontonSeleccionado.solo_empadronados && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                          {t.reservas.solo_empadronados_badge}
-                        </span>
-                      )}
-
+                      {/* BADGE HABILITADO / OCUPACIÓN */}
                       {frontonSeleccionado.habilitado === false ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                           🚫 {t.reservas.fronton_disabled}
                         </span>
                       ) : (
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                           frontonSeleccionado.en_uso
-                            ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                            : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                            : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                         }`}>
-                          <span className={`w-2 h-2 rounded-full ${
-                            frontonSeleccionado.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            frontonSeleccionado.en_uso ? 'bg-rose-600 animate-pulse' : 'bg-emerald-600'
                           }`}></span>
                           {frontonSeleccionado.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
                         </span>
                       )}
+
+                      {frontonSeleccionado.solo_empadronados && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                          {t.reservas.solo_empadronados_badge}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Fila 2: Horario y características */}
-                    <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                      {t.reservas.hours}: {frontonSeleccionado.hora_apertura?.slice(0,5)} - {frontonSeleccionado.hora_cierre?.slice(0,5)} | Slot: {frontonSeleccionado.duracion_slot_minutos || 60}m | {
-                        frontonSeleccionado.limitar_antelacion === false
-                          ? (t.reservas.advance_limit_none || 'Sin límite de antelación')
-                          : (t.reservas.advance_limit_info
-                              ? t.reservas.advance_limit_info.replace('{days}', String(frontonSeleccionado.dias_antelacion_maxima ?? 7))
-                              : `Reserva con antelación máxima de ${frontonSeleccionado.dias_antelacion_maxima ?? 7} días`)
-                      }
-                      {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
-                        <> | {t.reservas.dimensions}: {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}</>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 font-medium flex items-center gap-2 flex-wrap">
+                      <span>🏛️ {frontonSeleccionado.municipios?.nombre || 'Municipio'}</span>
+                      {frontonSeleccionado.municipios?.provincias?.nombre && (
+                        <span>• {frontonSeleccionado.municipios.provincias.nombre}</span>
                       )}
-                      {frontonSeleccionado.cuadros && <> | Cuadros: {frontonSeleccionado.cuadros}</>}
-                      {(frontonSeleccionado.luze || frontonSeleccionado.numero_luze) && <> | Luze: {frontonSeleccionado.luze || frontonSeleccionado.numero_luze}</>}
                     </p>
 
-                    {/* Fila 3: 'Incidencias', 'Pendientes: X' y 'En curso: Y' todo seguido en la misma fila */}
+                    {/* ESTADO DE INCIDENCIAS */}
                     {(() => {
                       const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
                       if (pendientes === 0 && enCurso === 0) return null
 
                       return (
                         <div className="flex items-center gap-2 flex-wrap text-xs pt-0.5">
-                          <span className="font-bold text-stone-700 dark:text-stone-300 text-xs">
-                            {t.common.incidents}
+                          <span className="font-bold text-stone-600 dark:text-stone-400 text-[11px] uppercase tracking-wider">
+                            {t.common.incidents}:
                           </span>
 
-                          <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
-                            pendientes > 0 ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
-                          }`}>
-                            <span className="text-stone-600 dark:text-stone-400 font-semibold text-[11px]">{t.common.pending}:</span>
-                            <span className={`font-black ${pendientes > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-stone-800 dark:text-stone-200'}`}>{pendientes}</span>
-                          </span>
+                          {pendientes > 0 && (
+                            <span className="px-2 py-0.5 rounded-md border text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800">
+                              ⏳ {pendientes} {t.common.pending}
+                            </span>
+                          )}
 
-                          <span className={`px-2.5 py-0.5 rounded-lg border text-xs font-bold flex items-center gap-1 shadow-2xs ${
-                            enCurso > 0 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800' : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'
-                          }`}>
-                            <span className="text-stone-600 dark:text-stone-400 font-semibold text-[11px]">{t.reservas.status_in_progress_short}:</span>
-                            <span className={`font-black ${enCurso > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-stone-800 dark:text-stone-200'}`}>{enCurso}</span>
-                          </span>
+                          {enCurso > 0 && (
+                            <span className="px-2 py-0.5 rounded-md border text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800">
+                              🔧 {enCurso} {t.reservas.status_in_progress_short}
+                            </span>
+                          )}
                         </div>
                       )
                     })()}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
+                {/* BOTONES DE ACCIÓN: FORO, FAVORITO E INCIDENCIAS */}
+                <div className="flex items-center gap-2.5 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-start lg:justify-end">
+                  {/* BOTÓN FORO PRINCIPAL */}
+                  <button
+                    type="button"
+                    onClick={() => setModalForoFrontonAbierto(true)}
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs active:scale-95 cursor-pointer"
+                    title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                  >
+                    <span className="text-sm">💬</span>
+                    <span>{t.reservas.fronton_forum || 'Foro del Frontón'}</span>
+                  </button>
+
+                  {/* FAVORITO */}
                   <button 
+                    type="button"
                     onClick={() => toggleFavorito(frontonSeleccionado.id)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition active:scale-95 w-full sm:w-auto justify-center cursor-pointer ${
+                    className={`flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs font-bold border flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer ${
                       esFavoritoActual 
-                        ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/60' 
-                        : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700'
+                        ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800 hover:bg-amber-100' 
+                        : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700'
                     }`}
                   >
+                    <span>{esFavoritoActual ? '★' : '☆'}</span>
                     <span>{esFavoritoActual ? t.reservas.in_favorites : t.reservas.mark_favorite}</span>
                   </button>
 
-                  {/* BOTÓN VER INCIDENCIAS (Sólo visible si hay incidencias pendientes o en curso) */}
+                  {/* VER INCIDENCIAS */}
                   {(() => {
                     const { pendientes, enCurso } = getContadorIncidenciasFronton(frontonSeleccionado.id)
                     if (pendientes === 0 && enCurso === 0) return null
 
                     return (
                       <button
+                        type="button"
                         onClick={() => abrirModalIncidenciasFronton(frontonSeleccionado)}
-                        className="bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-300 dark:border-stone-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 w-full sm:w-auto cursor-pointer"
+                        className="flex-1 sm:flex-none bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                         title={t.reservas.view_incidents}
                       >
+                        <span>⚠️</span>
                         <span>{t.reservas.view_incidents}</span>
                       </button>
                     )
                   })()}
                 </div>
+              </div>
+
+              {/* FICHA TÉCNICA Y REGLAS DE RESERVA */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                {/* Horario */}
+                <div className="p-3 rounded-2xl bg-stone-50/70 dark:bg-stone-950/50 border border-stone-200/70 dark:border-stone-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">
+                    ⏰ {t.reservas.hours}
+                  </span>
+                  <span className="font-bold text-stone-800 dark:text-stone-200 block">
+                    {frontonSeleccionado.limitar_horario === false
+                      ? (t.admin?.all_day_available || 'Disponible 24h')
+                      : `${frontonSeleccionado.hora_apertura?.slice(0,5) || '08:00'} - ${frontonSeleccionado.hora_cierre?.slice(0,5) || '22:00'}`}
+                  </span>
+                </div>
+
+                {/* Franja / Slot */}
+                <div className="p-3 rounded-2xl bg-stone-50/70 dark:bg-stone-950/50 border border-stone-200/70 dark:border-stone-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">
+                    ⏱️ {t.admin?.slot || 'Slot'}
+                  </span>
+                  <span className="font-bold text-stone-800 dark:text-stone-200 block">
+                    {frontonSeleccionado.limitar_slot === false
+                      ? (t.admin?.slot_duration_free || 'Sin franja fija')
+                      : `${frontonSeleccionado.duracion_slot_minutos || 60} min`}
+                  </span>
+                </div>
+
+                {/* Antelación */}
+                <div className="p-3 rounded-2xl bg-stone-50/70 dark:bg-stone-950/50 border border-stone-200/70 dark:border-stone-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">
+                    📅 {t.admin?.max_advance || 'Antelación'}
+                  </span>
+                  <span className="font-bold text-stone-800 dark:text-stone-200 block">
+                    {frontonSeleccionado.limitar_antelacion === false
+                      ? (t.reservas.advance_limit_none || 'Sin límite')
+                      : (t.reservas.advance_limit_info
+                          ? t.reservas.advance_limit_info.replace('{days}', String(frontonSeleccionado.dias_antelacion_maxima ?? 7))
+                          : `Máx. ${frontonSeleccionado.dias_antelacion_maxima ?? 7} días`)}
+                  </span>
+                </div>
+
+                {/* Límite reservas/día */}
+                <div className="p-3 rounded-2xl bg-stone-50/70 dark:bg-stone-950/50 border border-stone-200/70 dark:border-stone-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">
+                    🎟️ {t.admin?.max_bookings_day || 'Reservas/Día'}
+                  </span>
+                  <span className="font-bold text-stone-800 dark:text-stone-200 block">
+                    {frontonSeleccionado.limitar_max_reservas === false
+                      ? (t.admin?.no_max_bookings_limit || 'Sin límite diario')
+                      : `Máx. ${frontonSeleccionado.max_reservas_activas ?? 1} por persona`}
+                  </span>
+                </div>
+              </div>
+
+              {/* MEDIDAS Y EQUIPAMIENTOS */}
+              <div className="flex items-center gap-2 flex-wrap pt-1 text-xs">
+                {(frontonSeleccionado.largura || frontonSeleccionado.anchura || frontonSeleccionado.medidas) && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    📏 {frontonSeleccionado.largura && frontonSeleccionado.anchura ? `${frontonSeleccionado.largura}x${frontonSeleccionado.anchura}m` : frontonSeleccionado.largura ? `${frontonSeleccionado.largura}m` : frontonSeleccionado.anchura ? `${frontonSeleccionado.anchura}m` : frontonSeleccionado.medidas}
+                  </span>
+                )}
+                {frontonSeleccionado.cuadros && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    📐 {frontonSeleccionado.cuadros} cuadros
+                  </span>
+                )}
+                {(frontonSeleccionado.labur || frontonSeleccionado.numero_labur) && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    Pasa: {frontonSeleccionado.labur || frontonSeleccionado.numero_labur}
+                  </span>
+                )}
+                {(frontonSeleccionado.luze || frontonSeleccionado.numero_luze) && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    Falta: {frontonSeleccionado.luze || frontonSeleccionado.numero_luze}
+                  </span>
+                )}
+                <span className={`px-2.5 py-1 rounded-lg font-semibold border ${
+                  frontonSeleccionado.tiene_luz 
+                    ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800' 
+                    : 'bg-stone-100 dark:bg-stone-800 text-stone-500 border-stone-200 dark:border-stone-700'
+                }`}>
+                  💡 {frontonSeleccionado.tiene_luz ? (frontonSeleccionado.luz_pago ? t.reservas.with_light_paid : t.reservas.with_light_free) : t.reservas.no_light}
+                </span>
+                {frontonSeleccionado.tiene_vestuarios && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    🚪 {t.reservas.lockers}
+                  </span>
+                )}
+                {frontonSeleccionado.tiene_duchas && (
+                  <span className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 font-semibold px-2.5 py-1 rounded-lg border border-stone-200/60 dark:border-stone-700/60">
+                    🚿 {t.reservas.showers}
+                  </span>
+                )}
+                {frontonSeleccionado.tiene_sensor_iot && (
+                  <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-semibold px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    📡 {t.admin?.iot_active || 'Sensor IoT'}
+                  </span>
+                )}
               </div>
 
               {/* AVISO SI EL FRONTÓN ESTÁ DESHABILITADO */}
@@ -2289,7 +2398,6 @@ export default function PortalReservas() {
                   </div>
                 </div>
               )}
-              </div>
             </div>
 
             {/* LISTA LINEAL DE FRANJAS */}

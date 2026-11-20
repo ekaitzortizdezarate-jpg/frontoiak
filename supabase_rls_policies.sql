@@ -262,3 +262,6 @@ CREATE POLICY "Gestores y admins pueden moderar el foro"
 
 -- Habilitar columna limitar_antelacion en frontones si no existe
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_antelacion BOOLEAN DEFAULT true;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_horario BOOLEAN DEFAULT true;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_slot BOOLEAN DEFAULT true;
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS limitar_max_reservas BOOLEAN DEFAULT true;
