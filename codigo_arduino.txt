@@ -62,13 +62,23 @@ void guardarConfiguracionFlash() {
 
 // Lee el voltaje real de la batería Li-ion 18650 (3.3V a 4.2V)
 float leerVoltajeBateria() {
-  uint32_t sumaMv = 0;
-  for (int i = 0; i < 10; i++) {
-    sumaMv += analogReadMilliVolts(PIN_BATERIA);
-    delay(5);
+  uint32_t sumaRaw = 0;
+  for (int i = 0; i < 20; i++) {
+    sumaRaw += analogRead(PIN_BATERIA);
+    delay(2);
   }
-  float pinMv = sumaMv / 10.0;
-  return (pinMv * 2.0) / 1000.0; // Multiplicador 2.0 por divisor resistivo 100k/100k
+  float rawPromedio = sumaRaw / 20.0;
+
+  // Con atenuación ADC de 11dB (rango ~0V a 3.3V) y resolución de 12 bits (0 a 4095):
+  // Voltaje en el pin = raw * (3.3V / 4095)
+  // Multiplicamos por 2 por el divisor resistivo (100k / 100k):
+  float voltajePin = (rawPromedio / 4095.0) * 3.3;
+  float voltajeBateria = voltajePin * 2.0;
+
+  Serial.printf("DEBUG BATERIA -> Raw ADC: %.1f | Voltaje Pin: %.2fV | Voltaje Calculado: %.2fV\n",
+                rawPromedio, voltajePin, voltajeBateria);
+
+  return voltajeBateria;
 }
 
 int calcularPorcentajeBateria(float v) {
@@ -283,6 +293,7 @@ void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje, int golpes
 void setup() {
   Serial.begin(115200);
   analogReadResolution(12);
+  analogSetPinAttenuation(PIN_BATERIA, ADC_11db); // Escala completa 0V - 3.3V en el pin 34
 
   // 1. Cargar parámetros guardados en memoria no volátil
   cargarConfiguracionFlash();
