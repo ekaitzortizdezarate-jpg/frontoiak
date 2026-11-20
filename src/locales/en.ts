@@ -227,6 +227,12 @@ export const en = {
     forum_empty_desc: 'Be the first to share an announcement, organize a match, or ask questions to managers and fellow players.',
     write_forum_message: 'Write a message in the forum for all users...',
     send_forum_message: 'Send',
+    forum_delete_message: 'Delete message',
+    forum_delete_message_confirm: 'Are you sure you want to delete this message from the forum?',
+    forum_clear_all: 'Clear entire forum',
+    forum_clear_all_confirm: 'Are you sure you want to delete ALL messages in this forum? This action cannot be undone.',
+    forum_email_user: 'Send email to user',
+    forum_user_email_not_available: 'The email address of this user is not available.',
     advance_limit_info: 'Booking up to {days} days in advance',
     advance_limit_none: 'No advance booking limit'
   },

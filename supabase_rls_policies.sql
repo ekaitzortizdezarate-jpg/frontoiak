@@ -224,10 +224,14 @@ CREATE TABLE IF NOT EXISTS mensajes_foro_fronton (
   fronton_id UUID NOT NULL REFERENCES frontones(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   user_name TEXT NOT NULL,
+  user_email TEXT,
   user_role TEXT DEFAULT 'usuario',
   mensaje TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Si la tabla ya existía, añadir columna user_email si no existe
+ALTER TABLE mensajes_foro_fronton ADD COLUMN IF NOT EXISTS user_email TEXT;
 
 -- Habilitar RLS en mensajes_foro_fronton
 ALTER TABLE mensajes_foro_fronton ENABLE ROW LEVEL SECURITY;

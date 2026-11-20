@@ -227,6 +227,12 @@ export const eu = {
     forum_empty_desc: 'Izan zaitez lehena mezu bat partekatzen, partida bat antolatzen edo zalantzak argitzen.',
     write_forum_message: 'Idatzi mezu bat foroan erabiltzaile guztientzat...',
     send_forum_message: 'Bidali',
+    forum_delete_message: 'Ezabatu mezua',
+    forum_delete_message_confirm: 'Ziur zaude mezu hau forotik ezabatu nahi duzula?',
+    forum_clear_all: 'Hustu foro osoa',
+    forum_clear_all_confirm: 'Ziur zaude foroko mezu GUZTIAK ezabatu nahi dituzula? Ekintza hau ezin da desegin.',
+    forum_email_user: 'Bidaliozu e-posta erabiltzaileari',
+    forum_user_email_not_available: 'Erabiltzaile honen helbide elektronikoa ez dago eskuragarri.',
     advance_limit_info: 'Gehienez {days} eguneko aurrerapenarekin erreserbatu',
     advance_limit_none: 'Erreserbatzeko aurrerapen mugarik gabe'
   },

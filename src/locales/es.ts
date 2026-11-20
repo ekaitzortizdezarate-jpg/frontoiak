@@ -227,6 +227,12 @@ export const es = {
     forum_empty_desc: 'Sé el primero en compartir un aviso, organizar una partida o consultar dudas con los gestores y pelotaris.',
     write_forum_message: 'Escribe un mensaje en el foro para todos los usuarios...',
     send_forum_message: 'Enviar',
+    forum_delete_message: 'Eliminar mensaje',
+    forum_delete_message_confirm: '¿Estás seguro de que deseas eliminar este mensaje del foro?',
+    forum_clear_all: 'Vaciar foro completo',
+    forum_clear_all_confirm: '¿Estás seguro de que deseas eliminar TODOS los mensajes de este foro? Esta acción no se puede deshacer.',
+    forum_email_user: 'Enviar email al usuario',
+    forum_user_email_not_available: 'El correo electrónico de este usuario no está disponible.',
     advance_limit_info: 'Reserva con antelación máxima de {days} días',
     advance_limit_none: 'Sin límite de antelación para reservar'
   },
