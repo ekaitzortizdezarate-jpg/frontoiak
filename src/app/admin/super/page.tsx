@@ -2682,33 +2682,33 @@ export default function SuperAdminDashboard() {
                   return frontonesList.map((f) => (
                     <div 
                       key={f.id}
-                      className="bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-3.5 hover:border-stone-700 transition"
+                      className="relative bg-stone-950 p-5 rounded-2xl border border-stone-800 space-y-3.5 hover:border-stone-700 transition overflow-hidden"
                     >
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      {/* IMAGEN DE FONDO DE LA TARJETA DEL FRONTÓN (NÍTIDA, SIN DIFUMINAR) */}
+                      {f.imagen_url && (
+                        <>
+                          <img
+                            src={f.imagen_url}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                          />
+                          <div className="absolute inset-0 bg-stone-950/90 pointer-events-none" />
+                        </>
+                      )}
+
+                      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          {/* BOTÓN FORO UNIFICADO CON LA IMAGEN DIFUMINADA DE FONDO */}
+                          {/* BOTÓN FORO ALINEADO A LA IZQUIERDA SIN IMAGEN DE FONDO */}
                           <button
                             type="button"
                             onClick={() => setModalForoFronton(f)}
-                            className="relative w-16 h-16 rounded-2xl overflow-hidden border border-emerald-500/60 shadow-sm hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 group text-left"
+                            className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/40"
                             title="Foro del Frontón"
                           >
-                            {f.imagen_url ? (
-                              <img
-                                src={f.imagen_url}
-                                alt=""
-                                className="absolute inset-0 w-full h-full object-cover blur-[1.5px] scale-105 group-hover:scale-110 transition duration-300"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 to-stone-900" />
-                            )}
-                            <div className="absolute inset-0 bg-stone-950/45 group-hover:bg-stone-950/35 transition duration-200" />
-                            <div className="relative z-10 w-full h-full p-1 flex flex-col items-center justify-center text-center text-white">
-                              <span className="text-base drop-shadow-md leading-none">💬</span>
-                              <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 drop-shadow-md leading-tight text-white">
-                                Foro
-                              </span>
-                            </div>
+                            <span className="text-lg leading-none">💬</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
+                              Foro
+                            </span>
                           </button>
 
                           <div>
@@ -2742,7 +2742,7 @@ export default function SuperAdminDashboard() {
                       </div>
 
                       {/* DETALLES TÉCNICOS Y CARACTERÍSTICAS */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800/80 text-xs">
+                      <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800/80 text-xs">
                         <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/60">
                           <span className="text-[10px] text-stone-500 uppercase font-bold block">Medidas / Dimensiones</span>
                           <span className="font-bold text-stone-200">

@@ -1860,40 +1860,37 @@ export default function PortalReservas() {
           <div ref={frontonDetalleRef} className="space-y-6 pt-2 scroll-mt-24">
             
             {/* TARJETA DEL FRONTÓN */}
-            <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 flex flex-col gap-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
-                  {/* BOTÓN FORO UNIFICADO CON LA IMAGEN DIFUMINADA DE FONDO */}
-                  <button
-                    type="button"
-                    onClick={() => setModalForoFrontonAbierto(true)}
-                    className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border border-emerald-500/60 dark:border-emerald-600/60 shadow-sm hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 group text-left"
-                    title={t.reservas.open_forum_btn || 'Foro del Frontón'}
-                  >
-                    {/* Fondo: Imagen difuminada o degradado si no hay foto */}
-                    {frontonSeleccionado.imagen_url ? (
-                      <img
-                        src={frontonSeleccionado.imagen_url}
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover blur-[1.5px] scale-105 group-hover:scale-110 transition duration-300"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 to-stone-900" />
-                    )}
+            <div className="relative bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 overflow-hidden">
+              {/* IMAGEN DE FONDO DE LA TARJETA (NÍTIDA, SIN DIFUMINAR) */}
+              {frontonSeleccionado.imagen_url && (
+                <>
+                  <img
+                    src={frontonSeleccionado.imagen_url}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                  />
+                  {/* Capa superpuesta suave para garantizar perfecto contraste y legibilidad de textos y botones */}
+                  <div className="absolute inset-0 bg-white/88 dark:bg-stone-950/88 backdrop-blur-[0.5px] pointer-events-none" />
+                </>
+              )}
 
-                    {/* Capa oscura superpuesta para legibilidad de las letras */}
-                    <div className="absolute inset-0 bg-stone-950/45 group-hover:bg-stone-950/35 transition duration-200" />
-
-                    {/* Letras e icono del foro centrados sobre la imagen */}
-                    <div className="relative z-10 w-full h-full p-2 flex flex-col items-center justify-center text-center text-white">
-                      <span className="text-xl sm:text-2xl drop-shadow-md leading-none">💬</span>
-                      <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-1 drop-shadow-md leading-tight text-white">
+              <div className="relative z-10 p-6 flex flex-col gap-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap sm:flex-nowrap">
+                    {/* BOTÓN DEL FORO: UBICADO AL LADO IZQUIERDO, SIN IMAGEN DE FONDO */}
+                    <button
+                      type="button"
+                      onClick={() => setModalForoFrontonAbierto(true)}
+                      className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-1 shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer flex-shrink-0 border-2 border-emerald-400/40"
+                      title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                    >
+                      <span className="text-xl sm:text-2xl leading-none">💬</span>
+                      <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-center leading-tight">
                         {t.reservas.fronton_forum || 'Foro'}
                       </span>
-                    </div>
-                  </button>
+                    </button>
 
-                  <div className="space-y-1.5 min-w-0">
+                    <div className="space-y-1.5 min-w-0">
                     {/* Fila 1: Nombre del frontón y estado de ocupación */}
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">{frontonSeleccionado.nombre}</h3>
@@ -2292,6 +2289,7 @@ export default function PortalReservas() {
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
             {/* LISTA LINEAL DE FRANJAS */}

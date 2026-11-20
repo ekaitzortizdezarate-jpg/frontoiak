@@ -2000,31 +2000,31 @@ export default function AdminDashboard() {
                       {frontones.map((f) => {
                         const { pendientes, enCurso } = getContadorIncidenciasFronton(f.id)
                         return (
-                          <li key={f.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div className="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
-                              {/* BOTÓN FORO UNIFICADO CON LA IMAGEN DIFUMINADA DE FONDO */}
+                          <li key={f.id} className="relative py-4 px-4 rounded-2xl overflow-hidden border border-stone-200/80 dark:border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
+                            {/* IMAGEN DE FONDO DE LA TARJETA DEL FRONTÓN (NÍTIDA, SIN DIFUMINAR) */}
+                            {f.imagen_url && (
+                              <>
+                                <img
+                                  src={f.imagen_url}
+                                  alt=""
+                                  className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                                />
+                                <div className="absolute inset-0 bg-white/90 dark:bg-stone-950/90 pointer-events-none" />
+                              </>
+                            )}
+
+                            <div className="relative z-10 flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                              {/* BOTÓN DEL FORO ALINEADO A LA IZQUIERDA SIN IMAGEN DE FONDO */}
                               <button
                                 type="button"
                                 onClick={() => setFrontonForoModal(f)}
-                                className="relative w-20 h-20 rounded-2xl overflow-hidden border border-emerald-500/60 dark:border-emerald-600/60 shadow-sm hover:shadow-md transition active:scale-95 cursor-pointer flex-shrink-0 group text-left"
+                                className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/40"
                                 title={t.reservas.open_forum_btn || 'Foro del Frontón'}
                               >
-                                {f.imagen_url ? (
-                                  <img
-                                    src={f.imagen_url}
-                                    alt=""
-                                    className="absolute inset-0 w-full h-full object-cover blur-[1.5px] scale-105 group-hover:scale-110 transition duration-300"
-                                  />
-                                ) : (
-                                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 to-stone-900" />
-                                )}
-                                <div className="absolute inset-0 bg-stone-950/45 group-hover:bg-stone-950/35 transition duration-200" />
-                                <div className="relative z-10 w-full h-full p-1.5 flex flex-col items-center justify-center text-center text-white">
-                                  <span className="text-lg drop-shadow-md leading-none">💬</span>
-                                  <span className="text-[10px] font-black uppercase tracking-wider mt-0.5 drop-shadow-md leading-tight text-white">
-                                    {t.reservas.fronton_forum || 'Foro'}
-                                  </span>
-                                </div>
+                                <span className="text-lg leading-none">💬</span>
+                                <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
+                                  {t.reservas.fronton_forum || 'Foro'}
+                                </span>
                               </button>
 
                               <div>
@@ -2096,7 +2096,7 @@ export default function AdminDashboard() {
                               </div>
                             </div>
 
-                          <div className="flex gap-2 flex-wrap items-center">
+                          <div className="relative z-10 flex gap-2 flex-wrap items-center">
                             {f.tiene_sensor_iot && (
                               <>
                                 <button 
