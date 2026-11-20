@@ -2136,33 +2136,33 @@ export default function AdminDashboard() {
                               </div>
                             </div>
 
-                          {/* LADO DERECHO: ACCIONES ORGANIZADAS EN 2 FILAS */}
+                          {/* LADO DERECHO: ACCIONES ORGANIZADAS EN 2 FILAS SIMÉTRICAS */}
                           <div className="relative z-10 flex flex-col gap-2 items-stretch sm:items-end w-full md:w-auto flex-shrink-0">
-                            {/* FILA 1: DISPOSITIVO IOT Y TELEMETRÍA EN LA MISMA FILA */}
+                            {/* FILA 1: DISPOSITIVO IOT Y TELEMETRÍA (MISMA ANCHURA) */}
                             {f.tiene_sensor_iot && (
-                              <div className="flex items-center gap-2 w-full sm:w-auto">
+                              <div className="grid grid-cols-2 gap-2 w-full sm:w-[280px]">
                                 <button 
                                   onClick={() => abrirDispositivoIoT(f)}
-                                  className="flex-1 sm:flex-initial bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                                  className="w-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-2.5 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs whitespace-nowrap truncate"
                                 >
                                   {t.admin.iot_device_info}
                                 </button>
                                 <button 
                                   onClick={() => abrirGraficaIoT(f)}
-                                  className="flex-1 sm:flex-initial bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center shadow-2xs"
+                                  className="w-full bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center shadow-2xs whitespace-nowrap truncate"
                                 >
                                   {t.admin.iot_telemetry}
                                 </button>
                               </div>
                             )}
 
-                            {/* FILA 2: DEBAJO, INSIGNIAS/BOTONES DE DESHABILITAR Y EDITAR */}
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                            {/* FILA 2: DEBAJO, DESHABILITAR Y EDITAR (MISMA ANCHURA SIMÉTRICA) */}
+                            <div className="grid grid-cols-2 gap-2 w-full sm:w-[280px]">
                               <button 
                                 onClick={() => handleToggleHabilitarFronton(f)}
-                                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1.5 cursor-pointer ${
+                                className={`w-full px-2.5 py-1.5 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap truncate ${
                                   f.habilitado === false
-                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700'
                                     : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-300 border-stone-300 dark:border-stone-700'
                                 }`}
                               >
@@ -2170,7 +2170,7 @@ export default function AdminDashboard() {
                               </button>
                               <button 
                                 onClick={() => iniciarEdicion(f)}
-                                className="flex-1 sm:flex-initial bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center"
+                                className="w-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center shadow-2xs whitespace-nowrap truncate"
                               >
                                 {t.common.edit}
                               </button>
