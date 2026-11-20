@@ -47,8 +47,21 @@ const ENGLISH_MONTHS_SHORT = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ]
 
-// 1. Formato completo: "Osteguna, 2026ko abuztuak 20" / "Jueves, 20 de agosto de 2026" / "Thursday, August 20, 2026"
-export function formatFullDateWithWeekday(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+const FRENCH_DAYS_LONG = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+const FRENCH_DAYS_SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+const FRENCH_MONTHS_LONG = [
+  'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+]
+const FRENCH_MONTHS_SHORT = [
+  'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
+  'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
+]
+
+export type SupportedLang = 'es' | 'eu' | 'en' | 'fr'
+
+// 1. Formato completo: "Osteguna, 2026ko abuztuak 20" / "Jueves, 20 de agosto de 2026" / "Thursday, August 20, 2026" / "Jeudi 20 août 2026"
+export function formatFullDateWithWeekday(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const dayOfWeek = date.getDay()
   const day = date.getDate()
@@ -59,13 +72,15 @@ export function formatFullDateWithWeekday(d: Date | string, lang: 'es' | 'eu' | 
     return `${BASQUE_DAYS_LONG[dayOfWeek]}, ${year}ko ${BASQUE_MONTHS_LONG[month]}ak ${day}`
   } else if (lang === 'en') {
     return `${ENGLISH_DAYS_LONG[dayOfWeek]}, ${ENGLISH_MONTHS_LONG[month]} ${day}, ${year}`
+  } else if (lang === 'fr') {
+    return `${FRENCH_DAYS_LONG[dayOfWeek]} ${day} ${FRENCH_MONTHS_LONG[month]} ${year}`
   } else {
     return `${SPANISH_DAYS_LONG[dayOfWeek]}, ${day} de ${SPANISH_MONTHS_LONG[month]} de ${year}`
   }
 }
 
-// 2. Día de la semana y fecha: "Osteguna, abuztuak 20" / "Jueves, 20 de agosto" / "Thursday, August 20"
-export function formatWeekdayAndDayMonth(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+// 2. Día de la semana y fecha: "Osteguna, abuztuak 20" / "Jueves, 20 de agosto" / "Thursday, August 20" / "Jeudi 20 août"
+export function formatWeekdayAndDayMonth(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const dayOfWeek = date.getDay()
   const day = date.getDate()
@@ -75,13 +90,15 @@ export function formatWeekdayAndDayMonth(d: Date | string, lang: 'es' | 'eu' | '
     return `${BASQUE_DAYS_LONG[dayOfWeek]}, ${BASQUE_MONTHS_LONG[month]}ak ${day}`
   } else if (lang === 'en') {
     return `${ENGLISH_DAYS_LONG[dayOfWeek]}, ${ENGLISH_MONTHS_LONG[month]} ${day}`
+  } else if (lang === 'fr') {
+    return `${FRENCH_DAYS_LONG[dayOfWeek]} ${day} ${FRENCH_MONTHS_LONG[month]}`
   } else {
     return `${SPANISH_DAYS_LONG[dayOfWeek]}, ${day} de ${SPANISH_MONTHS_LONG[month]}`
   }
 }
 
-// 3. Vista previa de 3 días: "Osteguna, abu. 20" / "Jueves, 20 ago." / "Thursday, Aug 20"
-export function formatPreviewDay(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+// 3. Vista previa de 3 días: "Osteguna, abu. 20" / "Jueves, 20 ago." / "Thursday, Aug 20" / "Jeudi 20 août"
+export function formatPreviewDay(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const dayOfWeek = date.getDay()
   const day = date.getDate()
@@ -91,13 +108,15 @@ export function formatPreviewDay(d: Date | string, lang: 'es' | 'eu' | 'en'): st
     return `${BASQUE_DAYS_LONG[dayOfWeek]}, ${BASQUE_MONTHS_SHORT[month]} ${day}`
   } else if (lang === 'en') {
     return `${ENGLISH_DAYS_LONG[dayOfWeek]}, ${ENGLISH_MONTHS_SHORT[month]} ${day}`
+  } else if (lang === 'fr') {
+    return `${FRENCH_DAYS_LONG[dayOfWeek]} ${day} ${FRENCH_MONTHS_SHORT[month]}`
   } else {
     return `${SPANISH_DAYS_LONG[dayOfWeek]}, ${day} ${SPANISH_MONTHS_SHORT[month]}`
   }
 }
 
-// 4. Celda del calendario mensual: "Og, abu. 20" / "Jue, 20 ago." / "Thu, Aug 20"
-export function formatCalendarCellDay(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+// 4. Celda del calendario mensual: "Og, abu. 20" / "Jue, 20 ago." / "Thu, Aug 20" / "Jeu 20 août"
+export function formatCalendarCellDay(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const dayOfWeek = date.getDay()
   const day = date.getDate()
@@ -107,13 +126,15 @@ export function formatCalendarCellDay(d: Date | string, lang: 'es' | 'eu' | 'en'
     return `${BASQUE_DAYS_SHORT[dayOfWeek]}, ${BASQUE_MONTHS_SHORT[month]} ${day}`
   } else if (lang === 'en') {
     return `${ENGLISH_DAYS_SHORT[dayOfWeek]}, ${ENGLISH_MONTHS_SHORT[month]} ${day}`
+  } else if (lang === 'fr') {
+    return `${FRENCH_DAYS_SHORT[dayOfWeek]} ${day} ${FRENCH_MONTHS_SHORT[month]}`
   } else {
     return `${SPANISH_DAYS_SHORT[dayOfWeek]}, ${day} ${SPANISH_MONTHS_SHORT[month]}`
   }
 }
 
-// 5. Rango de fechas o fecha corta: "Abu. 20" / "20 ago." / "Aug 20"
-export function formatShortMonthDay(d: Date | string, lang: 'es' | 'eu' | 'en', withYear = false): string {
+// 5. Rango de fechas o fecha corta: "Abu. 20" / "20 ago." / "Aug 20" / "20 août"
+export function formatShortMonthDay(d: Date | string, lang: SupportedLang, withYear = false): string {
   const date = parseSafeDate(d)
   const day = date.getDate()
   const month = date.getMonth()
@@ -123,13 +144,15 @@ export function formatShortMonthDay(d: Date | string, lang: 'es' | 'eu' | 'en', 
     return withYear ? `${year}ko ${BASQUE_MONTHS_SHORT[month]} ${day}` : `${BASQUE_MONTHS_SHORT[month]} ${day}`
   } else if (lang === 'en') {
     return withYear ? `${ENGLISH_MONTHS_SHORT[month]} ${day}, ${year}` : `${ENGLISH_MONTHS_SHORT[month]} ${day}`
+  } else if (lang === 'fr') {
+    return withYear ? `${day} ${FRENCH_MONTHS_SHORT[month]} ${year}` : `${day} ${FRENCH_MONTHS_SHORT[month]}`
   } else {
     return withYear ? `${day} ${SPANISH_MONTHS_SHORT[month]} ${year}` : `${day} ${SPANISH_MONTHS_SHORT[month]}`
   }
 }
 
-// 6. Fecha con hora corta (incidencias, logs): "Abu. 20, 18:30" / "20 ago., 18:30" / "Aug 20, 18:30"
-export function formatShortDateWithTime(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+// 6. Fecha con hora corta (incidencias, logs): "Abu. 20, 18:30" / "20 ago., 18:30" / "Aug 20, 18:30" / "20 août, 18:30"
+export function formatShortDateWithTime(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const day = date.getDate()
   const month = date.getMonth()
@@ -141,13 +164,15 @@ export function formatShortDateWithTime(d: Date | string, lang: 'es' | 'eu' | 'e
     return `${BASQUE_MONTHS_SHORT[month]} ${day}, ${timeStr}`
   } else if (lang === 'en') {
     return `${ENGLISH_MONTHS_SHORT[month]} ${day}, ${timeStr}`
+  } else if (lang === 'fr') {
+    return `${day} ${FRENCH_MONTHS_SHORT[month]}, ${timeStr}`
   } else {
     return `${day} ${SPANISH_MONTHS_SHORT[month]}, ${timeStr}`
   }
 }
 
-// 7. Fecha con hora larga: "2026ko abuztuak 20, 18:30" / "20 de agosto de 2026, 18:30" / "August 20, 2026, 18:30"
-export function formatLongDateWithTime(d: Date | string, lang: 'es' | 'eu' | 'en'): string {
+// 7. Fecha con hora larga: "2026ko abuztuak 20, 18:30" / "20 de agosto de 2026, 18:30" / "August 20, 2026, 18:30" / "20 août 2026, 18:30"
+export function formatLongDateWithTime(d: Date | string, lang: SupportedLang): string {
   const date = parseSafeDate(d)
   const day = date.getDate()
   const month = date.getMonth()
@@ -160,6 +185,8 @@ export function formatLongDateWithTime(d: Date | string, lang: 'es' | 'eu' | 'en
     return `${year}ko ${BASQUE_MONTHS_LONG[month]}ak ${day}, ${timeStr}`
   } else if (lang === 'en') {
     return `${ENGLISH_MONTHS_LONG[month]} ${day}, ${year}, ${timeStr}`
+  } else if (lang === 'fr') {
+    return `${day} ${FRENCH_MONTHS_LONG[month]} ${year}, ${timeStr}`
   } else {
     return `${day} de ${SPANISH_MONTHS_LONG[month]} de ${year}, ${timeStr}`
   }

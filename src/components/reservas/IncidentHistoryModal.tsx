@@ -6,7 +6,7 @@ import { formatLongDateWithTime, formatShortDateWithTime } from '@/lib/dateUtils
 interface IncidentHistoryModalProps {
   incidencia: any | null
   onClose: () => void
-  lang: 'es' | 'eu' | 'en'
+  lang: 'es' | 'eu' | 'en' | 'fr'
   t: any
 }
 

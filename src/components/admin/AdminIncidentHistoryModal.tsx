@@ -7,7 +7,7 @@ interface AdminIncidentHistoryModalProps {
   incidencia: any | null
   onClose: () => void
   onOpenStatusChange: (incidencia: any) => void
-  lang: 'es' | 'eu' | 'en'
+  lang: 'es' | 'eu' | 'en' | 'fr'
   t: any
 }
 

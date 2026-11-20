@@ -11,6 +11,7 @@ interface LanguageSelectorProps {
 const languages: { code: Language; label: string; flag: string; short: string }[] = [
   { code: 'eu', label: 'Euskara', flag: '🔴⚪🟢', short: 'EUS' },
   { code: 'es', label: 'Castellano', flag: '🇪🇸', short: 'CAS' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷', short: 'FRA' },
   { code: 'en', label: 'English', flag: '🇬🇧', short: 'ENG' }
 ]
 

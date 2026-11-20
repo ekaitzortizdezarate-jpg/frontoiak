@@ -20,7 +20,7 @@ interface FrontonForumModalProps {
   isOpen: boolean
   onClose: () => void
   user: any
-  lang: 'es' | 'eu' | 'en'
+  lang: 'es' | 'eu' | 'en' | 'fr'
   t: any
 }
 
