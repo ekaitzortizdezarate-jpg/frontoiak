@@ -2017,31 +2017,33 @@ export default function AdminDashboard() {
                         return (
                           <li key={f.id} className="p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/90 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-5 mb-3.5 hover:border-stone-300 dark:hover:border-stone-700 transition">
                             <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
-                              {/* IMAGEN DEL FRONTÓN (LIMPIA, EN CONTENEDOR ESPECÍFICO) */}
-                              {f.imagen_url ? (
-                                <img
-                                  src={f.imagen_url}
-                                  alt={f.nombre}
-                                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover object-center border border-stone-200 dark:border-stone-800 flex-shrink-0 shadow-2xs"
-                                />
-                              ) : (
-                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 flex items-center justify-center text-3xl flex-shrink-0 text-stone-400">
-                                  🏟️
-                                </div>
-                              )}
+                              {/* COLUMNA IZQUIERDA: IMAGEN DEL FRONTÓN + BOTÓN FORO DEBAJO */}
+                              <div className="flex flex-col items-center gap-2 flex-shrink-0 w-20 sm:w-24">
+                                {f.imagen_url ? (
+                                  <img
+                                    src={f.imagen_url}
+                                    alt={f.nombre}
+                                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover object-center border border-stone-200 dark:border-stone-800 shadow-2xs"
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 flex items-center justify-center text-3xl text-stone-400">
+                                    🏟️
+                                  </div>
+                                )}
 
-                              {/* BOTÓN DEL FORO */}
-                              <button
-                                type="button"
-                                onClick={() => setFrontonForoModal(f)}
-                                className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-sm hover:shadow transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/30"
-                                title={t.reservas.open_forum_btn || 'Foro del Frontón'}
-                              >
-                                <span className="text-xl leading-none">💬</span>
-                                <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
-                                  {t.reservas.fronton_forum || 'Foro'}
-                                </span>
-                              </button>
+                                {/* BOTÓN FORO: DEBAJO DE LA IMAGEN, MISMO ANCHO, MÁS ANCHO QUE ALTO, SOLO 'FORO' */}
+                                <button
+                                  type="button"
+                                  onClick={() => setFrontonForoModal(f)}
+                                  className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-1 shadow-2xs hover:shadow-xs transition active:scale-95 cursor-pointer border border-emerald-500/30 text-xs"
+                                  title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                                >
+                                  <span className="text-xs leading-none">💬</span>
+                                  <span className="font-bold lowercase first-letter:uppercase tracking-wide leading-none">
+                                    foro
+                                  </span>
+                                </button>
+                              </div>
 
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2.5 flex-wrap">
@@ -2134,39 +2136,45 @@ export default function AdminDashboard() {
                               </div>
                             </div>
 
-                          <div className="relative z-10 flex gap-2 flex-wrap items-center">
+                          {/* LADO DERECHO: ACCIONES ORGANIZADAS EN 2 FILAS */}
+                          <div className="relative z-10 flex flex-col gap-2 items-stretch sm:items-end w-full md:w-auto flex-shrink-0">
+                            {/* FILA 1: DISPOSITIVO IOT Y TELEMETRÍA EN LA MISMA FILA */}
                             {f.tiene_sensor_iot && (
-                              <>
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
                                 <button 
                                   onClick={() => abrirDispositivoIoT(f)}
-                                  className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center gap-1"
+                                  className="flex-1 sm:flex-initial bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
                                 >
                                   {t.admin.iot_device_info}
                                 </button>
                                 <button 
                                   onClick={() => abrirGraficaIoT(f)}
-                                  className="bg-stone-800 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-stone-900 transition cursor-pointer"
+                                  className="flex-1 sm:flex-initial bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center shadow-2xs"
                                 >
                                   {t.admin.iot_telemetry}
                                 </button>
-                              </>
+                              </div>
                             )}
-                            <button 
-                              onClick={() => handleToggleHabilitarFronton(f)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center gap-1.5 cursor-pointer ${
-                                f.habilitado === false
-                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
-                                  : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-300 border-stone-300 dark:border-stone-700'
-                              }`}
-                            >
-                              {f.habilitado === false ? t.admin.btn_enable : t.admin.btn_disable}
-                            </button>
-                            <button 
-                              onClick={() => iniciarEdicion(f)}
-                              className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer"
-                            >
-                              {t.common.edit}
-                            </button>
+
+                            {/* FILA 2: DEBAJO, INSIGNIAS/BOTONES DE DESHABILITAR Y EDITAR */}
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                              <button 
+                                onClick={() => handleToggleHabilitarFronton(f)}
+                                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-1.5 cursor-pointer ${
+                                  f.habilitado === false
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
+                                    : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-300 border-stone-300 dark:border-stone-700'
+                                }`}
+                              >
+                                {f.habilitado === false ? t.admin.btn_enable : t.admin.btn_disable}
+                              </button>
+                              <button 
+                                onClick={() => iniciarEdicion(f)}
+                                className="flex-1 sm:flex-initial bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center justify-center"
+                              >
+                                {t.common.edit}
+                              </button>
+                            </div>
                           </div>
                         </li>
                       )

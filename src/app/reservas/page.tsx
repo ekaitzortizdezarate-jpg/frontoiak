@@ -1876,8 +1876,8 @@ export default function PortalReservas() {
               {/* CABECERA PRINCIPAL: IMAGEN, TÍTULO, BADGES Y ACCIONES */}
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border-b border-stone-100 dark:border-stone-800/80 pb-5">
                 <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0 w-full lg:w-auto">
-                  {/* IMAGEN ORIGINAL DEL FRONTÓN */}
-                  <div className="relative flex-shrink-0">
+                  {/* COLUMNA IZQUIERDA: IMAGEN ORIGINAL DEL FRONTÓN + BOTÓN FORO DEBAJO */}
+                  <div className="flex flex-col items-center gap-2 flex-shrink-0 w-20 sm:w-24">
                     {frontonSeleccionado.imagen_url ? (
                       <img
                         src={frontonSeleccionado.imagen_url}
@@ -1889,6 +1889,19 @@ export default function PortalReservas() {
                         🎾
                       </div>
                     )}
+
+                    {/* BOTÓN FORO: DEBAJO DE LA IMAGEN, MISMO ANCHO, MÁS ANCHO QUE ALTO, SOLO 'FORO' */}
+                    <button
+                      type="button"
+                      onClick={() => setModalForoFrontonAbierto(true)}
+                      className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-1 shadow-2xs hover:shadow-xs transition active:scale-95 cursor-pointer border border-emerald-500/30 text-xs"
+                      title={t.reservas.open_forum_btn || 'Foro del Frontón'}
+                    >
+                      <span className="text-xs leading-none">💬</span>
+                      <span className="font-bold lowercase first-letter:uppercase tracking-wide leading-none">
+                        foro
+                      </span>
+                    </button>
                   </div>
 
                   {/* IDENTIFICACIÓN DEL FRONTÓN */}
@@ -1958,19 +1971,8 @@ export default function PortalReservas() {
                   </div>
                 </div>
 
-                {/* BOTONES DE ACCIÓN: FORO, FAVORITO E INCIDENCIAS */}
+                {/* BOTONES DE ACCIÓN: FAVORITO E INCIDENCIAS */}
                 <div className="flex items-center gap-2.5 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-start lg:justify-end">
-                  {/* BOTÓN FORO PRINCIPAL */}
-                  <button
-                    type="button"
-                    onClick={() => setModalForoFrontonAbierto(true)}
-                    className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs active:scale-95 cursor-pointer"
-                    title={t.reservas.open_forum_btn || 'Foro del Frontón'}
-                  >
-                    <span className="text-sm">💬</span>
-                    <span>{t.reservas.fronton_forum || 'Foro del Frontón'}</span>
-                  </button>
-
                   {/* FAVORITO */}
                   <button 
                     type="button"

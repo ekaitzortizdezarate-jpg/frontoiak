@@ -2770,31 +2770,33 @@ export default function SuperAdminDashboard() {
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
-                          {/* IMAGEN DEL FRONTÓN LIMPIA */}
-                          {f.imagen_url ? (
-                            <img
-                              src={f.imagen_url}
-                              alt={f.nombre}
-                              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover object-center border border-stone-800 flex-shrink-0 shadow-2xs"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-950 border border-stone-800 flex items-center justify-center text-2xl flex-shrink-0 text-stone-500">
-                              🏟️
-                            </div>
-                          )}
+                          {/* COLUMNA IZQUIERDA: IMAGEN DEL FRONTÓN + BOTÓN FORO DEBAJO */}
+                          <div className="flex flex-col items-center gap-2 flex-shrink-0 w-16 sm:w-20">
+                            {f.imagen_url ? (
+                              <img
+                                src={f.imagen_url}
+                                alt={f.nombre}
+                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover object-center border border-stone-800 shadow-2xs"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-950 border border-stone-800 flex items-center justify-center text-2xl text-stone-500">
+                                🏟️
+                              </div>
+                            )}
 
-                          {/* BOTÓN FORO */}
-                          <button
-                            type="button"
-                            onClick={() => setModalForoFronton(f)}
-                            className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black flex flex-col items-center justify-center gap-0.5 shadow-sm hover:shadow transition active:scale-95 cursor-pointer flex-shrink-0 border border-emerald-400/30"
-                            title="Foro del Frontón"
-                          >
-                            <span className="text-lg leading-none">💬</span>
-                            <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">
-                              Foro
-                            </span>
-                          </button>
+                            {/* BOTÓN FORO: DEBAJO DE LA IMAGEN, MISMO ANCHO, MÁS ANCHO QUE ALTO, SOLO 'FORO' */}
+                            <button
+                              type="button"
+                              onClick={() => setModalForoFronton(f)}
+                              className="w-full py-1.5 px-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1 shadow-2xs hover:shadow-xs transition active:scale-95 cursor-pointer border border-emerald-500/30 text-xs"
+                              title="Foro del Frontón"
+                            >
+                              <span className="text-xs leading-none">💬</span>
+                              <span className="font-bold lowercase first-letter:uppercase tracking-wide leading-none">
+                                foro
+                              </span>
+                            </button>
+                          </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
