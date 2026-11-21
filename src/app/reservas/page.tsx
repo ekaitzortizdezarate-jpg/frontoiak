@@ -3041,12 +3041,12 @@ export default function PortalReservas() {
                   />
                 </div>
 
-                {/* HORA ACTUAL EN VIVO */}
+                {/* FECHA Y HORA ACTUAL EN VIVO */}
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 text-xs">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-stone-500 dark:text-stone-400 font-medium">Hora actual:</span>
+                  <span className="text-stone-500 dark:text-stone-400 font-medium">Fecha y hora actual:</span>
                   <span className="font-mono font-bold text-stone-800 dark:text-stone-100">
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date().toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' })} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </div>
