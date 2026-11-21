@@ -88,6 +88,12 @@ export default function PortalReservas() {
   const [eventosFronton, setEventosFronton] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Telemetría IoT en modo usuario
+  const [frontonGraficaModal, setFrontonGraficaModal] = useState<any | null>(null)
+  const [fechaGraficaIoT, setFechaGraficaIoT] = useState(new Date().toISOString().split('T')[0])
+  const [datosTelemetria, setDatosTelemetria] = useState<any[]>([])
+  const [todosLosEventosFronton, setTodosLosEventosFronton] = useState<any[]>([])
+
   const router = useRouter()
 
   useEffect(() => {
@@ -411,6 +417,30 @@ export default function PortalReservas() {
     }
 
     setEnviandoIncidencia(false)
+  }
+
+  const cargarTelemetriaFrontonUsuario = async (frontonId: string, fecha: string) => {
+    const { data: telemetria } = await supabase
+      .from('telemetria_iot')
+      .select('*')
+      .eq('fronton_id', frontonId)
+      .eq('fecha', fecha)
+      .order('hora_inicio', { ascending: true })
+
+    setDatosTelemetria(telemetria || [])
+
+    const { data: eventos } = await supabase
+      .from('eventos_fronton')
+      .select('*')
+      .eq('fronton_id', frontonId)
+      .eq('fecha', fecha)
+
+    setTodosLosEventosFronton(eventos || [])
+  }
+
+  const abrirGraficaIoTUsuario = (f: any) => {
+    setFrontonGraficaModal(f)
+    cargarTelemetriaFrontonUsuario(f.id, fechaGraficaIoT)
   }
 
   const toggleFavorito = async (frontonId: string) => {
@@ -1455,18 +1485,44 @@ export default function PortalReservas() {
                           </div>
                         )}
 
-                        {/* Estado en tiempo real */}
-                        <div className="flex justify-between items-center pt-2 border-t border-stone-200/80 dark:border-stone-800">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                            f.en_uso
-                              ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                              : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${
-                              f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'
-                            }`}></span>
-                            {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
-                          </span>
+                        {/* Estado en tiempo real y Telemetría IoT */}
+                        <div className="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-stone-200/80 dark:border-stone-800">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {f.tiene_sensor_iot ? (
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                                f.en_uso
+                                  ? 'bg-amber-100 dark:bg-amber-950/90 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse'
+                                  : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${f.en_uso ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                                🎾 {f.en_uso ? (t.admin?.iot_detecting_pelotazos || 'Pelotazos activos') : (t.admin?.iot_no_pelotazos || 'Sin pelotazos')}
+                              </span>
+                            ) : (
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                                f.en_uso
+                                  ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                                  : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${f.en_uso ? 'bg-rose-600 animate-ping' : 'bg-emerald-600'}`}></span>
+                                {f.en_uso ? t.reservas.in_use_now : t.reservas.free_now}
+                              </span>
+                            )}
+
+                            {f.tiene_sensor_iot && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  abrirGraficaIoTUsuario(f)
+                                }}
+                                className="bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-2 py-0.5 rounded-md text-[10px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs"
+                                title="Ver telemetría de ocupación"
+                              >
+                                📊 Telemetría
+                              </button>
+                            )}
+                          </div>
+
                           <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition">
                             {t.reservas.view}
                           </span>
@@ -1729,6 +1785,25 @@ export default function PortalReservas() {
                                     <span className="bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
                                       🔒 {t.common?.solo_empadronados || 'Solo Empadronados'}
                                     </span>
+                                  )}
+                                  {f.tiene_sensor_iot && (
+                                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex items-center gap-1 ${
+                                      f.en_uso
+                                        ? 'bg-amber-100 dark:bg-amber-950/90 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse'
+                                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700'
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${f.en_uso ? 'bg-amber-500' : 'bg-stone-400'}`}></span>
+                                      🎾 {f.en_uso ? (t.admin?.iot_detecting_pelotazos || 'Pelotazos activos') : (t.admin?.iot_no_pelotazos || 'Sin pelotazos')}
+                                    </span>
+                                  )}
+                                  {f.tiene_sensor_iot && (
+                                    <button
+                                      type="button"
+                                      onClick={() => abrirGraficaIoTUsuario(f)}
+                                      className="bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-2 py-0.5 rounded-md text-[10px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs"
+                                    >
+                                      📊 {t.admin?.iot_telemetry || 'Telemetría'}
+                                    </button>
                                   )}
                                 </div>
 
@@ -2100,9 +2175,23 @@ export default function PortalReservas() {
                   </span>
                 )}
                 {frontonSeleccionado.tiene_sensor_iot && (
-                  <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-semibold px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                    📡 {t.admin?.iot_active || 'Sensor IoT'}
+                  <span className={`px-2.5 py-1 rounded-lg font-bold border flex items-center gap-1.5 ${
+                    frontonSeleccionado.en_uso
+                      ? 'bg-amber-100 dark:bg-amber-950/90 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse'
+                      : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${frontonSeleccionado.en_uso ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                    🎾 {frontonSeleccionado.en_uso ? (t.admin?.iot_detecting_pelotazos || 'Pelotazos activos') : (t.admin?.iot_no_pelotazos || 'Sin pelotazos')}
                   </span>
+                )}
+                {frontonSeleccionado.tiene_sensor_iot && (
+                  <button
+                    type="button"
+                    onClick={() => abrirGraficaIoTUsuario(frontonSeleccionado)}
+                    className="bg-stone-800 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    📊 {t.admin?.iot_telemetry || 'Telemetría IoT'}
+                  </button>
                 )}
               </div>
 
@@ -2917,6 +3006,177 @@ export default function PortalReservas() {
           lang={lang}
           t={t}
         />
+
+        {/* MODAL TELEMETRÍA IOT (MODO USUARIO: SIN TOKEN NI INFO HARDWARE) */}
+        {frontonGraficaModal && (
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
+                <div>
+                  <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <span>Telemetría IoT: {frontonGraficaModal.nombre}</span>
+                  </h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Presencia detectada en tiempo real por franjas horarias</p>
+                </div>
+                <button 
+                  onClick={() => setFrontonGraficaModal(null)} 
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer text-base"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-bold text-stone-600 dark:text-stone-400">Fecha:</label>
+                <input 
+                  type="date" 
+                  value={fechaGraficaIoT}
+                  onChange={(e) => {
+                    setFechaGraficaIoT(e.target.value)
+                    cargarTelemetriaFrontonUsuario(frontonGraficaModal.id, e.target.value)
+                  }}
+                  className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-xl text-xs bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
+                />
+              </div>
+
+              <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 font-semibold px-1 gap-2">
+                  <span>Presencia por tramos de 5 minutos (00:00 - 23:59)</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-amber-500 border border-amber-600 inline-block shadow-2xs"></span>🎾 Pelotazos</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 border border-emerald-600 inline-block shadow-2xs"></span>📅 Ocupado / Reserva</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-xs bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 inline-block"></span>Libre</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
+                  {Array.from({ length: 24 }, (_, h) => {
+                    const horaStr = `${String(h).padStart(2, '0')}:00`
+                    const horaNum = h
+
+                    const bloques = Array.from({ length: 12 }, (_, bIdx) => {
+                      const minInicio = bIdx * 5
+                      const minFin = minInicio + 5
+                      const slotInicioTotal = horaNum * 60 + minInicio
+                      const slotFinTotal = horaNum * 60 + minFin
+                      const etiqueta = `${String(horaNum).padStart(2, '0')}:${String(minInicio).padStart(2, '0')}`
+
+                      const tienePelotazos = datosTelemetria.some((t: any) => {
+                        if (!t.presencia_detectada && !t.en_uso) return false
+                        
+                        let startMin = 0
+                        let endMin = 1440
+
+                        if (t.hora_inicio) {
+                          const parts = t.hora_inicio.split(':')
+                          startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else if (t.hora) {
+                          const parts = t.hora.split(':')
+                          startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else if (t.created_at) {
+                          const d = new Date(t.created_at)
+                          startMin = d.getHours() * 60 + d.getMinutes()
+                        }
+
+                        if (t.hora_fin) {
+                          const parts = t.hora_fin.split(':')
+                          endMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10)
+                        } else {
+                          endMin = startMin + 5
+                        }
+
+                        if (endMin <= startMin && endMin === 0) {
+                          endMin = 1440
+                        }
+
+                        return slotInicioTotal < endMin && slotFinTotal > startMin
+                      })
+
+                      const tieneReserva = todosLosEventosFronton.some((ev: any) => {
+                        if (ev.fronton_id !== frontonGraficaModal.id || ev.fecha !== fechaGraficaIoT) return false
+                        if (!ev.hora_inicio) return false
+
+                        const startParts = ev.hora_inicio.split(':')
+                        const evStart = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1] || '0', 10)
+
+                        let evEnd = evStart + 60
+                        if (ev.hora_fin) {
+                          const endParts = ev.hora_fin.split(':')
+                          evEnd = parseInt(endParts[0], 10) * 60 + parseInt(endParts[1] || '0', 10)
+                        }
+
+                        return slotInicioTotal < evEnd && slotFinTotal > evStart
+                      })
+
+                      const estado: 'pelotazos' | 'ocupado' | 'libre' = tienePelotazos
+                        ? 'pelotazos'
+                        : tieneReserva
+                        ? 'ocupado'
+                        : 'libre'
+
+                      return {
+                        minInicio,
+                        etiqueta,
+                        estado
+                      }
+                    })
+
+                    const tramosPelotazos = bloques.filter(b => b.estado === 'pelotazos').length
+                    const tramosOcupados = bloques.filter(b => b.estado === 'ocupado').length
+
+                    return (
+                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-white dark:bg-stone-900/60 p-1.5 rounded-xl border border-stone-200/70 dark:border-stone-800/70 hover:border-amber-500/40 transition">
+                        <span className="font-mono w-11 text-stone-700 dark:text-stone-300 font-bold shrink-0 text-[11px]">{horaStr}</span>
+                        <div className="flex-1 grid grid-cols-12 gap-1 h-6">
+                          {bloques.map((b) => {
+                            let bgClass = 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/80 dark:hover:bg-stone-700/80 border-stone-200 dark:border-stone-700/60'
+                            let label = 'Libre / Sin actividad'
+
+                            if (b.estado === 'pelotazos') {
+                              bgClass = 'bg-amber-500 hover:bg-amber-400 border-amber-600 dark:border-amber-400 shadow-xs'
+                              label = '🎾 Presencia de Pelotazos (Sensor IoT)'
+                            } else if (b.estado === 'ocupado') {
+                              bgClass = 'bg-emerald-500 hover:bg-emerald-400 border-emerald-600 dark:border-emerald-400 shadow-xs'
+                              label = '📅 Cancha Ocupada / Reserva'
+                            }
+
+                            return (
+                              <div
+                                key={b.minInicio}
+                                title={`${b.etiqueta} - ${label}`}
+                                className={`h-full rounded-xs transition-colors cursor-pointer border ${bgClass}`}
+                              />
+                            )
+                          })}
+                        </div>
+                        <span className="w-24 text-right text-[10px] font-mono shrink-0 font-medium space-x-1">
+                          {tramosPelotazos > 0 && (
+                            <span className="text-amber-600 dark:text-amber-400 font-bold">🎾 {tramosPelotazos * 5}m</span>
+                          )}
+                          {tramosOcupados > 0 && (
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">📅 {tramosOcupados * 5}m</span>
+                          )}
+                          {tramosPelotazos === 0 && tramosOcupados === 0 && (
+                            <span className="text-stone-400">0 min</span>
+                          )}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-stone-100 dark:border-stone-800">
+                <button 
+                  onClick={() => setFrontonGraficaModal(null)}
+                  className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-900 px-5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* FOOTER */}
