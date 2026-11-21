@@ -3210,13 +3210,12 @@ export default function AdminDashboard() {
                 {/* ESCALA DE MINUTOS (CABECERA: 10, 20, 30, 40, 50) */}
                 <div className="flex items-center gap-2.5 px-1.5 text-[10px] text-stone-400 font-mono font-bold border-b border-stone-200/60 dark:border-stone-800/60 pb-1">
                   <span className="w-11 shrink-0 text-stone-400 font-normal">Hora</span>
-                  <div className="flex-1 grid grid-cols-12 gap-1 text-center">
-                    <span className="col-span-2"></span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">10'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">20'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">30'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">40'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">50'</span>
+                  <div className="flex-1 relative h-4">
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '16.666%' }}>10'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '33.333%' }}>20'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '50%' }}>30'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '66.666%' }}>40'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '83.333%' }}>50'</span>
                   </div>
                   <span className="w-24 text-right shrink-0 text-stone-400 font-normal">Total</span>
                 </div>
@@ -3396,9 +3395,9 @@ export default function AdminDashboard() {
 
         {/* MODAL CONFIGURACIÓN Y CALIBRACIÓN IOT */}
         {frontonDispositivoModal && (
-          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-xl w-full my-8 space-y-5 shadow-2xl border border-stone-200 dark:border-stone-800">
-              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 z-50 overflow-y-auto">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-stone-200 dark:border-stone-800">
+              <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3 shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-lg">
                     📡
@@ -3415,13 +3414,14 @@ export default function AdminDashboard() {
                 </div>
                 <button 
                   onClick={() => setFrontonDispositivoModal(null)} 
-                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer"
+                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-bold cursor-pointer text-lg p-1"
                 >
                   ✕
                 </button>
               </div>
 
-              {/* SELECTOR DE MODO OPERATIVO (NORMAL vs CONFIG/CALIBRACIÓN) */}
+              <div className="overflow-y-auto flex-1 pr-1 py-4 space-y-5">
+                {/* SELECTOR DE MODO OPERATIVO (NORMAL vs CONFIG/CALIBRACIÓN) */}
               <div className="bg-stone-50 dark:bg-stone-950 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
@@ -3699,8 +3699,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              </div>
+
               {/* ACCIONES DEL PIE */}
-              <div className="flex gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+              <div className="flex gap-2 pt-3 border-t border-stone-100 dark:border-stone-800 shrink-0">
                 <button 
                   type="button"
                   onClick={() => {

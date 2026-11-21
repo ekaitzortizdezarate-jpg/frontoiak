@@ -3064,13 +3064,12 @@ export default function PortalReservas() {
                 {/* ESCALA DE MINUTOS (CABECERA: 10, 20, 30, 40, 50) */}
                 <div className="flex items-center gap-2.5 px-1.5 text-[10px] text-stone-400 font-mono font-bold border-b border-stone-200/60 dark:border-stone-800/60 pb-1">
                   <span className="w-11 shrink-0 text-stone-400 font-normal">Hora</span>
-                  <div className="flex-1 grid grid-cols-12 gap-1 text-center">
-                    <span className="col-span-2"></span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">10'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">20'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">30'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">40'</span>
-                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">50'</span>
+                  <div className="flex-1 relative h-4">
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '16.666%' }}>10'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '33.333%' }}>20'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '50%' }}>30'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '66.666%' }}>40'</span>
+                    <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '83.333%' }}>50'</span>
                   </div>
                   <span className="w-24 text-right shrink-0 text-stone-400 font-normal">Total</span>
                 </div>
