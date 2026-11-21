@@ -3217,7 +3217,6 @@ export default function AdminDashboard() {
                     <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '66.666%' }}>40'</span>
                     <span className="absolute -translate-x-1/2 text-stone-700 dark:text-stone-300 font-black" style={{ left: '83.333%' }}>50'</span>
                   </div>
-                  <span className="w-24 text-right shrink-0 text-stone-400 font-normal">Total</span>
                 </div>
 
                 <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
@@ -3348,17 +3347,6 @@ export default function AdminDashboard() {
                             )
                           })}
                         </div>
-                        <span className="w-24 text-right text-[10px] font-mono shrink-0 font-medium space-x-1">
-                          {tramosPelotazos > 0 && (
-                            <span className="text-amber-600 dark:text-amber-400 font-bold">🎾 {tramosPelotazos * 5}m</span>
-                          )}
-                          {tramosOcupados > 0 && (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">📅 {tramosOcupados * 5}m</span>
-                          )}
-                          {tramosPelotazos === 0 && tramosOcupados === 0 && (
-                            <span className="text-stone-400">0 min</span>
-                          )}
-                        </span>
                       </div>
                     )
                   })}
