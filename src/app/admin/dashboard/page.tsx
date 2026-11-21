@@ -2249,7 +2249,28 @@ export default function AdminDashboard() {
                                   {f.tiene_luz && <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
                                   {f.tiene_vestuarios && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
                                   {f.tiene_duchas && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
-                                  {f.tiene_sensor_iot && <span className="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md">{t.admin.iot_active}</span>}
+                                  {f.tiene_sensor_iot && (() => {
+                                    const msDiff = f.ultimo_aviso_iot ? (Date.now() - new Date(f.ultimo_aviso_iot).getTime()) : Infinity
+                                    const minsDiff = msDiff / (1000 * 60)
+                                    const estadoConexion = minsDiff <= 10 ? 'online' : minsDiff <= 60 ? 'reciente' : 'offline'
+                                    const colorGlobo = estadoConexion === 'online'
+                                      ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse'
+                                      : estadoConexion === 'reciente'
+                                      ? 'bg-amber-500'
+                                      : 'bg-rose-500'
+                                    const textoTooltip = estadoConexion === 'online'
+                                      ? 'Dispositivo IoT conectado y activo'
+                                      : estadoConexion === 'reciente'
+                                      ? `Conexión reciente (hace ${Math.round(minsDiff)} min)`
+                                      : 'Sin conexión reciente (offline)'
+
+                                    return (
+                                      <span className="bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md flex items-center gap-1.5" title={textoTooltip}>
+                                        <span className={`w-2 h-2 rounded-full ${colorGlobo}`}></span>
+                                        {t.admin.iot_active}
+                                      </span>
+                                    )
+                                  })()}
                                   {f.tiene_sensor_iot && (
                                     <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex items-center gap-1 ${
                                       f.en_uso

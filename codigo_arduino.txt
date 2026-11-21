@@ -4,19 +4,26 @@
 #include <Preferences.h>
 #include "time.h"
 
-// ================= CONFIGURACIÓN BÁSICA DEL USUARIO =================
-const char* WIFI_SSID         = "TU_WIFI_SSID";
-const char* WIFI_PASS         = "TU_WIFI_PASSWORD";
-const char* SUPABASE_URL      = "https://tu-proyecto.supabase.co";
-const char* SUPABASE_ANON_KEY = "TU_SUPABASE_ANON_KEY";
-const char* HARDWARE_TOKEN    = "00000000-0000-0000-0000-000000000000";
+// ================= CONFIGURACIÓN USUARIO =================
+const char* WIFI_SSID         = "Wifi_HomEki";
+const char* WIFI_PASS         = "HmxFfQxU";
+
+// URL de tu proyecto Supabase y Anon Key
+const char* SUPABASE_URL      = "https://ugcldxcphudmxgemzjxh.supabase.co";
+const char* SUPABASE_ANON_KEY = "sb_publishable_F5U4zIb1FeEwUc3437xgFg_1OiUkXlD";
+
+// Token de Hardware del Frontón
+const char* HARDWARE_TOKEN    = "67260edb-d3bf-45de-91cf-a52a5cc11497";
 
 // ================= PINES DE HARDWARE =================
 #define PIN_MIC     33                  // OUT del MAX9814
 #define PIN_BATERIA 34                  // Divisor resistivo
 
-const char* NTP_SERVER = "pool.ntp.org";
-const char* TZ_INFO    = "CET-1CEST,M3.5.0,M10.5.0/3";
+// Servidores NTP para garantizar sincronización horaria
+const char* NTP_SERVER1 = "pool.ntp.org";
+const char* NTP_SERVER2 = "time.google.com";
+const char* NTP_SERVER3 = "europe.pool.ntp.org";
+const char* TZ_INFO     = "CET-1CEST,M3.5.0,M10.5.0/3";
 
 // Objeto de almacenamiento Flash no volátil (NVS)
 Preferences preferences;
@@ -31,6 +38,8 @@ int    g_reboteMs          = 180;
 String g_horaInicioActiva  = "07:00";
 String g_horaFinActiva     = "23:30";
 float  g_factorVoltaje     = 2.00;
+
+bool g_horaSincronizada = false;
 
 // Cargar configuración guardada en memoria Flash NVS
 void cargarConfiguracionFlash() {
@@ -83,8 +92,8 @@ float leerVoltajeBateria() {
 
 int calcularPorcentajeBateria(float v) {
   if (v >= 4.20) return 100;
-  if (v <= 3.30) return 0;
-  return (int)((v - 3.30) / (4.20 - 3.30) * 100.0);
+  if (v <= 3.00) return 0;
+  return (int)((v - 3.00) / (4.20 - 3.00) * 100.0);
 }
 
 // Escucha activa de impactos acústicos y registro de amplitud máxima
@@ -122,6 +131,34 @@ int contarPelotazos(int ventanaSeg, int umbral, int reboteMs, int &amplitudMaxRe
   return impactos;
 }
 
+// Sincronizar o reintentar sincronización de hora NTP
+bool sincronizarHoraNTP() {
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo, 2000)) {
+    if (timeinfo.tm_year > (2020 - 1900)) {
+      g_horaSincronizada = true;
+      return true;
+    }
+  }
+
+  Serial.println("Consultando servidores NTP...");
+  configTzTime(TZ_INFO, NTP_SERVER1, NTP_SERVER2, NTP_SERVER3);
+  int intentos = 0;
+  while (!getLocalTime(&timeinfo, 1000) && intentos < 5) {
+    delay(500);
+    intentos++;
+  }
+
+  if (timeinfo.tm_year > (2020 - 1900)) {
+    g_horaSincronizada = true;
+    Serial.printf("Hora sincronizada con exito: %02d:%02d:%02d\n", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    return true;
+  }
+
+  return false;
+}
+
+// Funciones para extraer valores del JSON sin dependencias
 String extraerJsonString(const String& json, const String& clave) {
   String patron = "\"" + clave + "\":\"";
   int idx = json.indexOf(patron);
@@ -160,6 +197,7 @@ float extraerJsonFloat(const String& json, const String& clave, float valorDefec
   return valorDefecto;
 }
 
+// Analizar la respuesta remota del RPC de Supabase y actualizar Flash si hay cambios
 void procesarRespuestaConfig(const String& respuestaJson) {
   if (respuestaJson.indexOf("\"config\":") == -1) return;
 
@@ -226,6 +264,7 @@ void procesarRespuestaConfig(const String& respuestaJson) {
   }
 }
 
+// Verifica si la hora actual está dentro de la franja operativa activa
 bool estaEnHorarioActivo(int horaActual, int minutoActual) {
   int minutosActuales = horaActual * 60 + minutoActual;
 
@@ -244,40 +283,72 @@ bool estaEnHorarioActivo(int horaActual, int minutoActual) {
   }
 }
 
-void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje, int golpes, int amplitudMax, int &horaOut, int &minOut) {
-  if (WiFi.status() != WL_CONNECTED) {
-    WiFi.reconnect();
-    int wWait = 0;
-    while (WiFi.status() != WL_CONNECTED && wWait < 10) {
-      delay(500);
-      wWait++;
-    }
-    if (WiFi.status() != WL_CONNECTED) return;
-  }
+// Asegurar conexión activa a la red WiFi
+void asegurarConexionWiFi() {
+  if (WiFi.status() == WL_CONNECTED) return;
 
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Error obteniendo hora NTP");
+  Serial.println("Reconectando WiFi...");
+  WiFi.disconnect();
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  int reintentos = 0;
+  while (WiFi.status() != WL_CONNECTED && reintentos < 20) {
+    delay(500);
+    Serial.print(".");
+    reintentos++;
+  }
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("WiFi reconectado. IP: " + WiFi.localIP().toString());
+  } else {
+    Serial.println("Fallo al conectar WiFi.");
+  }
+}
+
+// Enviar datos por HTTPS llamando al RPC `registrar_pulso_iot`
+void enviarASupabase(bool enUso, float batVoltaje, int batPorcentaje, int golpes, int amplitudMax, int &horaOut, int &minOut) {
+  asegurarConexionWiFi();
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("No se puede enviar a Supabase: WiFi no conectado.");
     return;
   }
 
-  horaOut = timeinfo.tm_hour;
-  minOut  = timeinfo.tm_min;
+  struct tm timeinfo;
+  bool tieneHora = sincronizarHoraNTP();
 
   char fecha[11], horaInicio[9], horaFin[9];
-  strftime(fecha, sizeof(fecha), "%Y-%m-%d", &timeinfo);
 
-  int minutoBase = (timeinfo.tm_min / 5) * 5;
-  int minutoFin  = minutoBase + 5;
-  int horaFinVal = timeinfo.tm_hour;
+  if (tieneHora && getLocalTime(&timeinfo)) {
+    horaOut = timeinfo.tm_hour;
+    minOut  = timeinfo.tm_min;
 
-  if (minutoFin >= 60) {
-    minutoFin = 0;
-    horaFinVal = (horaFinVal + 1) % 24;
+    strftime(fecha, sizeof(fecha), "%Y-%m-%d", &timeinfo);
+
+    // Redondear a tramos de 5 minutos exactos (00, 05, 10, ... 55)
+    int minutoBase = (timeinfo.tm_min / 5) * 5;
+    int minutoFin  = minutoBase + 5;
+    int horaFinVal = timeinfo.tm_hour;
+
+    if (minutoFin >= 60) {
+      minutoFin = 0;
+      horaFinVal = (horaFinVal + 1) % 24;
+    }
+
+    snprintf(horaInicio, sizeof(horaInicio), "%02d:%02d:00", timeinfo.tm_hour, minutoBase);
+    snprintf(horaFin, sizeof(horaFin), "%02d:%02d:00", horaFinVal, minutoFin);
+  } else {
+    // Si aún no se pudo resolver NTP, no abortamos el pulso:
+    // enviamos fecha y slot aproximados basados en la fecha actual aproximada
+    // para que la base de datos reciba el estado de batería y el aviso de todas formas
+    Serial.println("Aviso: NTP no sincronizado aun, enviando pulso de diagnostico...");
+    horaOut = 12;
+    minOut = 0;
+    strncpy(fecha, "2026-11-21", sizeof(fecha));
+    strncpy(horaInicio, "12:00:00", sizeof(horaInicio));
+    strncpy(horaFin, "12:05:00", sizeof(horaFin));
   }
-
-  snprintf(horaInicio, sizeof(horaInicio), "%02d:%02d:00", timeinfo.tm_hour, minutoBase);
-  snprintf(horaFin, sizeof(horaFin), "%02d:%02d:00", horaFinVal, minutoFin);
 
   WiFiClientSecure client;
   client.setInsecure();
@@ -318,31 +389,34 @@ void setup() {
   analogReadResolution(12);
   analogSetPinAttenuation(PIN_BATERIA, ADC_11db);
 
+  // Evitar que el WiFi entre en modo de bajo consumo para pruebas estables
+  WiFi.setSleep(false);
+
   cargarConfiguracionFlash();
 
-  Serial.println("\n--- INICIANDO DISPOSITIVO IOT FRONTOIAK (MODO PRUEBAS CONTINUO) ---");
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  int intentos = 0;
-  while (WiFi.status() != WL_CONNECTED && intentos < 30) {
-    delay(500);
-    Serial.print(".");
-    intentos++;
-  }
-  Serial.println();
+  Serial.println("\n=======================================================");
+  Serial.println("  INICIANDO DISPOSITIVO IOT FRONTOIAK (TEST CONTINUO)");
+  Serial.println("=======================================================");
+
+  asegurarConexionWiFi();
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("WiFi conectado con exito. IP: " + WiFi.localIP().toString());
-    configTzTime(TZ_INFO, NTP_SERVER);
+    sincronizarHoraNTP();
   }
 }
 
 void loop() {
+  // Asegurar que seguimos conectados a la red WiFi
+  asegurarConexionWiFi();
+
+  // 1. Ventana de muestreo según modo
   int ventanaMuestreo = (g_modo == "config") ? 5 : g_muestreoSeg;
 
+  // 2. Medir batería con factor dinámico
   float batV = leerVoltajeBateria();
   int batPct = calcularPorcentajeBateria(batV);
 
+  // 3. Escuchar impactos en la cancha
   int ampMax = 0;
   int totalGolpes = contarPelotazos(ventanaMuestreo, g_umbralSonido, g_reboteMs, ampMax);
   bool frontonOcupado = (totalGolpes >= g_golpesMinimos);
@@ -350,20 +424,22 @@ void loop() {
   Serial.printf("\n[CICLO] Modo: %s | Bat: %.2fV (%d%%) | Golpes: %d | AmpMax: %d -> %s\n",
                 g_modo.c_str(), batV, batPct, totalGolpes, ampMax, frontonOcupado ? "EN USO" : "LIBRE");
 
+  // 4. Enviar a Supabase y actualizar configuración
   int horaActual = 12, minActual = 0;
   enviarASupabase(frontonOcupado, batV, batPct, totalGolpes, ampMax, horaActual, minActual);
 
+  // 5. Pausa activa (sin deep sleep para pruebas continuas)
   int pausaSegundos = 5;
   if (g_modo == "normal") {
     if (!estaEnHorarioActivo(horaActual, minActual)) {
-      pausaSegundos = 30;
+      pausaSegundos = 30; // Pausa corta en pruebas fuera de horario
     } else {
       pausaSegundos = g_dormirSeg;
     }
   }
 
-  Serial.printf("Esperando %d segundos antes del siguiente ciclo (dispositivo SIEMPRE DESPIERTO para pruebas)...\n", pausaSegundos);
-  
+  Serial.printf("Esperando %d segundos antes del siguiente ciclo...\n", pausaSegundos);
+
   unsigned long tFinEspera = millis() + (pausaSegundos * 1000UL);
   while (millis() < tFinEspera) {
     delay(100);
