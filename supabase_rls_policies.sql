@@ -291,7 +291,7 @@ ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultimo_aviso_iot TIMESTAMPTZ NULL
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultimo_conteo_golpes INTEGER NULL;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultima_amplitud_max INTEGER NULL;
 
--- 8.2. Asegurar existencia de tabla telemetria_iot con restricción única para upsert
+-- 8.2. Asegurar existencia de tabla telemetria_iot con columnas necesarias y restricción única para upsert
 CREATE TABLE IF NOT EXISTS telemetria_iot (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   fronton_id UUID NOT NULL REFERENCES frontones(id) ON DELETE CASCADE,
@@ -305,6 +305,13 @@ CREATE TABLE IF NOT EXISTS telemetria_iot (
   created_at TIMESTAMPTZ DEFAULT now(),
   CONSTRAINT uq_telemetria_fronton_fecha_slot UNIQUE (fronton_id, fecha, hora_inicio)
 );
+
+-- Si la tabla ya existía de versiones anteriores, garantizar que existen las columnas requeridas:
+ALTER TABLE telemetria_iot ADD COLUMN IF NOT EXISTS en_uso BOOLEAN DEFAULT false;
+ALTER TABLE telemetria_iot ADD COLUMN IF NOT EXISTS presencia_detectada BOOLEAN DEFAULT false;
+ALTER TABLE telemetria_iot ADD COLUMN IF NOT EXISTS bateria_porcentaje INTEGER NULL;
+ALTER TABLE telemetria_iot ADD COLUMN IF NOT EXISTS bateria_voltaje NUMERIC(4,2) NULL;
+ALTER TABLE telemetria_iot ADD COLUMN IF NOT EXISTS hora_fin TIME NULL;
 
 ALTER TABLE telemetria_iot ENABLE ROW LEVEL SECURITY;
 
