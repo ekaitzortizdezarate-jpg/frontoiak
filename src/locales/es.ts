@@ -315,7 +315,7 @@ export const es = {
     enabled: '🟢 Habilitado',
     disabled_no_booking: '🚫 Deshabilitado (Sin reservas)',
     schedule_info: 'Horario',
-    slot: 'Slot',
+    slot: 'Intervalo',
     max: 'Máximo',
     days: 'días',
     courts: 'Cuadros',

@@ -2206,49 +2206,83 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
 
-                                <div className="text-xs text-stone-600 dark:text-stone-300 font-medium mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                                  <span>
-                                    <strong>{t.admin.schedule_info}:</strong>{' '}
-                                    {f.limitar_horario === false
-                                      ? (t.admin.all_day_available || 'Disponible 24h')
-                                      : `${f.hora_apertura?.slice(0,5) || '08:00'} - ${f.hora_cierre?.slice(0,5) || '22:00'}`}
+                                {/* HORARIO (EN NEGRITA Y MÁS GRANDE) E INTERVALO */}
+                                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                  <span className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                                    <span>🕒 {t.admin.schedule_info}:</span>
+                                    <span className="text-stone-800 dark:text-stone-200">
+                                      {f.limitar_horario === false
+                                        ? (t.admin.all_day_available || 'Disponible 24h')
+                                        : `${f.hora_apertura?.slice(0,5) || '08:00'} - ${f.hora_cierre?.slice(0,5) || '22:00'}`}
+                                    </span>
                                   </span>
                                   <span className="text-stone-300 dark:text-stone-700">•</span>
-                                  <span>
-                                    <strong>{t.admin.slot}:</strong>{' '}
-                                    {f.limitar_slot === false
-                                      ? (t.admin.slot_duration_free || 'Sin franja fija')
-                                      : `${f.duracion_slot_minutos || 60}m`}
-                                  </span>
-                                  <span className="text-stone-300 dark:text-stone-700">•</span>
-                                  <span>
-                                    <strong>{t.admin.max_advance || 'Antelación'}:</strong>{' '}
-                                    {f.limitar_antelacion === false
-                                      ? (t.admin.no_advance_limit_badge || 'Sin límite')
-                                      : (t.reservas.advance_limit_info
-                                          ? t.reservas.advance_limit_info.replace('{days}', String(f.dias_antelacion_maxima ?? 7))
-                                          : `Máx. ${f.dias_antelacion_maxima ?? 7} días`)}
-                                  </span>
-                                  <span className="text-stone-300 dark:text-stone-700">•</span>
-                                  <span>
-                                    {f.limitar_max_reservas === false
-                                      ? (t.admin.no_max_bookings_limit || 'Sin límite reservas/día')
-                                      : `${f.max_reservas_activas ?? 1} res/día`}
+                                  <span className="text-xs text-stone-600 dark:text-stone-300 font-medium flex items-center gap-1">
+                                    <strong>{t.admin.slot}:</strong>
+                                    <span>
+                                      {f.limitar_slot === false
+                                        ? (t.admin.slot_duration_free || 'Sin franja fija')
+                                        : `${f.duracion_slot_minutos || 60}m`}
+                                    </span>
                                   </span>
                                 </div>
 
+                                {/* DESPLEGABLES: RESERVAS E INFORMACIÓN DEL FRONTÓN */}
+                                <div className="mt-2.5 flex flex-wrap gap-2 text-xs">
+                                  {/* DESPLEGABLE: RESERVAS (Antelación máxima y reservas por día) */}
+                                  <details className="group border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-900/60 overflow-hidden text-xs">
+                                    <summary className="px-2.5 py-1 font-bold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 cursor-pointer flex items-center gap-1.5 select-none transition">
+                                      <span>📅 {lang === 'eu' ? 'Erreserbak' : lang === 'fr' ? 'Réservations' : lang === 'en' ? 'Bookings' : 'Reservas'}</span>
+                                      <span className="text-[10px] text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                                    </summary>
+                                    <div className="px-3 py-2 border-t border-stone-200/60 dark:border-stone-800/60 bg-white dark:bg-stone-900 space-y-1 text-[11px] text-stone-600 dark:text-stone-300">
+                                      <div className="flex items-center gap-1.5">
+                                        <strong>{t.admin.max_advance || 'Antelación máx.'}:</strong>
+                                        <span>
+                                          {f.limitar_antelacion === false
+                                            ? (t.admin.no_advance_limit_badge || 'Sin límite')
+                                            : (t.reservas.advance_limit_info
+                                                ? t.reservas.advance_limit_info.replace('{days}', String(f.dias_antelacion_maxima ?? 7))
+                                                : `Máx. ${f.dias_antelacion_maxima ?? 7} días`)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <strong>Máx. reservas/día:</strong>
+                                        <span>
+                                          {f.limitar_max_reservas === false
+                                            ? (t.admin.no_max_bookings_limit || 'Sin límite reservas/día')
+                                            : `${f.max_reservas_activas ?? 1} res/día`}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </details>
+
+                                  {/* DESPLEGABLE: INFORMACIÓN DEL FRONTÓN (Dimensiones, cuadros, luz, vestuarios, duchas) */}
+                                  <details className="group border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-900/60 overflow-hidden text-xs">
+                                    <summary className="px-2.5 py-1 font-bold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 cursor-pointer flex items-center gap-1.5 select-none transition">
+                                      <span>ℹ️ Información del frontón</span>
+                                      <span className="text-[10px] text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                                    </summary>
+                                    <div className="px-3 py-2 border-t border-stone-200/60 dark:border-stone-800/60 bg-white dark:bg-stone-900 flex flex-wrap gap-1.5">
+                                      {(f.largura || f.anchura || f.medidas) && (
+                                        <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                          📐 {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.largura ? `${f.largura}m` : f.anchura ? `${f.anchura}m` : f.medidas}
+                                        </span>
+                                      )}
+                                      {f.cuadros && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.courts}: {f.cuadros}</span>}
+                                      {(f.labur || f.numero_labur) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
+                                      {(f.luze || f.numero_luze) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
+                                      {f.tiene_luz && <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
+                                      {f.tiene_vestuarios && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
+                                      {f.tiene_duchas && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
+                                      {!f.largura && !f.anchura && !f.medidas && !f.cuadros && !f.labur && !f.luze && !f.tiene_luz && !f.tiene_vestuarios && !f.tiene_duchas && (
+                                        <span className="text-[11px] text-stone-400">Sin datos adicionales registrados</span>
+                                      )}
+                                    </div>
+                                  </details>
+                                </div>
+
                                 <div className="flex flex-wrap gap-1.5 mt-2.5">
-                                  {(f.largura || f.anchura || f.medidas) && (
-                                    <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                      📐 {f.largura && f.anchura ? `${f.largura}x${f.anchura}m` : f.largura ? `${f.largura}m` : f.anchura ? `${f.anchura}m` : f.medidas}
-                                    </span>
-                                  )}
-                                  {f.cuadros && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.courts}: {f.cuadros}</span>}
-                                  {(f.labur || f.numero_labur) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Labur: {f.labur || f.numero_labur}</span>}
-                                  {(f.luze || f.numero_luze) && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Luze: {f.luze || f.numero_luze}</span>}
-                                  {f.tiene_luz && <span className="bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md">{f.luz_pago ? t.admin.light_paid : t.admin.light}</span>}
-                                  {f.tiene_vestuarios && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.dressing_rooms}</span>}
-                                  {f.tiene_duchas && <span className="bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-md">{t.admin.showers}</span>}
                                   {f.tiene_sensor_iot && (() => {
                                     const msDiff = f.ultimo_aviso_iot ? (Date.now() - new Date(f.ultimo_aviso_iot).getTime()) : Infinity
                                     const minsDiff = msDiff / (1000 * 60)

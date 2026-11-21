@@ -315,7 +315,7 @@ export const en = {
     enabled: '🟢 Enabled',
     disabled_no_booking: '🚫 Disabled (No bookings)',
     schedule_info: 'Schedule',
-    slot: 'Slot',
+    slot: 'Interval',
     max: 'Max',
     days: 'days',
     courts: 'Courts',

@@ -316,7 +316,7 @@ export const fr: TranslationType = {
     enabled: '🟢 Activé',
     disabled_no_booking: '🚫 Désactivé (Sans réservation)',
     schedule_info: 'Horaires',
-    slot: 'Créneau',
+    slot: 'Intervalle',
     max: 'Maximum',
     days: 'jours',
     courts: 'Lignes/Courts',

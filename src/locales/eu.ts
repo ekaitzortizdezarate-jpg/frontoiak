@@ -315,7 +315,7 @@ export const eu = {
     enabled: '🟢 Gaituta',
     disabled_no_booking: '🚫 Desgaituta (Erreserbarik gabe)',
     schedule_info: 'Ordutegia',
-    slot: 'Slot-a',
+    slot: 'Tartea',
     max: 'Gehienez',
     days: 'egun',
     courts: 'Koadroak',
