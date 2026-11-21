@@ -90,10 +90,38 @@ float leerVoltajeBateria() {
   return voltajeBateria;
 }
 
+// Curva de descarga real típica para batería Li-ion / 18650
+// 4.20V -> 100%
+// 4.00V -> 85%
+// 3.85V -> 70%
+// 3.70V -> 50% (voltaje nominal)
+// 3.55V -> 30%
+// 3.40V -> 15%
+// 3.20V -> 5%
+// 2.70V - 3.00V -> 0% (punto de corte por protección BMS)
 int calcularPorcentajeBateria(float v) {
   if (v >= 4.20) return 100;
-  if (v <= 3.00) return 0;
-  return (int)((v - 3.00) / (4.20 - 3.00) * 100.0);
+  if (v <= 2.80) return 0;
+
+  float pct = 0.0;
+  if (v >= 4.00) {
+    pct = 85.0 + (v - 4.00) / (4.20 - 4.00) * 15.0;
+  } else if (v >= 3.80) {
+    pct = 60.0 + (v - 3.80) / (4.00 - 3.80) * 25.0;
+  } else if (v >= 3.65) {
+    pct = 40.0 + (v - 3.65) / (3.80 - 3.65) * 20.0;
+  } else if (v >= 3.40) {
+    pct = 15.0 + (v - 3.40) / (3.65 - 3.40) * 25.0;
+  } else if (v >= 3.00) {
+    pct = 5.0 + (v - 3.00) / (3.40 - 3.00) * 10.0;
+  } else {
+    pct = (v - 2.80) / (3.00 - 2.80) * 5.0;
+  }
+
+  int resultado = (int)round(pct);
+  if (resultado > 100) resultado = 100;
+  if (resultado < 0) resultado = 0;
+  return resultado;
 }
 
 // Escucha activa de impactos acústicos y registro de amplitud máxima
