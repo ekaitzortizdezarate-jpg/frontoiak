@@ -3026,17 +3026,28 @@ export default function PortalReservas() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
-                <label className="text-xs font-bold text-stone-600 dark:text-stone-400">Fecha:</label>
-                <input 
-                  type="date" 
-                  value={fechaGraficaIoT}
-                  onChange={(e) => {
-                    setFechaGraficaIoT(e.target.value)
-                    cargarTelemetriaFrontonUsuario(frontonGraficaModal.id, e.target.value)
-                  }}
-                  className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-xl text-xs bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100"
-                />
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-bold text-stone-600 dark:text-stone-400">Fecha:</label>
+                  <input 
+                    type="date" 
+                    value={fechaGraficaIoT}
+                    onChange={(e) => {
+                      setFechaGraficaIoT(e.target.value)
+                      cargarTelemetriaFrontonUsuario(frontonGraficaModal.id, e.target.value)
+                    }}
+                    className="p-1.5 border border-stone-300 dark:border-stone-700 rounded-xl text-xs bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium"
+                  />
+                </div>
+
+                {/* HORA ACTUAL EN VIVO */}
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 text-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-stone-500 dark:text-stone-400 font-medium">Hora actual:</span>
+                  <span className="font-mono font-bold text-stone-800 dark:text-stone-100">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
               </div>
 
               <div className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50 dark:bg-stone-950 space-y-3">
@@ -3049,10 +3060,29 @@ export default function PortalReservas() {
                   </div>
                 </div>
 
+                {/* ESCALA DE MINUTOS (CABECERA: 10, 20, 30, 40, 50) */}
+                <div className="flex items-center gap-2.5 px-1.5 text-[10px] text-stone-400 font-mono font-bold border-b border-stone-200/60 dark:border-stone-800/60 pb-1">
+                  <span className="w-11 shrink-0 text-stone-400 font-normal">Hora</span>
+                  <div className="flex-1 grid grid-cols-12 gap-1 text-center">
+                    <span className="col-span-2 text-stone-400/80">0'</span>
+                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">10'</span>
+                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">20'</span>
+                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">30'</span>
+                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">40'</span>
+                    <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">50'</span>
+                  </div>
+                  <span className="w-24 text-right shrink-0 text-stone-400 font-normal">Total</span>
+                </div>
+
                 <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
                   {Array.from({ length: 24 }, (_, h) => {
                     const horaStr = `${String(h).padStart(2, '0')}:00`
                     const horaNum = h
+
+                    const esHoy = fechaGraficaIoT === new Date().toISOString().split('T')[0]
+                    const horaActualNum = new Date().getHours()
+                    const minActualNum = new Date().getMinutes()
+                    const esHoraActual = esHoy && horaNum === horaActualNum
 
                     const bloques = Array.from({ length: 12 }, (_, bIdx) => {
                       const minInicio = bIdx * 5
@@ -3125,12 +3155,25 @@ export default function PortalReservas() {
                     const tramosOcupados = bloques.filter(b => b.estado === 'ocupado').length
 
                     return (
-                      <div key={horaStr} className="flex items-center gap-2.5 text-xs bg-white dark:bg-stone-900/60 p-1.5 rounded-xl border border-stone-200/70 dark:border-stone-800/70 hover:border-amber-500/40 transition">
-                        <span className="font-mono w-11 text-stone-700 dark:text-stone-300 font-bold shrink-0 text-[11px]">{horaStr}</span>
+                      <div key={horaStr} className={`flex items-center gap-2.5 text-xs p-1.5 rounded-xl border transition ${
+                        esHoraActual
+                          ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600 shadow-xs'
+                          : 'bg-white dark:bg-stone-900/60 border-stone-200/70 dark:border-stone-800/70 hover:border-amber-500/40'
+                      }`}>
+                        <div className="w-11 shrink-0 flex items-center gap-1">
+                          {esHoraActual && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>}
+                          <span className={`font-mono text-[11px] font-bold ${
+                            esHoraActual ? 'text-emerald-700 dark:text-emerald-300 font-black' : 'text-stone-700 dark:text-stone-300'
+                          }`}>
+                            {horaStr}
+                          </span>
+                        </div>
                         <div className="flex-1 grid grid-cols-12 gap-1 h-6">
                           {bloques.map((b) => {
                             let bgClass = 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800/80 dark:hover:bg-stone-700/80 border-stone-200 dark:border-stone-700/60'
                             let label = 'Libre / Sin actividad'
+
+                            const esTramoMinActual = esHoraActual && minActualNum >= b.minInicio && minActualNum < b.minInicio + 5
 
                             if (b.estado === 'pelotazos') {
                               bgClass = 'bg-amber-500 hover:bg-amber-400 border-amber-600 dark:border-amber-400 shadow-xs'
@@ -3143,9 +3186,15 @@ export default function PortalReservas() {
                             return (
                               <div
                                 key={b.minInicio}
-                                title={`${b.etiqueta} - ${label}`}
-                                className={`h-full rounded-xs transition-colors cursor-pointer border ${bgClass}`}
-                              />
+                                title={`${b.etiqueta} - ${label}${esTramoMinActual ? ' (tramo actual)' : ''}`}
+                                className={`h-full rounded-xs transition-colors cursor-pointer border relative ${bgClass} ${
+                                  esTramoMinActual ? 'ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-stone-900 z-10' : ''
+                                }`}
+                              >
+                                {esTramoMinActual && (
+                                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 border border-white dark:border-stone-900"></span>
+                                )}
+                              </div>
                             )
                           })}
                         </div>
