@@ -284,6 +284,7 @@ ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_dormir_seg INTEGER DEFAULT 27
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_rebote_ms INTEGER DEFAULT 180;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_hora_inicio_activa TIME DEFAULT '07:00';
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_hora_fin_activa TIME DEFAULT '23:30';
+ALTER TABLE frontones ADD COLUMN IF NOT EXISTS iot_factor_voltaje NUMERIC(4,2) DEFAULT 2.00;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS bateria_porcentaje INTEGER NULL;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS bateria_voltaje NUMERIC(4,2) NULL;
 ALTER TABLE frontones ADD COLUMN IF NOT EXISTS ultimo_aviso_iot TIMESTAMPTZ NULL;
@@ -336,7 +337,7 @@ BEGIN
   -- 1. Buscar el frontón correspondiente mediante hardware_token
   SELECT id, iot_modo, iot_config_hasta, iot_umbral_sonido, iot_golpes_minimos,
          iot_muestreo_seg, iot_dormir_seg, iot_rebote_ms,
-         iot_hora_inicio_activa, iot_hora_fin_activa
+         iot_hora_inicio_activa, iot_hora_fin_activa, iot_factor_voltaje
   INTO v_fronton
   FROM frontones
   WHERE hardware_token::text = p_token::text
@@ -398,7 +399,8 @@ BEGIN
       'dormir_seg', COALESCE(v_fronton.iot_dormir_seg, 270),
       'rebote_ms', COALESCE(v_fronton.iot_rebote_ms, 180),
       'hora_inicio_activa', TO_CHAR(COALESCE(v_fronton.iot_hora_inicio_activa, '07:00'::time), 'HH24:MI'),
-      'hora_fin_activa', TO_CHAR(COALESCE(v_fronton.iot_hora_fin_activa, '23:30'::time), 'HH24:MI')
+      'hora_fin_activa', TO_CHAR(COALESCE(v_fronton.iot_hora_fin_activa, '23:30'::time), 'HH24:MI'),
+      'factor_voltaje', COALESCE(v_fronton.iot_factor_voltaje, 2.00)
     )
   );
 END;

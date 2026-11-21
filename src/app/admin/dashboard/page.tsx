@@ -66,7 +66,8 @@ export default function AdminDashboard() {
     iot_dormir_seg: 270,
     iot_rebote_ms: 180,
     iot_hora_inicio_activa: '07:00',
-    iot_hora_fin_activa: '23:30'
+    iot_hora_fin_activa: '23:30',
+    iot_factor_voltaje: 2.00
   })
   const [fechaGraficaIoT, setFechaGraficaIoT] = useState(new Date().toISOString().split('T')[0])
   const [datosTelemetria, setDatosTelemetria] = useState<any[]>([])
@@ -287,7 +288,8 @@ export default function AdminDashboard() {
       iot_dormir_seg: f.iot_dormir_seg ?? 270,
       iot_rebote_ms: f.iot_rebote_ms ?? 180,
       iot_hora_inicio_activa: f.iot_hora_inicio_activa ? f.iot_hora_inicio_activa.slice(0, 5) : '07:00',
-      iot_hora_fin_activa: f.iot_hora_fin_activa ? f.iot_hora_fin_activa.slice(0, 5) : '23:30'
+      iot_hora_fin_activa: f.iot_hora_fin_activa ? f.iot_hora_fin_activa.slice(0, 5) : '23:30',
+      iot_factor_voltaje: f.iot_factor_voltaje ?? 2.00
     })
 
     try {
@@ -308,7 +310,8 @@ export default function AdminDashboard() {
           iot_dormir_seg: frontonFresco.iot_dormir_seg ?? 270,
           iot_rebote_ms: frontonFresco.iot_rebote_ms ?? 180,
           iot_hora_inicio_activa: frontonFresco.iot_hora_inicio_activa ? frontonFresco.iot_hora_inicio_activa.slice(0, 5) : '07:00',
-          iot_hora_fin_activa: frontonFresco.iot_hora_fin_activa ? frontonFresco.iot_hora_fin_activa.slice(0, 5) : '23:30'
+          iot_hora_fin_activa: frontonFresco.iot_hora_fin_activa ? frontonFresco.iot_hora_fin_activa.slice(0, 5) : '23:30',
+          iot_factor_voltaje: frontonFresco.iot_factor_voltaje ?? 2.00
         })
         // Actualizar en el estado local de la lista
         setFrontones(prev => prev.map(p => p.id === f.id ? { ...p, ...frontonFresco } : p))
@@ -404,7 +407,8 @@ export default function AdminDashboard() {
         iot_dormir_seg: Number(configIoTForm.iot_dormir_seg),
         iot_rebote_ms: Number(configIoTForm.iot_rebote_ms),
         iot_hora_inicio_activa: configIoTForm.iot_hora_inicio_activa,
-        iot_hora_fin_activa: configIoTForm.iot_hora_fin_activa
+        iot_hora_fin_activa: configIoTForm.iot_hora_fin_activa,
+        iot_factor_voltaje: Number(configIoTForm.iot_factor_voltaje)
       }
 
       const { error } = await supabase
@@ -3531,6 +3535,22 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <span className="text-[10px] text-stone-400">Por defecto: 07:00 a 23:30</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1">
+                        Factor Calibración Voltaje (Divisor)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.5"
+                        max="5.0"
+                        value={configIoTForm.iot_factor_voltaje}
+                        onChange={(e) => setConfigIoTForm(prev => ({ ...prev, iot_factor_voltaje: Number(e.target.value) }))}
+                        className="w-full p-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl font-mono text-xs text-stone-800 dark:text-stone-100"
+                      />
+                      <span className="text-[10px] text-stone-400">Por defecto: 2.00 (ajustar si difiere del multímetro)</span>
                     </div>
                   </div>
 
