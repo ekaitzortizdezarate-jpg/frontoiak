@@ -11,6 +11,7 @@ import IncidentStatusChangeModal from '@/components/admin/IncidentStatusChangeMo
 import AdminIncidentHistoryModal from '@/components/admin/AdminIncidentHistoryModal'
 import FrontonForumModal from '@/components/reservas/FrontonForumModal'
 import { 
+  getLocalDateString,
   parseSafeDate, 
   formatFullDateWithWeekday, 
   formatWeekdayAndDayMonth, 
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
     iot_hora_fin_activa: '23:30',
     iot_factor_voltaje: 2.00
   })
-  const [fechaGraficaIoT, setFechaGraficaIoT] = useState(new Date().toISOString().split('T')[0])
+  const [fechaGraficaIoT, setFechaGraficaIoT] = useState(getLocalDateString())
   const [datosTelemetria, setDatosTelemetria] = useState<any[]>([])
 
   const [archivoImagen, setArchivoImagen] = useState<File | null>(null)
@@ -1149,7 +1150,7 @@ export default function AdminDashboard() {
     while (actual <= fin) {
       const diaActualNum = actual.getDay()
       if (eventoRepetitivo.diasSeleccionados.includes(diaActualNum)) {
-        const fechaStr = actual.toISOString().split('T')[0]
+        const fechaStr = getLocalDateString(actual)
         eventosAInsertar.push({
           fronton_id: frontonSeleccionadoCalendario.id,
           user_id: userProfile.id,
@@ -1695,9 +1696,9 @@ export default function AdminDashboard() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {diasPreviewFronton.map((dia, idx) => {
-                            const fechaStr = dia.toISOString().split('T')[0]
+                            const fechaStr = getLocalDateString(dia)
                             const eventosDelDia = todosLosEventos.filter(ev => ev.fronton_id === f.id && ev.fecha === fechaStr)
-                            const esHoy = new Date().toISOString().split('T')[0] === fechaStr
+                            const esHoy = getLocalDateString() === fechaStr
 
                             return (
                               <div key={idx} className={`p-3.5 rounded-2xl border text-xs ${esHoy ? 'bg-emerald-50/40 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700' : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800'}`}>
@@ -2086,9 +2087,9 @@ export default function AdminDashboard() {
 
                   <div className="grid grid-cols-7 gap-2 min-w-[700px]">
                     {diasCalendario.map((dia, idx) => {
-                      const fechaStr = dia.toISOString().split('T')[0]
+                      const fechaStr = getLocalDateString(dia)
                       const eventosDia = eventosFronton.filter(ev => ev.fecha === fechaStr)
-                      const esHoy = new Date().toISOString().split('T')[0] === fechaStr
+                      const esHoy = getLocalDateString() === fechaStr
 
                       return (
                         <div key={idx} className={`border rounded-2xl p-2.5 text-xs min-h-[120px] flex flex-col ${esHoy ? 'border-emerald-500 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30' : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800'}`}>
@@ -3210,7 +3211,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2.5 px-1.5 text-[10px] text-stone-400 font-mono font-bold border-b border-stone-200/60 dark:border-stone-800/60 pb-1">
                   <span className="w-11 shrink-0 text-stone-400 font-normal">Hora</span>
                   <div className="flex-1 grid grid-cols-12 gap-1 text-center">
-                    <span className="col-span-2 text-stone-400/80">0'</span>
+                    <span className="col-span-2"></span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">10'</span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">20'</span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">30'</span>
@@ -3225,7 +3226,7 @@ export default function AdminDashboard() {
                     const horaStr = `${String(h).padStart(2, '0')}:00`
                     const horaNum = h
 
-                    const esHoy = fechaGraficaIoT === new Date().toISOString().split('T')[0]
+                    const esHoy = fechaGraficaIoT === getLocalDateString()
                     const horaActualNum = new Date().getHours()
                     const minActualNum = new Date().getMinutes()
                     const esHoraActual = esHoy && horaNum === horaActualNum

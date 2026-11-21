@@ -11,6 +11,7 @@ import Footer from '@/components/Footer'
 import IncidentHistoryModal from '@/components/reservas/IncidentHistoryModal'
 import FrontonForumModal from '@/components/reservas/FrontonForumModal'
 import { 
+  getLocalDateString,
   parseSafeDate, 
   formatFullDateWithWeekday, 
   formatWeekdayAndDayMonth, 
@@ -69,7 +70,7 @@ export default function PortalReservas() {
   const [incidenciasHistorialAbierto, setIncidenciasHistorialAbierto] = useState<string[]>([])
 
   // Búsqueda de frontones libres por fecha y hora
-  const hoyInicialStr = new Date().toISOString().split('T')[0]
+  const hoyInicialStr = getLocalDateString()
   const [busquedaLibresDesplegada, setBusquedaLibresDesplegada] = useState(false)
   const [busquedaLibresProvincia, setBusquedaLibresProvincia] = useState('')
   const [busquedaLibresFecha, setBusquedaLibresFecha] = useState(hoyInicialStr)
@@ -84,13 +85,13 @@ export default function PortalReservas() {
 
   // Calendario y Navegación de 4 semanas
   const [offsetSemanas, setOffsetSemanas] = useState(0)
-  const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(new Date().toISOString().split('T')[0])
+  const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(getLocalDateString())
   const [eventosFronton, setEventosFronton] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   // Telemetría IoT en modo usuario
   const [frontonGraficaModal, setFrontonGraficaModal] = useState<any | null>(null)
-  const [fechaGraficaIoT, setFechaGraficaIoT] = useState(new Date().toISOString().split('T')[0])
+  const [fechaGraficaIoT, setFechaGraficaIoT] = useState(getLocalDateString())
   const [datosTelemetria, setDatosTelemetria] = useState<any[]>([])
   const [todosLosEventosFronton, setTodosLosEventosFronton] = useState<any[]>([])
 
@@ -174,7 +175,7 @@ export default function PortalReservas() {
   }
 
   const cargarMisReservas = async (userId: string) => {
-    const hoyStr = new Date().toISOString().split('T')[0]
+    const hoyStr = getLocalDateString()
     const { data } = await supabase
       .from('eventos_fronton')
       .select('*, frontones(id, nombre, municipio_id, municipios(nombre))')
@@ -838,7 +839,7 @@ export default function PortalReservas() {
     setOffsetSemanas(0)
     setOffsetDiasPreview(0)
     setCalendarioAbierto(false)
-    const hoyStr = new Date().toISOString().split('T')[0]
+    const hoyStr = getLocalDateString()
     setFechaSeleccionada(hoyStr)
     await cargarEventosFronton(frontonConMun.id)
 
@@ -1605,7 +1606,7 @@ export default function PortalReservas() {
                   </label>
                   <input
                     type="date"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={getLocalDateString()}
                     value={busquedaLibresFecha}
                     onChange={(e) => setBusquedaLibresFecha(e.target.value)}
                     style={{ colorScheme: isDark ? 'dark' : 'light' }}
@@ -2257,9 +2258,9 @@ export default function PortalReservas() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {diasPreview.map((dia, idx) => {
-                    const fechaStr = dia.toISOString().split('T')[0]
+                    const fechaStr = getLocalDateString(dia)
                     const eventosDelDia = eventosFronton.filter(ev => ev.fecha === fechaStr).sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio))
-                    const esHoy = new Date().toISOString().split('T')[0] === fechaStr
+                    const esHoy = getLocalDateString() === fechaStr
                     const esSeleccionado = fechaSeleccionada === fechaStr
 
                     const { esPasado, bloqueadoPorAntelacion, noReservable } = calcularEstadoFechaReservable(fechaStr)
@@ -2415,9 +2416,9 @@ export default function PortalReservas() {
 
                   <div className="grid grid-cols-7 gap-2 min-w-[800px]">
                     {diasCalendario.map((dia, idx) => {
-                      const fechaStr = dia.toISOString().split('T')[0]
+                      const fechaStr = getLocalDateString(dia)
                       const esSeleccionado = fechaSeleccionada === fechaStr
-                      const esHoy = new Date().toISOString().split('T')[0] === fechaStr
+                      const esHoy = getLocalDateString() === fechaStr
                       const eventosDia = eventosFronton.filter(ev => ev.fecha === fechaStr)
 
                       const { esPasado, bloqueadoPorAntelacion, noReservable } = calcularEstadoFechaReservable(fechaStr)
@@ -3064,7 +3065,7 @@ export default function PortalReservas() {
                 <div className="flex items-center gap-2.5 px-1.5 text-[10px] text-stone-400 font-mono font-bold border-b border-stone-200/60 dark:border-stone-800/60 pb-1">
                   <span className="w-11 shrink-0 text-stone-400 font-normal">Hora</span>
                   <div className="flex-1 grid grid-cols-12 gap-1 text-center">
-                    <span className="col-span-2 text-stone-400/80">0'</span>
+                    <span className="col-span-2"></span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">10'</span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">20'</span>
                     <span className="col-span-2 text-stone-700 dark:text-stone-300 font-black">30'</span>
@@ -3079,7 +3080,7 @@ export default function PortalReservas() {
                     const horaStr = `${String(h).padStart(2, '0')}:00`
                     const horaNum = h
 
-                    const esHoy = fechaGraficaIoT === new Date().toISOString().split('T')[0]
+                    const esHoy = fechaGraficaIoT === getLocalDateString()
                     const horaActualNum = new Date().getHours()
                     const minActualNum = new Date().getMinutes()
                     const esHoraActual = esHoy && horaNum === horaActualNum
